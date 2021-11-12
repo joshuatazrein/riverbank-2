@@ -1,0 +1,337 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --font: var(--fontSize) Cochin;
+  --fontSize: 18px;
+  --background: #000000;
+  --border: grey;
+  --select: skyblue;
+  --event: rgba(138, 213, 243, 0.3);
+  --foreground: white;
+  --midground: grey;
+  --padding: 14px;
+  --important: skyblue;
+  --maybe: darkblue;
+  --menufont: 18px Courier New;
+  --startDate: skyblue;
+  --endDate: darkblue;
+  --bold: bold;
+}
+
+.buttonBar {
+  float: left;
+}
+
+
+textarea, input {
+  height: 1.25em;
+  position: relative;
+}
+
+body {
+  font: var(--font);
+  background-color: var(--background);
+  margin: 0;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  padding: 10px;
+}
+
+.container {
+  height: calc(100% - 2em);
+  width: 100%;
+}
+
+.container.hideComplete .complete {
+  display: none;
+}
+
+.task.collapsed .listContent {
+  display: none !important;
+}
+
+.task.collapsed textarea {
+  opacity: 0.75;
+}
+
+.task.collapsed {
+  margin-bottom: 0.5em;
+}
+
+.button.hideComplete {
+  opacity: 0.75;
+}
+
+#river {
+  margin-bottom: 5px;
+}
+
+.statusBar {
+  height: 2em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.searchBar {
+  max-width: 200px;
+  min-width: 50px;
+  font: var(--font);
+  font-size: 0.75em;
+  border: none;
+}
+
+
+.buttonBar {
+  display: flex;
+  justify-content: center;
+  height: 1em;
+}
+
+.timerBar {
+  max-width: 100px;
+  min-width: 50px;
+  font: var(--menufont);
+  font-size: 0.75em;
+  text-align: center;
+  border: none;
+  vertical-align: top;
+}
+
+.buttonBar {
+  display: flex;
+}
+
+.button {
+  font: var(--font);
+  font-size: 0.5em;
+  border: none;
+  margin: 1px;
+}
+
+.options .button {
+  position: relative;
+}
+
+.frame {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+h1 {
+  font-size: 1.5em;
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  margin-top: 10px;
+}
+
+.list {
+  height: 100%;
+  padding: 5px;
+  /* overflow-y: hidden; */
+}
+
+.list > .listContent:not(:empty) {
+  margin: 0;
+  padding-top: 1em;
+  overflow-y: auto;
+  height: calc(100% - 30px);
+  padding-left: 5px;
+}
+
+.listContent:not(.empty) {
+  padding-left: 5px;
+}
+
+.list:not(:first-of-type) {
+  border-left: 1px solid var(--border);
+}
+
+.task {
+  list-style: none;
+  position: relative;
+}
+
+.task.event > textarea {
+  background: var(--event);
+  border-radius: 5px;
+}
+
+.button.complete, .task.complete, .task.complete textarea {
+  opacity: 0.5;
+}
+
+.task.complete textarea {
+  text-decoration: line-through;
+}
+
+.button.important, .task.important textarea {
+  color: var(--important);
+  font-weight: bold;
+}
+
+.button.maybe, .task.maybe textarea {
+  color: var(--maybe);
+  opacity: 0.75;
+}
+
+.info {
+  height: calc(var(--padding) / 2);
+  width: calc(var(--padding) / 2);
+  display: inline-block;
+  border: 1px solid var(--select);
+  background-color: var(--select);
+  border-radius: 100%;
+  position: absolute;
+  top: 0.5em;
+  left: 0px;
+  vertical-align: text-top;
+  cursor: pointer;
+}
+
+.repeatButton.true {
+  color: var(--select);
+}
+
+.options {
+  height: 50px;
+  width: 150px;
+  background-color: var(--midground);
+  position: absolute;
+  top: calc(var(--padding));
+  left: 0;
+  z-index: 2;
+}
+
+.optionsInput {
+  font: var(--font);
+  height: 24px;
+  font-size: 0.75em;
+  width: 50%;
+  background-color: var(--midground);
+  border: 1px solid var(--border);
+}
+
+.changeButton {
+  height: 100%;
+  width: 1em;
+  background: var(--background);
+  border: none;
+  font: var(--menufont);
+  border-radius: 5px;
+  padding: 0px;
+  margin: 0;
+}
+
+.startDate {
+  color: var(--startDate);
+}
+
+span.startDate {
+  left: calc(var(--padding) * -0.75);
+}
+
+span.endDate {
+  left: calc(var(--padding) * -0.75 + var(--padding) * 3);
+  z-index: 3;
+}
+
+.task .task span.startDate, .task .task span.endDate {
+  font-size: 0.5em;
+}
+
+span.startDate, span.endDate {
+  position: absolute;
+  top: calc(-0.9 * var(--fontSize));
+  font-size: 0.75em;
+  text-align: center;
+  width: calc(var(--padding) * 3);
+}
+
+.endDate {
+  color: var(--endDate);
+}
+
+.deadline {
+  list-style-type: "\2193  ";
+  color: var(--endDate);
+  margin-left: 20px;
+}
+
+.startdate {
+  list-style-type: "\2192  ";
+  color: var(--startDate);
+  margin-left: 20px;
+}
+
+.repeat {
+  margin-left: 20px;
+}
+
+.listInput {
+  font: var(--font);
+  font-weight: bold;
+  font-size: 1.5em;
+  width: 100%;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+}
+
+.listTitle {
+  border: none;
+  margin: 0;
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.editBar {
+  width: calc(100% - var(--padding) - 5px);
+  border: none;
+  font: var(--font);
+  color: var(--foreground);
+  background: transparent;
+  resize: none;
+  overflow-y: hidden;
+  position: relative;
+  left: var(--padding);
+}
+
+.editSpan {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
+}
+
+.task.heading > textarea, .list > input {
+  font-weight: var(--bold);
+  text-align: center;
+}
+
+.task .task.heading > textarea {
+  font-style: italic;
+  font-weight: normal;
+  text-align: left;
+}
+
+.task .task textarea, .task .task span {
+  font-size: 90%;
+}
