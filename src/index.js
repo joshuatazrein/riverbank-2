@@ -35,8 +35,6 @@ try {
   var data = resetData;
 }
 
-console.log(repeats);
-
 var selected;
 var preventSelect;
 var copiedTask;
@@ -939,4 +937,9 @@ function init() {
   $(document).on('keydown', keyComms);
 }
 
-init();
+try {
+  init()
+} catch (err) {
+  data = resetData;
+  init();
+}
