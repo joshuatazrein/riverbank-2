@@ -25,13 +25,10 @@ var resetData = {
 var data = !localStorage.getItem('data') ? { resetData } :
   JSON.parse(localStorage.getItem('data'));
 
+reset();
+
 var deadlines = {};
 var startdates = {};
-
-function reset() {
-  data = resetData;
-  localStorage.setItem('data', data);
-}
 
 try {
   var repeats = data.settings.repeats;
@@ -931,6 +928,11 @@ function keyComms(ev) {
         break;
     }
   }
+}
+
+function reset() {
+  data = resetData;
+  localStorage.setItem('data', data);
 }
 
 function init() {
