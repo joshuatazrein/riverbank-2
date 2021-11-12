@@ -28,6 +28,11 @@ var data = !localStorage.getItem('data') ? { resetData } :
 var deadlines = {};
 var startdates = {};
 
+function reset() {
+  data = resetData;
+  localStorage.setItem('data', data);
+}
+
 try {
   var repeats = data.settings.repeats;
 } catch (err) {
@@ -937,9 +942,4 @@ function init() {
   $(document).on('keydown', keyComms);
 }
 
-try {
-  init()
-} catch (err) {
-  data = resetData;
-  init();
-}
+init();
