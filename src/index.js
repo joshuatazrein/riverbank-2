@@ -25,8 +25,6 @@ var resetData = {
 var data = !localStorage.getItem('data') ? { resetData } :
   JSON.parse(localStorage.getItem('data'));
 
-reset();
-
 var deadlines = {};
 var startdates = {};
 
