@@ -1,6 +1,9 @@
 {
   "name": "riverbank-2",
   "version": "0.1.0",
+  "license": "ISC",
+  "main": "src/index.js",
+  "homepage": "https://riverbank.app",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",

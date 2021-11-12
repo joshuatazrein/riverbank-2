@@ -27,8 +27,15 @@ var data = !localStorage.getItem('data') ? { resetData } :
 
 var deadlines = {};
 var startdates = {};
-// var data = resetData;
-var repeats = data.settings.repeats;
+
+try {
+  var repeats = data.settings.repeats;
+} catch (err) {
+  console.log('error');
+  var data = resetData;
+}
+
+console.log(repeats);
 
 var selected;
 var preventSelect;
@@ -313,15 +320,35 @@ class List extends React.Component {
     super(props);
     this.taskList = React.createRef();
     this.state = {subtasks: props.subtasks, title: props.title,
-      info: {}}
+      info: {}};
   }
   changeTitle(ev) {
     this.setState({title: ev.target.value})
+  }
+  updateRepeats() {
+    const subtaskIDs = this.state.subtasks.map(x => x.id);
+    const newSubs = this.state.subtasks;
+    console.log(subtaskIDs);
+    if (this.props.parent.props.id === 'river') {
+      console.log('river');
+      for (let repeat of repeats[this.props.title.slice(0, 3)]) {
+        if (!subtaskIDs.includes(repeat.id)) {
+          newSubs.push(repeat);
+        }
+      }
+    }
+    console.log(newSubs);
+    if (Object.keys(newSubs).length != 
+      Object.keys(this.state.subtasks).length) {
+      this.setState({subtasks: newSubs});
+    }
   }
   render() {
     function selectThis() {
       selectTask(this);
     }
+    this.updateRepeats = this.updateRepeats.bind(this);
+    this.updateRepeats();
     selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     return (
@@ -350,34 +377,10 @@ class List extends React.Component {
               {this.props.startdates[x]}</li>;
           })}
         </ul>}
-        {(this.props.parent.props.id === 'river' && 
-        this.props.repeats) ?
-        <TaskList ref={this.taskList} subtasks={this.state.subtasks} 
-          parent={this} addTasks={this.props.repeats.map(x => {
-            return <RepeatTask 
-              subtasks={[]} parent={this} title={x}
-              key={x} id={x} info={{}} />;
-          })} /> :
-        <TaskList ref={this.taskList} subtasks={this.state.subtasks} 
-          parent={this} />
-        }
+        {<TaskList ref={this.taskList} subtasks={this.state.subtasks} 
+          parent={this} />}
       </div>
     )
-  }
-}
-
-class RepeatTask extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  render () {
-    return <Task 
-      key={this.props.id}
-      id={this.props.id}
-      info={this.props.info}
-      title={this.props.title}
-      subtasks={this.props.subtasks}
-      parent={this.props.parent} />
   }
 }
 
@@ -536,10 +539,13 @@ class Task extends React.Component {
     }
   }
   changeRepeat(day) {
-    if (repeats[day].includes(this.state.title)) {
-      repeats[day].splice(repeats[day].indexOf(this.state.title), 1);
+    if (repeats[day].map(x => x.id).includes(this.props.id)) {
+      repeats[day].splice(repeats[day].findIndex(x => 
+        x.id == this.props.id), 1);
     } else {
-      repeats[day].push(this.state.title)
+      const dataObject = {title: this.state.title, id: this.props.id, 
+        subtasks: this.state.subtasks, info: this.state.info};
+      repeats[day].push(dataObject);
       let parent = this.props.parent;
       while (parent.props.parent) {
         parent = parent.props.parent;
@@ -555,13 +561,13 @@ class Task extends React.Component {
   }
   resetRepeats() {
     this.setState({repeats: {
-      'Mon': repeats['Mon'].includes(this.state.title),
-      'Tue': repeats['Tue'].includes(this.state.title),
-      'Wed': repeats['Wed'].includes(this.state.title),
-      'Thu': repeats['Thu'].includes(this.state.title),
-      'Fri': repeats['Fri'].includes(this.state.title),
-      'Sat': repeats['Sat'].includes(this.state.title),
-      'Sun': repeats['Sun'].includes(this.state.title),
+      'Mon': repeats['Mon'].map(x => x.id).includes(this.props.id),
+      'Tue': repeats['Tue'].map(x => x.id).includes(this.props.id),
+      'Wed': repeats['Wed'].map(x => x.id).includes(this.props.id),
+      'Thu': repeats['Thu'].map(x => x.id).includes(this.props.id),
+      'Fri': repeats['Fri'].map(x => x.id).includes(this.props.id),
+      'Sat': repeats['Sat'].map(x => x.id).includes(this.props.id),
+      'Sun': repeats['Sun'].map(x => x.id).includes(this.props.id),
     }});
     data.settings.repeats = repeats;
     localStorage.setItem('data', JSON.stringify(data));
@@ -607,11 +613,10 @@ class Task extends React.Component {
     }
     this.changeEndDate('destroy');
     this.changeStartDate('destroy');
-    if (this.state.repeats) {
-      for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
-        if (this.state.repeats[day]) {
-          this.changeRepeat(day);
-        }
+   for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
+      if (repeats[day].map(x => x.id).includes(this.props.id)) {
+        this.changeRepeat(day);
+        console.log(repeats);
       }
     }
     const subtasks = this.state.parent.state.subtasks;
