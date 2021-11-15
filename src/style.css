@@ -24,6 +24,13 @@
   float: left;
 }
 
+.title {
+  width: 100%;
+  font: var(--font);
+  font-size: 3em;
+  text-align: center;
+}
+
 
 textarea, input {
   height: 1.25em;
