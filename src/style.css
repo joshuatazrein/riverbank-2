@@ -177,7 +177,7 @@ ul {
   border-radius: 5px;
 }
 
-.button.complete, .task.complete, .task.complete textarea {
+.button.complete, .task.complete textarea {
   opacity: 0.5;
 }
 
@@ -221,6 +221,11 @@ ul {
   top: calc(var(--padding));
   left: 0;
   z-index: 2;
+  opacity: 1;
+}
+
+.options * {
+  z-index: 2;
 }
 
 .optionsInput {
@@ -253,7 +258,6 @@ span.startDate {
 
 span.endDate {
   left: calc(var(--padding) * -0.75 + var(--padding) * 3);
-  z-index: 3;
 }
 
 .task .task span.startDate, .task .task span.endDate {

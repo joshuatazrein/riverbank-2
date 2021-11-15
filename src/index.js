@@ -1,7 +1,12 @@
 import React from 'react';
+import { useState } from 'react';
 import ReactDOM from 'react-dom';
+import DatePicker from 'react-datepicker';
 import $ from 'jquery';
 import './style.css';
+import { render } from '@testing-library/react';
+import "react-datepicker/dist/react-datepicker.css";
+// import "./react-datepicker.css";
 
 var resetData = {
   bank: 
@@ -16,13 +21,8 @@ var resetData = {
   'Fri': [], 'Sat': [], 'Sun': [], }}
 };
 
-var data;
-try {
-  data = !localStorage.getItem('data') ? resetData :
-    JSON.parse(localStorage.getItem('data'));
-} catch {
-  data = resetData;
-}
+var data = !localStorage.getItem('data') ? { resetData } :
+  JSON.parse(localStorage.getItem('data'));
 
 var deadlines = {};
 var startdates = {};
@@ -31,14 +31,15 @@ try {
   var repeats = data.settings.repeats;
 } catch (err) {
   console.log('error');
-  data = resetData;
+  var data = resetData;
 }
 
 var selected;
 var preventSelect;
 var copiedTask;
+var width;
+var prevWidth;
 var app;
-var loginItem = React.createRef();
 
 class App extends React.Component {
   constructor(props) {
@@ -49,7 +50,7 @@ class App extends React.Component {
     };
   }
   toggleComplete() {
-    if (this.state.hideComplete === '') {
+    if (this.state.hideComplete == '') {
       this.setState({hideComplete: 'hideComplete'});
     } else {
       this.setState({hideComplete: ''});
@@ -109,8 +110,8 @@ class StatusBar extends React.Component {
       let currentTask = frame.current.frames[0];
       for (let place of splits.slice(2)) {
         // zoom into places until you find the task
-        currentTask = currentTask.current.taskList.current
-          .subtaskObjects[Number(place)];
+        currentTask = currentTask.current.taskList.current.
+          subtaskObjects[Number(place)];
       }
       console.log(currentTask.current);
       setTimeout(() => {
@@ -255,13 +256,12 @@ class Frame extends React.Component {
     );
     while (this.state.lists.length < this.state.info.index + 7) {
       i ++;
-      var title;
       if (this.props.id === 'bank') {
-        title = '';
+        var title = '';
       } else if (this.props.id === 'river') {
         const date = new Date(lastDate.getTime());
         date.setDate(lastDate.getDate() + i);
-        title = date.toDateString();
+        var title = date.toDateString();
       }
       this.state.lists.push({id: String(now.getTime() + i), 
         title: title, subtasks: [], info: {}});
@@ -269,13 +269,13 @@ class Frame extends React.Component {
     function resizeCheck() {
       // TODO: debug "this" in this function
       const width = Math.floor(window.innerWidth / 200);
-      if (width !== this.state.width) {
+      if (width != this.state.width) {
         this.setState({width: width});
       }
     }
     let endIndex = this.state.info.index + this.state.width;
     this.changeIndex = this.changeIndex.bind(this);
-    resizeCheck.bind(this);
+    resizeCheck = resizeCheck.bind(this);
     this.frames = [];
     // $(window).off('resize', () => resizeCheck);
     window.addEventListener('resize', resizeCheck);
@@ -335,7 +335,7 @@ class List extends React.Component {
       }
     }
     console.log(newSubs);
-    if (Object.keys(newSubs).length !== 
+    if (Object.keys(newSubs).length != 
       Object.keys(this.state.subtasks).length) {
       this.setState({subtasks: newSubs});
     }
@@ -346,7 +346,7 @@ class List extends React.Component {
     }
     this.updateRepeats = this.updateRepeats.bind(this);
     this.updateRepeats();
-    selectThis.bind(this);
+    selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     return (
       <div className='list' onClick={selectThis}>
@@ -447,7 +447,7 @@ class Task extends React.Component {
     }
     if (showHide === 'hide' || this.state.displayOptions === 'show') {
       this.setState({displayOptions: 'hide'});
-    } else if (showHide === 'show' || this.state.displayOptions === 'hide') {
+    } else if (showHide == 'show' || this.state.displayOptions === 'hide') {
       this.setState({displayOptions: 'show'});
     }
   }
@@ -538,10 +538,11 @@ class Task extends React.Component {
   changeRepeat(day) {
     if (repeats[day].map(x => x.id).includes(this.props.id)) {
       repeats[day].splice(repeats[day].findIndex(x => 
-        x.id === this.props.id), 1);
+        x.id == this.props.id), 1);
     } else {
       const dataObject = {title: this.state.title, id: this.props.id, 
         subtasks: this.state.subtasks, info: this.state.info};
+      dataObject.info.complete = '';
       repeats[day].push(dataObject);
       let parent = this.props.parent;
       while (parent.props.parent) {
@@ -766,6 +767,12 @@ class Task extends React.Component {
 
 function newTask(type) {
   // create new task after selected
+  let el;
+  if (type == 'task' || !selected.state.parent) {
+    el = selected;
+  } else if (type == 'list' || selected.state.parent) {
+    el = selected.state.parent;
+  }
   const today = new Date();
   const now = today.getTime();
   const newTask = {
@@ -787,14 +794,14 @@ function selectTask(el, force) {
   preventSelect = true;
   setTimeout(function () { preventSelect = false }, 250);
   console.log(selected);
-  if (selected === el && !force) {
+  if (selected == el && !force) {
     console.log('selected and el are the same');
     return;
   }
   if (selected) {
     save(selected, 'task');
   }
-  if (selected instanceof Task && el !== selected) {
+  if (selected instanceof Task && el != selected) {
     selected.displayOptions({target: undefined}, 'hide');
   }
   selected = el;
@@ -853,26 +860,15 @@ function pasteTask(type) {
     save(selected, 'task');
   } else if (selected instanceof Task || type === 'list') {
     const subtasks = selected.state.parent.state.subtasks;
-    const insertIndex = subtasks.findIndex(x => x.id === selected.props.id) + 1;
+    const insertIndex = subtasks.findIndex(x => x.id == selected.props.id) + 1;
     subtasks.splice(insertIndex, 0, copiedTask);
     selected.state.parent.setState({subtasks: subtasks});
     save(selected, 'list');
   }
 }
 
-function moveTask(direction) {
-  console.log('movetask');
-  if (!selected) return;
-  const subtasks = selected.props.parent.state.subtasks;
-  const selectedPlace = 
-    selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
-  const spliceTask = subtasks.splice(selectedPlace, 1)[0];
-  subtasks.splice(selectedPlace + direction, 0, spliceTask);
-  selected.props.parent.setState(subtasks);
-}
-
 function backup() {
-  // const now = new Date();
+  const now = new Date();
   // fs.writeFile('file.txt', JSON.stringify('data'), 
 }
 
@@ -906,6 +902,11 @@ function keyComms(ev) {
         if (selected && selected instanceof Task) {
           selected.deleteThis();
         }
+      case 'u':
+        moveTask(-1);
+        break;
+      case 'd':
+        moveTask(1);
         break;
       case 'i':
         if (selected && selected instanceof Task) {
@@ -916,12 +917,6 @@ function keyComms(ev) {
             selected.editBar.current.focus();
           }
         };
-        break;
-      case 'u':
-        moveTask(-1);
-        break;
-      case 'd':
-        moveTask(1);
         break;
       default:
         break;
@@ -939,76 +934,29 @@ function keyComms(ev) {
   }
 }
 
-class Login extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {loginUsername: '', loginPassword: '', 
-      newUsername: '', newPassword1: '', newPassword2: ''};
-  }
-  set(ev, setter) {
-    const obj = this.state;
-    obj[setter] = ev.target.value;
-    this.setState({obj});
-  }
-  oldUser() {
-    init();
-  }
-  newUser() {
-    if (this.state.newPassword1 === this.state.newPassword2) {
-      $.post(
-        'setuser.php', 
-        {username: this.state.newUsername,
-        password: this.state.newPassword1},
-        function (s, a, xhr) {
-          console.log(xhr.responseText);
-          init();
-        }
-      );
-    } else {
-      alert('passwords do not match');
-    }
-  }
-  render() {
-    this.loginUsername = React.createRef();
-    this.loginPassword = React.createRef();
-    this.newUser.bind(this);
-    return (
-      <div>
-        <div className='title'>RIVERBANK 2.0</div>
-        <div className='login'>
-          <p>login:</p>
-          <input className='searchBar' ref={this.loginUsername} value={this.state.loginUsername} onChange={(e) => this.set(e, 'loginUsername')}
-          placeholder='username'></input>
-          <input className='searchBar' ref={this.loginPassword} value={this.state.loginPassword} onChange={(e) => this.set(e, 'loginPassword')}placeholder='password'></input>
-          <button className='button'>submit</button>
-          <p>create new user:</p>
-          <input className='searchBar' ref={this.newUsername} value={this.state.newUsername} onChange={(e) => this.set(e, 'newUsername')}
-          placeholder='new username'></input>
-          <input className='searchBar' ref={this.newPassword1} value={this.state.newPassword1} onChange={(e) => this.set(e, 'newPassword1')}
-          placeholder='new password'></input>
-          <input className='searchBar' ref={this.newPassword2} value={this.state.newPassword2} onChange={(e) => this.set(e, 'newPassword2')}
-          placeholder='new password again'></input>
-          <button className='button' onClick={() => this.newUser()}>submit</button>
-        </div>
-      </div>
-    )
-  }
+function moveTask(direction) {
+  console.log('movetask');
+  if (!selected) return;
+  const subtasks = selected.props.parent.state.subtasks;
+  const selectedPlace = 
+    selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
+  const spliceTask = subtasks.splice(selectedPlace, 1)[0];
+  subtasks.splice(selectedPlace + direction, 0, spliceTask);
+  selected.props.parent.setState(subtasks);
 }
 
-// function reset() {
-//   data = resetData;
-//   localStorage.setItem('data', data);
-// }
-
-function login() {
-  ReactDOM.render(<Login ref={loginItem} />, document.getElementById('root'));
+function reset() {
+  data = resetData;
+  localStorage.setItem('data', resetData);
 }
 
 function init() {
   selected = undefined;
+  width = Math.floor(window.innerWidth / 200);
+  prevWidth = Math.floor(window.innerWidth / 200);
   app = React.createRef();
   ReactDOM.render(<App ref={app} />, document.getElementById('root'));
   $(document).on('keydown', keyComms);
 }
 
-login();
+init();
