@@ -148,6 +148,9 @@ ul {
 .list {
   height: 100%;
   padding: 5px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
   /* overflow-y: hidden; */
 }
 
@@ -155,12 +158,13 @@ ul {
   margin: 0;
   padding-top: 1em;
   overflow-y: auto;
-  height: calc(100% - 30px);
+  height: initial;
+  flex-grow: 1;
   padding-left: 5px;
 }
 
 .listContent:not(.empty) {
-  padding-left: 5px;
+  padding-left: calc(var(--padding) / 2);
 }
 
 .list:not(:first-of-type) {
@@ -170,6 +174,7 @@ ul {
 .task {
   list-style: none;
   position: relative;
+  margin-top: -10px;
 }
 
 .task.event > textarea {
@@ -248,16 +253,14 @@ ul {
   margin: 0;
 }
 
+.startEndSpans {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
 .startDate {
   color: var(--startDate);
-}
-
-span.startDate {
-  left: calc(var(--padding) * -0.75);
-}
-
-span.endDate {
-  left: calc(var(--padding) * -0.75 + var(--padding) * 3);
 }
 
 .task .task span.startDate, .task .task span.endDate {
@@ -265,11 +268,14 @@ span.endDate {
 }
 
 span.startDate, span.endDate {
-  position: absolute;
-  top: calc(-0.9 * var(--fontSize));
   font-size: 0.75em;
   text-align: center;
-  width: calc(var(--padding) * 3);
+}
+
+.taskContent {
+  padding-left: var(--padding);
+  display: flex;
+  flex-direction: row;
 }
 
 .endDate {
@@ -315,7 +321,7 @@ span.startDate, span.endDate {
 }
 
 .editBar {
-  width: calc(100% - var(--padding) - 5px);
+  flex-grow: 1;
   border: none;
   font: var(--font);
   color: var(--foreground);
@@ -323,7 +329,6 @@ span.startDate, span.endDate {
   resize: none;
   overflow-y: hidden;
   position: relative;
-  left: var(--padding);
 }
 
 .editSpan {
@@ -334,13 +339,15 @@ span.startDate, span.endDate {
 
 .task.heading > textarea, .list > input {
   font-weight: var(--bold);
-  text-align: center;
+}
+
+.task.heading > textarea {
+  font-size: 150%;
 }
 
 .task .task.heading > textarea {
   font-style: italic;
   font-weight: normal;
-  text-align: left;
 }
 
 .task .task textarea, .task .task span {

@@ -21,8 +21,14 @@ var resetData = {
   'Fri': [], 'Sat': [], 'Sun': [], }}
 };
 
-var data = !localStorage.getItem('data') ? { resetData } :
-  JSON.parse(localStorage.getItem('data'));
+var data;
+try {
+  data = !localStorage.getItem('data') ? { resetData } :
+    JSON.parse(localStorage.getItem('data'));
+} catch (err) {
+  console.log(err);
+  data = resetData;
+}
 
 var deadlines = {};
 var startdates = {};
@@ -121,10 +127,15 @@ class StatusBar extends React.Component {
     }, 50)
     this.setState({searchString: '', foundTasks: {}});
   }
+  goToToday() {
+    const today = new Date().toDateString();
+    // TODO: FINSIH
+  }
   render() {
     this.search = this.search.bind(this);
     this.treeSearch = this.treeSearch.bind(this);
     this.goToSearch = this.goToSearch.bind(this);
+    this.goToToday = this.goToToday.bind(this);
     this.searchResults = React.createRef();
     return (
       <div className='statusBar'>
@@ -149,6 +160,8 @@ class StatusBar extends React.Component {
           <button className='button' onClick={copyTask}>c</button>
           <button className='button' onClick={pasteTask}>v</button>
           <button className='button' onClick={backup}>backup</button>
+          <button className='button' onClick={reset}>reset</button>
+          <button className='button' onClick={() => this.goToToday}>today</button>
           <button 
             className={'button ' + this.props.parent.state.hideComplete} onClick={() => {
               this.props.parent.toggleComplete();
@@ -294,7 +307,6 @@ class Frame extends React.Component {
                 subtasks={x.subtasks} parent={this} 
                 deadlines={this.state.deadlines[x.title]} 
                 startdates={this.state.startdates[x.title]} 
-                repeats={this.state.repeats[x.title.slice(0, 3)]}
                 ref={this.frames[this.frames.length - 1]} />
             )
           } else {
@@ -322,30 +334,10 @@ class List extends React.Component {
   changeTitle(ev) {
     this.setState({title: ev.target.value})
   }
-  updateRepeats() {
-    const subtaskIDs = this.state.subtasks.map(x => x.id);
-    const newSubs = this.state.subtasks;
-    console.log(subtaskIDs);
-    if (this.props.parent.props.id === 'river') {
-      console.log('river');
-      for (let repeat of repeats[this.props.title.slice(0, 3)]) {
-        if (!subtaskIDs.includes(repeat.id)) {
-          newSubs.push(repeat);
-        }
-      }
-    }
-    console.log(newSubs);
-    if (Object.keys(newSubs).length != 
-      Object.keys(this.state.subtasks).length) {
-      this.setState({subtasks: newSubs});
-    }
-  }
   render() {
     function selectThis() {
       selectTask(this);
     }
-    this.updateRepeats = this.updateRepeats.bind(this);
-    this.updateRepeats();
     selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     return (
@@ -427,18 +419,6 @@ class Task extends React.Component {
     while (parent.props.parent) {
       parent = parent.props.parent;
     }
-    if (parent.props.id === 'river') {
-      this.state.riverTask = true;
-      this.state.repeats = {
-        'Mon': repeats['Mon'].includes(this.state.title),
-        'Tue': repeats['Tue'].includes(this.state.title),
-        'Wed': repeats['Wed'].includes(this.state.title),
-        'Thu': repeats['Thu'].includes(this.state.title),
-        'Fri': repeats['Fri'].includes(this.state.title),
-        'Sat': repeats['Sat'].includes(this.state.title),
-        'Sun': repeats['Sun'].includes(this.state.title),
-      }
-    }
   }
   displayOptions(ev, showHide) {
     if ($(ev.target).hasClass('options') || 
@@ -452,8 +432,16 @@ class Task extends React.Component {
     }
   }
   changeTitle(ev) { 
+    let height;
+    if (this.state.subtasks.length > 0) {
+      height = '0.5em';
+    } else {
+      height = '0.25em';
+    }
+    this.setState({editWidth: this.editBar.current.offsetWidth});
     this.setState({title: ev.target.value, editHeight: 
-    'calc(' + String(this.heightSpan.current.offsetHeight) + 'px + 0.25em)'});
+    'calc(' + String(this.heightSpan.current.offsetHeight) + 
+    'px + ' + height});
   }
   changeStartDate(ev) { 
     if (this.state.info.startDate.includes('-')) {
@@ -535,41 +523,6 @@ class Task extends React.Component {
       parent.setState({deadlines: deadlines});
     }
   }
-  changeRepeat(day) {
-    if (repeats[day].map(x => x.id).includes(this.props.id)) {
-      repeats[day].splice(repeats[day].findIndex(x => 
-        x.id == this.props.id), 1);
-    } else {
-      const dataObject = {title: this.state.title, id: this.props.id, 
-        subtasks: this.state.subtasks, info: this.state.info};
-      dataObject.info.complete = '';
-      repeats[day].push(dataObject);
-      let parent = this.props.parent;
-      while (parent.props.parent) {
-        parent = parent.props.parent;
-      }
-      parent.setState({repeats: repeats});
-    }
-    const subtasks = this.state.parent.state.subtasks;
-    const currentTask = subtasks.findIndex(x => {
-      return x.id === this.state.id;
-    });
-    subtasks.splice(currentTask, 1);
-    this.resetRepeats();
-  }
-  resetRepeats() {
-    this.setState({repeats: {
-      'Mon': repeats['Mon'].map(x => x.id).includes(this.props.id),
-      'Tue': repeats['Tue'].map(x => x.id).includes(this.props.id),
-      'Wed': repeats['Wed'].map(x => x.id).includes(this.props.id),
-      'Thu': repeats['Thu'].map(x => x.id).includes(this.props.id),
-      'Fri': repeats['Fri'].map(x => x.id).includes(this.props.id),
-      'Sat': repeats['Sat'].map(x => x.id).includes(this.props.id),
-      'Sun': repeats['Sun'].map(x => x.id).includes(this.props.id),
-    }});
-    data.settings.repeats = repeats;
-    localStorage.setItem('data', JSON.stringify(data));
-  }
   toggleComplete() {
     let status = this.state.info.complete
     if (status === 'complete') { status = '' }
@@ -611,12 +564,6 @@ class Task extends React.Component {
     }
     this.changeEndDate('destroy');
     this.changeStartDate('destroy');
-   for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
-      if (repeats[day].map(x => x.id).includes(this.props.id)) {
-        this.changeRepeat(day);
-        console.log(repeats);
-      }
-    }
     const subtasks = this.state.parent.state.subtasks;
     const currentTask = subtasks.findIndex(x => {
       return x.id === this.state.id;
@@ -636,9 +583,6 @@ class Task extends React.Component {
     selectTask(this);
     this.changeEndDate('init');
     this.changeStartDate('init');
-    if (this.state.riverTask) {
-      this.resetRepeats();
-    }
   }
   render() {
     // fuck react
@@ -647,8 +591,6 @@ class Task extends React.Component {
     this.toggleImportant = this.toggleImportant.bind(this);
     this.toggleMaybe = this.toggleMaybe.bind(this);
     this.deleteThis = this.deleteThis.bind(this);
-    this.resetRepeats = this.resetRepeats.bind(this);
-    this.changeRepeat = this.changeRepeat.bind(this);
     this.taskList = React.createRef();
     this.optionsButton = React.createRef();
     this.editBar = React.createRef();
@@ -712,48 +654,19 @@ class Task extends React.Component {
                 onClick={() => this.toggleCollapse()}>
                 {'[]'}</button>
             </div>
-            {this.state.riverTask &&
-              <div className='buttonBar' style={{width: '100%', 
-              alignContent: 'center'}}>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Mon']} 
-                  onClick={() => this.changeRepeat('Mon')}>M</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Tue']} 
-                  onClick={() => this.changeRepeat('Tue')}>T</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Wed']} 
-                  onClick={() => this.changeRepeat('Wed')}>W</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Thu']} 
-                  onClick={() => this.changeRepeat('Thu')}>R</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Fri']} 
-                  onClick={() => this.changeRepeat('Fri')}>F</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Sat']} 
-                  onClick={() => this.changeRepeat('Sat')}>S</button>
-                <button 
-                  className={'button repeatButton ' + 
-                  this.state.repeats['Sun']} 
-                  onClick={() => this.changeRepeat('Sun')}>U</button>
-              </div>
-            }
             {startInput}
             {endInput}
           </div>
         </span>
-        <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
-        <span className='optionsSpan endDate'>{this.state.info.endDate}</span>
-        <textarea className='editBar' value={this.state.title}
-          onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
-          style={{height: this.state.editHeight}}></textarea>
+        <div class='taskContent'>
+          <div class='startEndSpans'>
+            <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
+            <span className='optionsSpan endDate'>{this.state.info.endDate}</span>
+          </div>
+          <textarea className='editBar' value={this.state.title}
+            onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
+            style={{height: this.state.editHeight}}></textarea>
+        </div>
         <span className='editBar editSpan'
           ref={this.heightSpan} 
           style={{width: this.state.editWidth}}>
@@ -947,7 +860,8 @@ function moveTask(direction) {
 
 function reset() {
   data = resetData;
-  localStorage.setItem('data', resetData);
+  localStorage.setItem('data', JSON.stringify(resetData));
+  setTimeout(function () { window.location.reload() }, 200);
 }
 
 function init() {
