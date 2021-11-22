@@ -6,7 +6,189 @@ import $ from 'jquery';
 import './style.css';
 import { render } from '@testing-library/react';
 import "react-datepicker/dist/react-datepicker.css";
-// import "./react-datepicker.css";
+
+var themes = {
+  'earth-day': {
+    "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
+    "--fontSize": "26px",
+    "--fontweight": "400",
+    "--bold": "600",
+    "--background": "rgb(218, 221, 216)",
+    "--border": "rgba(60, 52, 31)",
+    "--select": "rgb(85, 107, 47)",
+    "--event": "rgba(85, 107, 47, 0.3)",
+    "--foreground": "rgb(59, 60, 54)",
+    "--midground": "rgba(59, 60, 54, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(14, 41, 48)",
+    "--maybe": "rgba(14, 41, 48, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  },
+  'earth-night': {
+    "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
+    "--fontSize": "26px",
+    "--fontweight": "400",
+    "--bold": "600",
+    "--background": "rgb(35, 38, 33)",
+    "--border": "rgba(224, 223, 225, 0.5)",
+    "--select": "rgb(186, 208, 149)",
+    "--event": "rgba(186, 208, 149, 0.3)",
+    "--foreground": "rgb(218, 222, 200)",
+    "--midground": "rgba(59, 60, 54, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(85, 107, 47)",
+    "--maybe": "rgba(85, 107, 47, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  },
+  'fire-day': {
+    "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
+    "--fontSize": "21px",
+    "--fontweight": "300",
+    "--bold": "500",
+    "--background": "rgb(230, 230, 250)",
+    "--border": "rgba(53, 3, 58, 0.3)",
+    "--select": "rgb(242, 172, 229)",
+    "--event": "rgba(251, 217, 253, 0.3)",
+    "--foreground": "rgb(53, 3, 58)",
+    "--midground": "rgba(200, 200, 230, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(226, 156, 210)",
+    "--maybe": "rgba(212, 93, 194, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  }, 
+  'fire-night': {
+    "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
+    "--fontSize": "21px",
+    "--fontweight": "300",
+    "--bold": "500",
+    "--background": "rgb(5, 5, 26)",
+    "--border": "rgba(212, 112, 162)",
+    "--select": "rgb(183, 104, 162)",
+    "--event": "rgba(183, 104, 162, 0.3)",
+    "--foreground": "rgb(248, 197, 252)",
+    "--midground": "rgba(40, 6, 34)",
+    "--padding": "14px",
+    "--important": "rgb(226, 156, 210)",
+    "--maybe": "rgba(212, 93, 194, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  },
+  'sky-day': {
+    "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
+    "--fontSize": "22px",
+    "--fontweight": "100",
+    "--bold": "300",
+    "--background": "#E4EDF1",
+    "--border": "rgba(21, 35, 40, 0.5)",
+    "--select": "rgb(119, 152, 171)",
+    "--event": "rgba(119, 152, 171, 0.3)",
+    "--foreground": "rgb(52, 64, 85)",
+    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(29, 41, 81)",
+    "--maybe": "rgba(29, 41, 81, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  },
+  'sky-night': {
+    "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
+    "--fontSize": "22px",
+    "--fontweight": "100",
+    "--bold": "300",
+    "--background": "rgb(14, 23, 27)",
+    "--border": "rgba(36, 40, 43, 0.5)",
+    "--select": "rgb(83, 117, 136)",
+    "--event": "rgba(59, 75, 84, 0.3)",
+    "--foreground": "rgb(170, 182, 203)",
+    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(173, 185, 225)",
+    "--maybe": "rgba(173, 185, 225, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+  },
+  'space-day': {
+    "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
+    "--fontSize": "24px",
+    "--fontweight": "300",
+    "--background": "rgb(201, 192, 187)",
+    "--border": "rgba(128, 128, 128, 0.5)",
+    "--select": "rgb(165, 113, 100)",
+    "--event": "rgba(165, 113, 100, 0.3)",
+    "--foreground": "rgb(59, 47, 47)",
+    "--midground": "rgba(196, 174, 173, 0.5)",
+    "--padding": "14px",
+    "--important": "rgb(161, 122, 116)",
+    "--maybe": "rgba(161, 122, 116, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+    "--bold": "600",
+  },
+  'space-night': {
+    "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
+    "--fontSize": "24px",
+    "--fontweight": "300",
+    "--background": "rgb(0, 0, 0)",
+    "--border": "rgb(128, 128, 128)",
+    "--select": "rgb(101, 138, 149)",
+    "--event": "rgba(136, 165, 174, 0.3)",
+    "--foreground": "rgb(191, 193, 194)",
+    "--midground": "rgb(128, 128, 128)",
+    "--padding": "14px",
+    "--important": "skyblue",
+    "--maybe": "darkblue",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+    "--bold": "600",
+  },
+  'water-day': {
+    "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
+    "--fontSize": "19px",
+    "--fontweight": "100",
+    "--background": "rgb(188, 212, 230)",
+    "--border": "rgba(36, 40, 43, 0.5)",
+    "--select": "rgb(64, 71, 77)",
+    "--event": "rgba(64, 71, 77, 0.3)",
+    "--foreground": "rgb(10, 10, 10)",
+    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(41, 74, 112)",
+    "--maybe": "rgba(41, 74, 112, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+    "--bold": "400",
+  },
+  'water-night': {
+    "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
+    "--fontSize": "19px",
+    "--fontweight": "100",
+    "--background": "rgb(31, 40, 52)",
+    "--border": "rgba(176, 194, 212)",
+    "--select": "rgb(145, 163, 176)",
+    "--event": "rgba(145, 163, 176, 0.3)",
+    "--foreground": "whitesmoke",
+    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--padding": "14px",
+    "--important": "rgb(143, 176, 214)",
+    "--maybe": "rgba(143, 176, 214, 0.5)",
+    "--menufont": "18px Courier New",
+    "--startDate": "skyblue",
+    "--endDate": "darkblue",
+    "--bold": "400",
+  }
+}
 
 var resetData = {
   bank: 
@@ -19,8 +201,13 @@ var resetData = {
       title: String(new Date().toDateString()).slice(0, 11) + "'" + 
       String(new Date().toDateString()).slice(13), subtasks: [], info: {}}
     ]}, 
-  settings: {repeats: {'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 
-  'Fri': [], 'Sat': [], 'Sun': [], }}
+  settings: {
+    repeats: {'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 
+      'Fri': [], 'Sat': [], 'Sun': [], },
+    theme: 'space', 
+    mode: 'night',
+    focused: '',
+  }
 };
 
 var data;
@@ -55,6 +242,9 @@ class App extends React.Component {
     this.state = {hideComplete: '', 
       bank: React.createRef(),
       river: React.createRef(),
+      theme: data.settings.theme,
+      mode: data.settings.mode,
+      focused: data.settings.focused,
     };
   }
   toggleComplete() {
@@ -102,7 +292,7 @@ class StatusBar extends React.Component {
     }
     this.setState({searchString: ev.target.value});
     for (let x of Object.keys(this.searches)) {
-      if (!x.includes(this.state.searchString)) {
+      if (!new RegExp(this.state.searchString, 'i').test(x)) {
         delete this.searches[x];
       }
     }
@@ -144,6 +334,7 @@ class StatusBar extends React.Component {
     this.goToSearch = this.goToSearch.bind(this);
     this.goToToday = this.goToToday.bind(this);
     this.searchResults = React.createRef();
+    this.options = React.createRef();
     return (
       <div className='statusBar'>
         <div className='buttonBar nowrap'>
@@ -153,7 +344,8 @@ class StatusBar extends React.Component {
               if (ev.key === 'Backspace') {
                 this.setState({searchString: '', foundTasks: {}});
               }
-            }}></input>
+            }}
+            placeholder='search'></input>
           <select ref={this.searchResults} onChange={() => {
             this.goToSearch(this.state.foundTasks[
               this.searchResults.current.value])
@@ -169,14 +361,24 @@ class StatusBar extends React.Component {
           <button className='button' onClick={cutTask}>x</button>
           <button className='button' onClick={copyTask}>c</button>
           <button className='button' onClick={pasteTask}>v</button>
-          <button className='button' onClick={backup}>backup</button>
-          <button className='button' onClick={reset}>reset</button>
-          <button className='button' onClick={focus}>focus</button>
-          <button className='button' onClick={this.goToToday}>today</button>
-          <button 
-            className={'button ' + this.props.parent.state.hideComplete} onClick={() => {
-              this.props.parent.toggleComplete();
-            }}>+√/-√</button>
+          <select ref={this.options} onChange={() => {
+              eval(this.options.current.value);
+              this.options.current.value='';
+            }}>
+            <option></option>
+            <option value='backup()'>backup</option>
+            <option value='reset()'>reset</option>
+            <option value='this.goToToday()'>today</option>
+            <option value='focus()'>toggle focus</option>
+            <option value='this.props.parent.toggleComplete()'>
+              toggle complete</option>
+            <option value='toggleMode()'>toggle day/night</option>
+            <option value='setTheme("space")'>theme: space</option>
+            <option value='setTheme("sky")'>theme: sky</option>
+            <option value='setTheme("water")'>theme: water</option>
+            <option value='setTheme("earth")'>theme: earth</option>
+            <option value='setTheme("fire")'>theme: fire</option>
+          </select>
         </div>
       </div>
     )
@@ -787,6 +989,11 @@ function save(task, saveType) {
   localStorage.setItem('data', JSON.stringify(data));
 }
 
+function saveSetting(setting, value) {
+  data.settings[setting] = value;
+  localStorage.setItem('data', JSON.stringify(data));
+}
+
 function cutTask() {
   if (!selected || selected instanceof List) return;
   copyTask();
@@ -895,6 +1102,8 @@ function keyComms(ev) {
   }
 }
 
+
+
 function dateFormat(string, reverse) {
   if (reverse) {
     return string.slice(0, 11) + '20' + string.slice(12);
@@ -923,18 +1132,47 @@ function reset() {
   setTimeout(function () { window.location.reload() }, 200);
 }
 
-function focus() {
-  if (app.current.state.bank.current.state.info.focused == 'focused') {
-    var focusSet = '';
+function focus(set) {
+  if (set != undefined) {
+    var focusSet = set;
   } else {
-    var focusSet = 'focused';
+    if (app.current.state.bank.current.state.info.focused == 'focused') {
+      var focusSet = '';
+    } else {
+      var focusSet = 'focused';
+    }
   }
+  console.log([focusSet]);
   app.current.state.bank.current.setState(prevState => (
     {info: {...prevState.info, 
     focused: focusSet}}));
   app.current.state.river.current.setState(prevState => (
     {info: {...prevState.info, 
     focused: focusSet}}));
+  saveSetting('focused', focusSet);
+}
+
+function setTheme(theme) {
+  const newTheme =  themes[theme + '-' + 
+    data.settings.mode];
+  console.log(theme + '-' + data.settings.mode);
+  for (let key of Object.keys(newTheme)) {
+    document.documentElement.style.setProperty(
+      key, newTheme[key]
+    );
+  }
+  data.settings.theme = theme;
+  localStorage.setItem('data', JSON.stringify(data));
+}
+
+function toggleMode() {
+  if (data.settings.mode == 'night') {
+    data.settings.mode = 'day';
+  } else {
+    data.settings.mode = 'night';
+  }
+  setTheme(data.settings.theme);
+  localStorage.setItem('data', JSON.stringify(data));
 }
 
 function init() {
@@ -942,8 +1180,12 @@ function init() {
   width = Math.floor(window.innerWidth / 200);
   prevWidth = Math.floor(window.innerWidth / 200);
   app = React.createRef();
+  $('body').append("<link rel='stylesheet' id='theme' href='./themes/space-night.css' />");
   ReactDOM.render(<App ref={app} />, document.getElementById('root'));
   $(document).on('keydown', keyComms);
+  console.log(data.settings.focused);
+  focus(data.settings.focused);
+  setTheme(data.settings.theme);
 }
 
 init();

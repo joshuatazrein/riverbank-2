@@ -1,23 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,500;0,700;1,300;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,400;0,600;1,100;1,400;1,600&display=swap");
+
 * {
   box-sizing: border-box;
-}
-
-:root {
-  --font: var(--fontSize) Cochin;
-  --fontSize: 18px;
-  --background: #000000;
-  --border: grey;
-  --select: skyblue;
-  --event: rgba(138, 213, 243, 0.3);
-  --foreground: white;
-  --midground: grey;
-  --padding: 14px;
-  --important: skyblue;
-  --maybe: darkblue;
-  --menufont: 18px Courier New;
-  --startDate: skyblue;
-  --endDate: darkblue;
-  --bold: bold;
 }
 
 .buttonBar {
@@ -32,13 +19,27 @@
 }
 
 
-textarea, input {
+textarea, input, select, button, option {
   height: 1.25em;
   position: relative;
+  color: var(--foreground);
+}
+
+button {
+  background-color: var(--midground);
+}
+
+textarea, input, select {
+  background-color: var(--background);
+}
+
+select {
+  border: none;
 }
 
 body {
   font: var(--font);
+  color: var(--foreground);
   background-color: var(--background);
   margin: 0;
 }
@@ -90,12 +91,13 @@ body {
   width: 8em;
   font: var(--font);
   font-size: 0.75em;
-  border: none;
+  border: 1px solid var(--border);
 }
 
 .buttonBar {
   display: flex;
   justify-content: center;
+  align-items: center;
   height: 1em;
   flex-wrap: wrap; 
 }
@@ -118,10 +120,11 @@ body {
 }
 
 .button {
-  font: var(--font);
-  font-size: 0.75em;
+  font: var(--menufont);
+  font-size: 0.6em;
   height: 1.5em;
   border: none;
+  border-radius: 6px;
   margin: 1px;
 }
 
@@ -143,6 +146,10 @@ body {
   width: 50%;
   height: 100%;
   float: left;
+}
+
+#river.frame.focused {
+  border-top: none !important;
 }
 
 h1 {
@@ -319,7 +326,8 @@ span.startDate, span.endDate {
 .listInput {
   font: var(--font);
   font-weight: bold;
-  font-size: 1.5em;
+  font-size: 1.3em;
+  text-align: center;
   width: 100%;
   background-color: var(--background);
   border: 1px solid var(--border);
@@ -360,7 +368,7 @@ span.startDate, span.endDate {
 }
 
 .task.heading > div > textarea {
-  font-size: 150%;
+  font-size: 125%;
 }
 
 .task .task.heading > div > textarea {
