@@ -15,7 +15,9 @@ var resetData = {
     ]}, 
   river:
     {info: {index: 0}, subtasks: [
-      {id:String(new Date().getTime()), title: new Date().toDateString(), subtasks: [], info: {}}
+      {id:String(new Date().getTime()), 
+      title: String(new Date().toDateString()).slice(0, 11) + "'" + 
+      String(new Date().toDateString()).slice(13), subtasks: [], info: {}}
     ]}, 
   settings: {repeats: {'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 
   'Fri': [], 'Sat': [], 'Sun': [], }}
@@ -110,9 +112,8 @@ class StatusBar extends React.Component {
   goToSearch(title) {
     const splits = title.split(' ');
     const frame = app.current.state[splits[0]];
-    frame.current.changeIndex(Number(splits[1]));
+    frame.current.changeIndex(Number(splits[1]), true);
     setTimeout(() => {
-      console.log(frame.current.frames.map(x => x.current));
       let currentTask = frame.current.frames[0];
       for (let place of splits.slice(2)) {
         // zoom into places until you find the task
@@ -120,16 +121,22 @@ class StatusBar extends React.Component {
           subtaskObjects[Number(place)];
       }
       console.log(currentTask.current);
-      setTimeout(() => {
-        preventSelect = false;
-        selectTask(currentTask.current, true);
-      }, 50)
-    }, 50)
+      preventSelect = false;
+      selectTask(currentTask.current, true);
+    }, 50);
     this.setState({searchString: '', foundTasks: {}});
   }
   goToToday() {
-    const today = new Date().toDateString();
+    const today = dateFormat(new Date().toDateString());
+    const river = app.current.state.river.current;
+    const days = river.state.subtasks;
+    console.log(days);
+    const thisDay = days.findIndex(x => x.title === today);
+    river.changeIndex(thisDay, true);
     // TODO: FINSIH
+  }
+  componentDidMount() {
+    setTimeout(this.goToToday, 200);
   }
   render() {
     this.search = this.search.bind(this);
@@ -139,34 +146,37 @@ class StatusBar extends React.Component {
     this.searchResults = React.createRef();
     return (
       <div className='statusBar'>
-        <input className='searchBar' onChange={(ev) => this.search(ev)}
-          value={this.state.searchString}
-          onKeyDown={(ev) => {
-            if (ev.key === 'Backspace') {
-              this.setState({searchString: '', foundTasks: {}});
-            }
-          }}></input>
-        <select ref={this.searchResults} onChange={() => {
-          this.goToSearch(this.state.foundTasks[
-            this.searchResults.current.value])
-          }}>
-          <option></option>
-          {Object.keys(this.state.foundTasks).map(x => 
-            <option key={x} value={x}>{x}</option>)}
-        </select>
-        <div className='buttonBar'>
+        <div className='buttonBar nowrap'>
+          <input className='searchBar' onChange={(ev) => this.search(ev)}
+            value={this.state.searchString}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Backspace') {
+                this.setState({searchString: '', foundTasks: {}});
+              }
+            }}></input>
+          <select ref={this.searchResults} onChange={() => {
+            this.goToSearch(this.state.foundTasks[
+              this.searchResults.current.value])
+            }}>
+            <option></option>
+            {Object.keys(this.state.foundTasks).map(x => 
+              <option key={x} value={x}>{x}</option>)}
+          </select>
+          <Timer />
+        </div>
+        <div className='buttonBar nowrap'>
           <button className='button' onClick={newTask}>+</button>
           <button className='button' onClick={cutTask}>x</button>
           <button className='button' onClick={copyTask}>c</button>
           <button className='button' onClick={pasteTask}>v</button>
           <button className='button' onClick={backup}>backup</button>
           <button className='button' onClick={reset}>reset</button>
-          <button className='button' onClick={() => this.goToToday}>today</button>
+          <button className='button' onClick={focus}>focus</button>
+          <button className='button' onClick={this.goToToday}>today</button>
           <button 
             className={'button ' + this.props.parent.state.hideComplete} onClick={() => {
               this.props.parent.toggleComplete();
             }}>+√/-√</button>
-          <Timer />
         </div>
       </div>
     )
@@ -176,38 +186,26 @@ class StatusBar extends React.Component {
 class Timer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {minutes: 0, seconds: 0, repeats: repeats};
+    this.state = {seconds: 0, repeats: repeats};
   }
   startTimer(val) {
-    this.setState({minutes: this.state.minutes + val, seconds: 0});
+    this.setState({seconds: val * 60});
     this.play();
   }
   play(stopwatch, backwards) {
     const multiplier = backwards ? -1 : 1;
     clearInterval(this.interval);
-    if (stopwatch === 'stopwatch') {
-      this.interval = setInterval(() => {
-        if (this.state.seconds === 60) {
-          this.setState({minutes: (this.state.minutes + 1) * multiplier, 
-            seconds: 0});
-        } else {
-          this.setState({seconds: this.state.seconds + 1});
-        }
-      }, 1000);
+    if (stopwatch == 'stopwatch') {
+      var add = 1;
     } else {
-      this.interval = setInterval(() => {
-        if (this.state.seconds === 0) {
-          if (this.state.minutes === 0) {
-            this.end();
-            this.play('stopwatch', true);
-          }
-          this.setState({minutes: (this.state.minutes - 1) * multiplier, 
-            seconds: 59});
-        } else {
-          this.setState({seconds: this.state.seconds - 1});
-        }
-      }, 1000);
+      var add = -1;
     }
+    this.interval = setInterval(() => {
+      this.setState({seconds: this.state.seconds + add});
+      if (this.state.seconds === 0) {
+        this.end();
+      }
+    }, 1000);
   }
   end() {
     alert('timer complete');
@@ -221,8 +219,27 @@ class Timer extends React.Component {
     this.playPause = this.playPause.bind(this);
     this.play = this.play.bind(this);
     this.audioRef = React.createRef();
+    if (this.state.seconds >= 0) {
+      var timeReadout = Math.floor(this.state.seconds / 60) + ':' + 
+        String(this.state.seconds - 
+        (Math.floor(this.state.seconds / 60) * 60))
+        .padStart(2, '0')
+    } else {
+      if ((this.state.seconds / 60) === Math.floor(this.state.seconds / 60) 
+        && this.state.seconds != 0) {
+        // right on minute
+        var timeReadout = '-' + 
+          (-1 * (Math.floor(this.state.seconds / 60))) + ':00'
+      } else {
+        var timeReadout = '-' + 
+          (-1 * (Math.floor(this.state.seconds / 60) + 1)) + ':' + 
+          String(60 - (this.state.seconds - 
+          (Math.floor(this.state.seconds / 60) * 60)))
+          .padStart(2, '0')
+      }
+    }
     return (
-      <div>
+      <>
         <div className='buttonBar'>
           <button className='button' onClick={() => this.startTimer(50)}>50</button>
           <button className='button' onClick={() => this.startTimer(25)}>25</button>
@@ -235,9 +252,8 @@ class Timer extends React.Component {
           <button className='button' onClick={() => this.playPause()}>&#9632;</button>
         </div>
         <input className='timerBar' readOnly={true}
-          value={this.state.minutes + ':' + 
-          String(this.state.seconds).padStart(2, '0')}></input>
-      </div>
+          value={timeReadout}></input>
+      </>
     )
   }
 }
@@ -245,7 +261,7 @@ class Timer extends React.Component {
 class Frame extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {lists: props.subtasks, info: props.info,
+    this.state = {subtasks: props.subtasks, info: props.info,
       width: Math.floor(window.innerWidth / 200)};
     $(window).on('resize', this.resizeCheck);
     if (props.id === 'river') {
@@ -254,8 +270,13 @@ class Frame extends React.Component {
       this.state.repeats = repeats;
     }
   }
-  changeIndex(val) {
-    let newIndex = this.state.info.index + val
+  changeIndex(val, set) {
+    let newIndex;
+    if (set === true) {
+      newIndex = val;
+    } else {
+      newIndex = this.state.info.index + val;
+    }
     if (newIndex < 0) newIndex = 0
     this.setState(prevState => ({
       info: {...prevState.info, index: newIndex}
@@ -264,10 +285,11 @@ class Frame extends React.Component {
   render() {
     const now = new Date();
     let i = 0;
-    var lastDate = new Date(
-      this.state.lists[this.state.lists.length - 1].title
+    var lastDate = this.state.subtasks[this.state.subtasks.length - 1].title
+    lastDate = new Date(
+      lastDate.slice(0, 11) + '20' + lastDate.slice(12)
     );
-    while (this.state.lists.length < this.state.info.index + 7) {
+    while (this.state.subtasks.length < this.state.info.index + 7) {
       i ++;
       if (this.props.id === 'bank') {
         var title = '';
@@ -275,13 +297,21 @@ class Frame extends React.Component {
         const date = new Date(lastDate.getTime());
         date.setDate(lastDate.getDate() + i);
         var title = date.toDateString();
+        title = title.slice(0, 11) + "'" + title.slice(13);
       }
-      this.state.lists.push({id: String(now.getTime() + i), 
+      this.state.subtasks.push({id: String(now.getTime() + i), 
         title: title, subtasks: [], info: {}});
     }
     function resizeCheck() {
       // TODO: debug "this" in this function
-      const width = Math.floor(window.innerWidth / 200);
+      if (this.state.info.focused != 'focused') {
+        var width = Math.floor(window.innerWidth / 200);
+      } else {
+        // focus mode
+        var width = 1;
+      }
+      $(':root').css('--frameWidth', 
+        ((window.innerWidth - 40) / width) + 'px');
       if (width != this.state.width) {
         this.setState({width: width});
       }
@@ -290,12 +320,13 @@ class Frame extends React.Component {
     this.changeIndex = this.changeIndex.bind(this);
     resizeCheck = resizeCheck.bind(this);
     this.frames = [];
-    // $(window).off('resize', () => resizeCheck);
     window.addEventListener('resize', resizeCheck);
+    resizeCheck();
     const shownLists = 
-      this.state.lists.slice(this.state.info.index, endIndex);
+      this.state.subtasks.slice(this.state.info.index, endIndex);
     const div = (
-      <div id={this.props.id} className='frame'>
+      <div id={this.props.id} 
+        className={'frame ' + this.state.info.focused}>
         <button className='changeButton'
           onClick={() => this.changeIndex(this.state.width * -1)}>&lt;</button>
         {shownLists.map(x => {
@@ -531,21 +562,26 @@ class Task extends React.Component {
       info: {...prevState.info, complete: status}})); 
     this.displayOptions('hide');
   }
-  toggleImportant() {
+  toggleImportant(change) {
     let status = this.state.info.important
     if (status === 'important') { status = '' }
     else { status = 'important' }
     this.setState(prevState => ({
       info: {...prevState.info, important: status, maybe: ''}})); 
-    this.displayOptions('hide');
+    if (change != false) {
+      this.displayOptions('hide');
+    }
   }
-  toggleMaybe() {
+  toggleMaybe(change) {
     let status = this.state.info.maybe
     if (status === 'maybe') { status = '' }
     else { status = 'maybe' }
     this.setState(prevState => ({
       info: {...prevState.info, maybe: status, important: ''}})); 
     this.displayOptions('hide');
+    if (change != false) {
+      this.displayOptions('hide');
+    }
   }
   toggleCollapse() {
     let status = this.state.info.collapsed
@@ -705,7 +741,7 @@ function selectTask(el, force) {
     return
   }
   preventSelect = true;
-  setTimeout(function () { preventSelect = false }, 250);
+  setTimeout(function () { preventSelect = false }, 100);
   console.log(selected);
   if (selected == el && !force) {
     console.log('selected and el are the same');
@@ -782,7 +818,7 @@ function pasteTask(type) {
 
 function backup() {
   const now = new Date();
-  // fs.writeFile('file.txt', JSON.stringify('data'), 
+  console.log(JSON.stringify(data));
 }
 
 function keyComms(ev) {
@@ -821,6 +857,18 @@ function keyComms(ev) {
       case 'd':
         moveTask(1);
         break;
+      case '1':
+        if (selected instanceof Task) {
+          selected.toggleComplete();
+        }
+      case '2':
+        if (selected instanceof Task) {
+          selected.toggleImportant(false);
+        }
+      case '3':
+        if (selected instanceof Task) {
+          selected.toggleMaybe(false);
+        }
       case 'i':
         if (selected && selected instanceof Task) {
           selected.displayOptions({target: $('<p></p>')});
@@ -847,12 +895,23 @@ function keyComms(ev) {
   }
 }
 
+function dateFormat(string, reverse) {
+  if (reverse) {
+    return string.slice(0, 11) + '20' + string.slice(12);
+  } else {
+    return string.slice(0, 11) + "'" + string.slice(13);
+  }
+}
+
 function moveTask(direction) {
   console.log('movetask');
   if (!selected) return;
   const subtasks = selected.props.parent.state.subtasks;
   const selectedPlace = 
     selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
+  if (selectedPlace == 0 && direction == -1) return;
+  else if (selectedPlace == selected.props.parent.state.subtasks.length
+    && direction == 1) return;
   const spliceTask = subtasks.splice(selectedPlace, 1)[0];
   subtasks.splice(selectedPlace + direction, 0, spliceTask);
   selected.props.parent.setState(subtasks);
@@ -862,6 +921,20 @@ function reset() {
   data = resetData;
   localStorage.setItem('data', JSON.stringify(resetData));
   setTimeout(function () { window.location.reload() }, 200);
+}
+
+function focus() {
+  if (app.current.state.bank.current.state.info.focused == 'focused') {
+    var focusSet = '';
+  } else {
+    var focusSet = 'focused';
+  }
+  app.current.state.bank.current.setState(prevState => (
+    {info: {...prevState.info, 
+    focused: focusSet}}));
+  app.current.state.river.current.setState(prevState => (
+    {info: {...prevState.info, 
+    focused: focusSet}}));
 }
 
 function init() {
