@@ -666,6 +666,9 @@ class Task extends React.Component {
   }
   changeTitle(ev) { 
     this.setState({title: ev.target.value});
+    this.updateHeight();
+  }
+  updateHeight() {
     this.editBar.current.style.height = '0px';
     this.editBar.current.style.height = 
       (this.editBar.current.scrollHeight) + "px";
@@ -810,15 +813,15 @@ class Task extends React.Component {
     }, 200);
   }
   componentDidMount() {
-    this.changeTitle({target: {value: this.state.title}});
     this.editBar.current.focus();
+    setTimeout(
+      () => {
+        this.updateHeight();
+      }, 50
+    )
     selectTask(this);
     this.changeEndDate('init');
     this.changeStartDate('init');
-    console.log(this.editBar.current.scrollHeight);
-    this.editBar.current.style.height = '0px';
-    this.editBar.current.style.height = 
-      (this.editBar.current.scrollHeight + 45) + "px";
   }
   render() {
     // fuck react
