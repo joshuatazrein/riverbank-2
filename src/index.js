@@ -530,7 +530,8 @@ class Frame extends React.Component {
       <div id={this.props.id} 
         className={'frame ' + this.state.info.focused}>
         <button className='changeButton'
-          onClick={() => this.changeIndex(this.state.width * -1)}>&lt;</button>
+          onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
+          </button>
         {shownLists.map(x => {
           this.frames.push(React.createRef());
           if (this.props.id === 'river') {
@@ -565,7 +566,7 @@ class List extends React.Component {
       info: {}};
   }
   changeTitle(ev) {
-    this.setState({title: ev.target.value})
+    this.setState({title: ev.target.value});
   }
   render() {
     function selectThis() {
@@ -642,8 +643,7 @@ class Task extends React.Component {
     this.state = {
       info: props.info, title: props.title, 
       subtasks: props.subtasks, parent: props.parent, 
-      id: props.id, displayOptions: 'hide', riverTask: false,
-      this: this
+      id: props.id, displayOptions: 'hide', riverTask: false
     };
     if (!this.state.info.startDate) this.state.info.startDate = '';
     if (!this.state.info.endDate) this.state.info.endDate = '';
@@ -665,16 +665,10 @@ class Task extends React.Component {
     }
   }
   changeTitle(ev) { 
-    let height;
-    if (this.state.subtasks.length > 0) {
-      height = '0.5em';
-    } else {
-      height = '0.25em';
-    }
-    this.setState({editWidth: this.editBar.current.offsetWidth});
-    this.setState({title: ev.target.value, editHeight: 
-    'calc(' + String(this.heightSpan.current.offsetHeight) + 
-    'px + ' + height});
+    this.setState({title: ev.target.value});
+    this.editBar.current.style.height = '0px';
+    this.editBar.current.style.height = 
+      (this.editBar.current.scrollHeight) + "px";
   }
   changeStartDate(ev) { 
     if (this.state.info.startDate.includes('-')) {
@@ -821,6 +815,10 @@ class Task extends React.Component {
     selectTask(this);
     this.changeEndDate('init');
     this.changeStartDate('init');
+    console.log(this.editBar.current.scrollHeight);
+    this.editBar.current.style.height = '0px';
+    this.editBar.current.style.height = 
+      (this.editBar.current.scrollHeight + 45) + "px";
   }
   render() {
     // fuck react
@@ -848,6 +846,15 @@ class Task extends React.Component {
       value={this.state.info.endDate} 
       onChange={(ev) => this.changeEndDate(ev)}>
       </input>
+    if (this.heightSpan.current) {
+      console.log('setting height');
+      this.setHeight();
+    }
+    if (this.editBar.current) {
+      this.editBar.current.style.height = '0px';
+      this.editBar.current.style.height = 
+        (this.editBar.current.scrollHeight) + "px";
+    }
     // task with info and subtasks
     return (
       <li 
@@ -899,16 +906,12 @@ class Task extends React.Component {
         <div class='taskContent'>
           <div class='startEndSpans'>
             <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
-            <span className='optionsSpan endDate'>{this.state.info.endDate}</span>
+            <span className='optionsSpan endDate'>{this.state.info.endDate}
+            </span>
           </div>
           <textarea className='editBar' value={this.state.title}
-            onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
-            style={{height: this.state.editHeight}}></textarea>
+            onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}></textarea>
         </div>
-        <span className='editBar editSpan'
-          ref={this.heightSpan} 
-          style={{width: this.state.editWidth}}>
-          {this.state.title + 'x'}</span>
         <TaskList ref={this.taskList} subtasks={this.state.subtasks} 
           parent={this} />
       </li>
