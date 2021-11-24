@@ -192,7 +192,7 @@ ul {
   margin-top: -10px;
 }
 
-.task.event > textarea {
+.task.event > div > textarea {
   background: var(--event);
   border-radius: 5px;
 }
