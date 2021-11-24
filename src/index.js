@@ -11,10 +11,10 @@ var themes = {
   'earth-day': {
     "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
     "--fontSize": "26px",
-    "--fontweight": "400",
+    "--fontWeight": "400",
     "--bold": "600",
     "--background": "rgb(218, 221, 216)",
-    "--border": "rgba(60, 52, 31)",
+    "--border": "rgba(60, 52, 31, 0.3)",
     "--select": "rgb(85, 107, 47)",
     "--event": "rgba(85, 107, 47, 0.3)",
     "--foreground": "rgb(59, 60, 54)",
@@ -23,16 +23,17 @@ var themes = {
     "--important": "rgb(14, 41, 48)",
     "--maybe": "rgba(14, 41, 48, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   },
   'earth-night': {
     "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
     "--fontSize": "26px",
-    "--fontweight": "400",
+    "--fontWeight": "400",
     "--bold": "600",
     "--background": "rgb(35, 38, 33)",
-    "--border": "rgba(224, 223, 225, 0.5)",
+    "--border": "rgba(224, 223, 225, 0.3)",
     "--select": "rgb(186, 208, 149)",
     "--event": "rgba(186, 208, 149, 0.3)",
     "--foreground": "rgb(218, 222, 200)",
@@ -41,13 +42,14 @@ var themes = {
     "--important": "rgb(85, 107, 47)",
     "--maybe": "rgba(85, 107, 47, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   },
   'fire-day': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
     "--fontSize": "21px",
-    "--fontweight": "300",
+    "--fontWeight": "300",
     "--bold": "500",
     "--background": "rgb(230, 230, 250)",
     "--border": "rgba(53, 3, 58, 0.3)",
@@ -59,16 +61,17 @@ var themes = {
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   }, 
   'fire-night': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
     "--fontSize": "21px",
-    "--fontweight": "300",
+    "--fontWeight": "300",
     "--bold": "500",
     "--background": "rgb(5, 5, 26)",
-    "--border": "rgba(212, 112, 162)",
+    "--border": "rgba(212, 112, 162, 0.3)",
     "--select": "rgb(183, 104, 162)",
     "--event": "rgba(183, 104, 162, 0.3)",
     "--foreground": "rgb(248, 197, 252)",
@@ -77,16 +80,17 @@ var themes = {
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   },
   'sky-day': {
     "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
     "--fontSize": "22px",
-    "--fontweight": "100",
+    "--fontWeight": "100",
     "--bold": "300",
     "--background": "#E4EDF1",
-    "--border": "rgba(21, 35, 40, 0.5)",
+    "--border": "rgba(21, 35, 40, 0.3)",
     "--select": "rgb(119, 152, 171)",
     "--event": "rgba(119, 152, 171, 0.3)",
     "--foreground": "rgb(52, 64, 85)",
@@ -95,16 +99,17 @@ var themes = {
     "--important": "rgb(29, 41, 81)",
     "--maybe": "rgba(29, 41, 81, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   },
   'sky-night': {
     "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
     "--fontSize": "22px",
-    "--fontweight": "100",
+    "--fontWeight": "100",
     "--bold": "300",
     "--background": "rgb(14, 23, 27)",
-    "--border": "rgba(36, 40, 43, 0.5)",
+    "--border": "rgba(36, 40, 43, 0.3)",
     "--select": "rgb(83, 117, 136)",
     "--event": "rgba(59, 75, 84, 0.3)",
     "--foreground": "rgb(170, 182, 203)",
@@ -113,15 +118,16 @@ var themes = {
     "--important": "rgb(173, 185, 225)",
     "--maybe": "rgba(173, 185, 225, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
+    "--headingSize": "125%",
   },
   'space-day': {
     "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
     "--fontSize": "24px",
-    "--fontweight": "300",
+    "--fontWeight": "300",
     "--background": "rgb(201, 192, 187)",
-    "--border": "rgba(128, 128, 128, 0.5)",
+    "--border": "rgba(128, 128, 128, 0.3)",
     "--select": "rgb(165, 113, 100)",
     "--event": "rgba(165, 113, 100, 0.3)",
     "--foreground": "rgb(59, 47, 47)",
@@ -130,16 +136,17 @@ var themes = {
     "--important": "rgb(161, 122, 116)",
     "--maybe": "rgba(161, 122, 116, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
     "--bold": "600",
+    "--headingSize": "125%",
   },
   'space-night': {
     "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
     "--fontSize": "24px",
-    "--fontweight": "300",
+    "--fontWeight": "300",
     "--background": "rgb(0, 0, 0)",
-    "--border": "rgb(128, 128, 128)",
+    "--border": "rgb(128, 128, 128, 0.3)",
     "--select": "rgb(101, 138, 149)",
     "--event": "rgba(136, 165, 174, 0.3)",
     "--foreground": "rgb(191, 193, 194)",
@@ -148,16 +155,17 @@ var themes = {
     "--important": "skyblue",
     "--maybe": "darkblue",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "rgb(232, 237, 231)",
+    "--endDate": "rgb(234, 232, 237)",
     "--bold": "600",
+    "--headingSize": "125%",
   },
   'water-day': {
     "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
     "--fontSize": "19px",
-    "--fontweight": "100",
+    "--fontWeight": "100",
     "--background": "rgb(188, 212, 230)",
-    "--border": "rgba(36, 40, 43, 0.5)",
+    "--border": "rgba(36, 40, 43, 0.3)",
     "--select": "rgb(64, 71, 77)",
     "--event": "rgba(64, 71, 77, 0.3)",
     "--foreground": "rgb(10, 10, 10)",
@@ -166,16 +174,17 @@ var themes = {
     "--important": "rgb(41, 74, 112)",
     "--maybe": "rgba(41, 74, 112, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
     "--bold": "400",
+    "--headingSize": "1.15em",
   },
   'water-night': {
     "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
     "--fontSize": "19px",
-    "--fontweight": "100",
+    "--fontWeight": "100",
     "--background": "rgb(31, 40, 52)",
-    "--border": "rgba(176, 194, 212)",
+    "--border": "rgba(176, 194, 212, 0.3)",
     "--select": "rgb(145, 163, 176)",
     "--event": "rgba(145, 163, 176, 0.3)",
     "--foreground": "whitesmoke",
@@ -184,9 +193,10 @@ var themes = {
     "--important": "rgb(143, 176, 214)",
     "--maybe": "rgba(143, 176, 214, 0.5)",
     "--menufont": "18px Courier New",
-    "--startDate": "skyblue",
-    "--endDate": "darkblue",
+    "--startDate": "var(--maybe)",
+    "--endDate": "var(--important)",
     "--bold": "400",
+    "--headingSize": "1.15em",
   }
 }
 
@@ -316,23 +326,13 @@ class StatusBar extends React.Component {
     }, 50);
     this.setState({searchString: '', foundTasks: {}});
   }
-  goToToday() {
-    const today = dateFormat(new Date().toDateString());
-    const river = app.current.state.river.current;
-    const days = river.state.subtasks;
-    console.log(days);
-    const thisDay = days.findIndex(x => x.title === today);
-    river.changeIndex(thisDay, true);
-    // TODO: FINSIH
-  }
   componentDidMount() {
-    setTimeout(this.goToToday, 200);
+    setTimeout(goToToday, 200);
   }
   render() {
     this.search = this.search.bind(this);
     this.treeSearch = this.treeSearch.bind(this);
     this.goToSearch = this.goToSearch.bind(this);
-    this.goToToday = this.goToToday.bind(this);
     this.searchResults = React.createRef();
     this.options = React.createRef();
     return (
@@ -368,9 +368,9 @@ class StatusBar extends React.Component {
             <option></option>
             <option value='backup()'>backup</option>
             <option value='reset()'>reset</option>
-            <option value='this.goToToday()'>today</option>
+            <option value='goToToday()'>today</option>
             <option value='focus()'>toggle focus</option>
-            <option value='this.props.parent.toggleComplete()'>
+            <option value='app.current.toggleComplete()'>
               toggle complete</option>
             <option value='toggleMode()'>toggle day/night</option>
             <option value='setTheme("space")'>theme: space</option>
@@ -546,7 +546,8 @@ class Frame extends React.Component {
           } else {
             return (
               <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this} />
+                subtasks={x.subtasks} parent={this} 
+                ref={this.frames[this.frames.length - 1]} />
             )
           }
         })}
@@ -574,13 +575,14 @@ class List extends React.Component {
     }
     selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
+    this.listInput = React.createRef();
     return (
       <div className='list' onClick={selectThis}>
         {this.props.parent.props.id === 'bank' ?
           <input className='listInput' value={this.state.title} 
-          onChange={this.changeTitle}></input> :
+          onChange={this.changeTitle} ref={this.listInput}></input> :
           <input readOnly className='listInput listTitle'
-            value={this.state.title}></input>
+            value={this.state.title} ref={this.listInput}></input>
         }
         {this.props.parent.props.id === 'river' && 
         this.props.deadlines &&
@@ -673,68 +675,43 @@ class Task extends React.Component {
     this.editBar.current.style.height = 
       (this.editBar.current.scrollHeight) + "px";
   }
-  changeStartDate(ev) { 
-    if (this.state.info.startDate.includes('-')) {
+  changeEndDate(ev, type) { 
+    if (type == 'end') {
+      var check1 = this.state.info.endDate;
+    } else if (type === 'start') {
+      var check1 = this.state.info.startDate;
+    }
+    if (check1.includes('-')) {
       // delete deadline string if no longer there
-      const deadline = this.state.info.startDate.split('-');
+      const deadline = check1.split('-');
       const now = new Date();
       now.setMonth(Number(deadline[0]) - 1);
       now.setDate(Number(deadline[1]));
-      if (startdates[now.toDateString()] && 
-        startdates[now.toDateString()][this.props.id]) {
-        delete startdates[now.toDateString()][this.props.id];
+      const string = dateFormat(now.toDateString());
+      if (type === 'end') {
+        if (deadlines[string] && 
+          deadlines[string][this.props.id]) {
+          delete deadlines[string][this.props.id];
+        }
+      } else if (type === 'start') {
+        if (startdates[string] && 
+          startdates[string][this.props.id]) {
+          delete startdates[string][this.props.id];
+        }
       }
     }
     if (ev === 'init') {
-      ev = {target: {value: this.state.info.startDate}};
-    } else if (ev === 'destroy') {
-      let parent = this.props.parent;
-      while (parent.props.parent) {
-        parent = parent.props.parent;
-      }
-      parent.setState({startdates: startdates});
-      return;
-    } else {
-      this.setState(prevState => ({
-        info: {...prevState.info, startDate: ev.target.value}})); 
-    }
-    console.log(ev);
-    if (ev.target.value.includes('-')) {
-      // process deadline string
-      const deadline = ev.target.value.split('-');
-      const now = new Date();
-      now.setMonth(Number(deadline[0]) - 1);
-      now.setDate(Number(deadline[1]));
-      if (!startdates[now.toDateString()]) {
-        startdates[now.toDateString()] = {};
-      }
-      startdates[now.toDateString()][this.props.id] = this.state.title;
-      let parent = this.props.parent;
-      while (parent.props.parent) {
-        parent = parent.props.parent;
-      }
-      parent.setState({startdates: startdates});
-    }
-  }
-  changeEndDate(ev) { 
-    if (this.state.info.endDate.includes('-')) {
-      // delete deadline string if no longer there
-      const deadline = this.state.info.endDate.split('-');
-      const now = new Date();
-      now.setMonth(Number(deadline[0]) - 1);
-      now.setDate(Number(deadline[1]));
-      if (deadlines[now.toDateString()] && 
-        deadlines[now.toDateString()][this.props.id]) {
-        delete deadlines[now.toDateString()][this.props.id];
-      }
-    }
-    if (ev === 'init') {
-      ev = {target: {value: this.state.info.endDate}};
+      ev = {target: {value: check1}};
     } else if (ev === 'destroy') {
       ev = {target: {value: ' '}};
     } else {
-      this.setState(prevState => ({
-        info: {...prevState.info, endDate: ev.target.value}})); 
+      if (type === 'end') {
+        this.setState(prevState => ({
+          info: {...prevState.info, endDate: ev.target.value}})); 
+      } else if (type === 'start') {
+        this.setState(prevState => ({
+          info: {...prevState.info, startDate: ev.target.value}})); 
+      }
     }
     if (ev.target.value.includes('-')) {
       // process deadline string
@@ -742,24 +719,40 @@ class Task extends React.Component {
       const now = new Date();
       now.setMonth(Number(deadline[0]) - 1);
       now.setDate(Number(deadline[1]));
-      if (!deadlines[now.toDateString()]) {
-        deadlines[now.toDateString()] = {};
+      const string = dateFormat(now.toDateString());
+      if (type === 'end') {
+        if (!deadlines[string]) {
+          deadlines[string] = {};
+        }
+        deadlines[string][this.props.id] = 
+          this.state.title;
+      } else if (type === 'start') {
+        if (!startdates[string]) {
+          startdates[string] = {};
+        }
+        startdates[string][this.props.id] = 
+          this.state.title;
       }
-      deadlines[now.toDateString()][this.props.id] = this.state.title;
       let parent = this.props.parent;
       while (parent.props.parent) {
         parent = parent.props.parent;
       }
-      parent.setState({deadlines: deadlines});
+      if (type === 'end') {
+        parent.setState({deadlines: deadlines});
+      } else if (type === 'start') {
+        parent.setState({startdates: startdates});
+      }
     }
   }
-  toggleComplete() {
+  toggleComplete(change) {
     let status = this.state.info.complete
     if (status === 'complete') { status = '' }
     else { status = 'complete' }
     this.setState(prevState => ({
       info: {...prevState.info, complete: status}})); 
-    this.displayOptions('hide');
+    if (change != false) {
+      this.displayOptions('hide');
+    }
   }
   toggleImportant(change) {
     let status = this.state.info.important
@@ -777,7 +770,6 @@ class Task extends React.Component {
     else { status = 'maybe' }
     this.setState(prevState => ({
       info: {...prevState.info, maybe: status, important: ''}})); 
-    this.displayOptions('hide');
     if (change != false) {
       this.displayOptions('hide');
     }
@@ -797,8 +789,8 @@ class Task extends React.Component {
     while (parent.props.parent) {
       parent = parent.props.parent;
     }
-    this.changeEndDate('destroy');
-    this.changeStartDate('destroy');
+    this.changeEndDate('destroy', 'end');
+    this.changeEndDate('destroy', 'start');
     const subtasks = this.state.parent.state.subtasks;
     const currentTask = subtasks.findIndex(x => {
       return x.id === this.state.id;
@@ -816,12 +808,12 @@ class Task extends React.Component {
     this.editBar.current.focus();
     setTimeout(
       () => {
-        this.updateHeight();
+        if (this.editBar.current) this.updateHeight();
       }, 50
     )
     selectTask(this);
-    this.changeEndDate('init');
-    this.changeStartDate('init');
+    this.changeEndDate('init', 'end');
+    this.changeEndDate('init', 'start');
   }
   render() {
     // fuck react
@@ -842,12 +834,12 @@ class Task extends React.Component {
     const startInput = 
       <input className='optionsInput startDate' 
       value={this.state.info.startDate} 
-      onChange={(ev) => this.changeStartDate(ev)}
+      onChange={(ev) => this.changeEndDate(ev, 'start')}
       ref={this.startDateSpan}></input>
     const endInput = 
       <input className='optionsInput endDate' 
       value={this.state.info.endDate} 
-      onChange={(ev) => this.changeEndDate(ev)}>
+      onChange={(ev) => this.changeEndDate(ev, 'end')}>
       </input>
     if (this.heightSpan.current) {
       console.log('setting height');
@@ -869,8 +861,7 @@ class Task extends React.Component {
         ' ' + this.state.info.collapsed} 
       onClick={() => {selectTask(this)}}
       >
-        <span className='info' onClick={(ev) => this.displayOptions(ev)}
-          ref={this.optionsButton}>
+        <div class='taskContent'>
           <div className={'options ' + this.state.displayOptions}>
             <div className='buttonBar' style={{width: '100%', 
               alignContent: 'center'}}>
@@ -905,8 +896,9 @@ class Task extends React.Component {
             {startInput}
             {endInput}
           </div>
-        </span>
-        <div class='taskContent'>
+          <span className='info' onClick={(ev) => this.displayOptions(ev)}
+            ref={this.optionsButton}>
+          </span>
           <div class='startEndSpans'>
             <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
             <span className='optionsSpan endDate'>{this.state.info.endDate}
@@ -964,6 +956,8 @@ function selectTask(el, force) {
   selected = el;
   if (el instanceof Task) {
     el.editBar.current.focus();
+  } else if (el instanceof List) {
+    el.listInput.current.focus();
   }
 }
 
@@ -1064,24 +1058,32 @@ function keyComms(ev) {
         if (selected && selected instanceof Task) {
           selected.deleteThis();
         }
+        break;
       case 'u':
-        moveTask(-1);
+        if (selected.props.parent.props.id != 'river') {
+          moveTask(-1);
+        }
         break;
       case 'd':
-        moveTask(1);
+        if (selected.props.parent.props.id != 'river') {
+          moveTask(1);
+        }
         break;
       case '1':
         if (selected instanceof Task) {
-          selected.toggleComplete();
+          selected.toggleComplete(false);
         }
+        break;
       case '2':
         if (selected instanceof Task) {
           selected.toggleImportant(false);
         }
+        break;
       case '3':
         if (selected instanceof Task) {
           selected.toggleMaybe(false);
         }
+        break;
       case 'i':
         if (selected && selected instanceof Task) {
           selected.displayOptions({target: $('<p></p>')});
@@ -1156,6 +1158,26 @@ function focus(set) {
     {info: {...prevState.info, 
     focused: focusSet}}));
   saveSetting('focused', focusSet);
+  if (set == undefined) {
+    setTimeout(updateAllSizes, 50);
+  }
+}
+
+function updateAllSizes() {
+  function update(list) {
+    console.log(list);
+    for (let task of list.current.taskList.current.subtaskObjects) {
+      task.current.updateHeight();
+      for (let subtask of task.current.taskList.current.subtaskObjects) {
+        update(subtask);
+      }
+    }
+  }
+  const riverLists = app.current.state.river.current.frames;
+  const bankLists = app.current.state.bank.current.frames;
+  for (let list of riverLists.concat(bankLists)) {
+    update(list);
+  }
 }
 
 function setTheme(theme) {
@@ -1169,6 +1191,7 @@ function setTheme(theme) {
   }
   data.settings.theme = theme;
   localStorage.setItem('data', JSON.stringify(data));
+  setTimeout(updateAllSizes, 100);
 }
 
 function toggleMode() {
@@ -1179,6 +1202,15 @@ function toggleMode() {
   }
   setTheme(data.settings.theme);
   localStorage.setItem('data', JSON.stringify(data));
+}
+
+function goToToday() {
+  const today = dateFormat(new Date().toDateString());
+  const river = app.current.state.river.current;
+  const days = river.state.subtasks;
+  const thisDay = days.findIndex(x => x.title === today);
+  river.changeIndex(thisDay, true);
+  console.log('went to today');
 }
 
 function init() {
