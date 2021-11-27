@@ -6,6 +6,9 @@ import $ from 'jquery';
 import './style.css';
 import { render } from '@testing-library/react';
 import "react-datepicker/dist/react-datepicker.css";
+import { DragDropContext } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
+import { Draggable } from 'react-beautiful-dnd';
 
 var themes = {
   'earth-day': {
@@ -64,7 +67,7 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
-  }, 
+  },
   'fire-night': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
     "--fontSize": "21px",
@@ -201,20 +204,27 @@ var themes = {
 }
 
 var resetData = {
-  bank: 
-    {info: {index: 0}, subtasks: [
-      {id:'1', title:'first', subtasks: [], info: {}}
-    ]}, 
+  bank:
+  {
+    info: { index: 0 }, subtasks: [
+      { id: '1', title: 'first', subtasks: [], info: {} }
+    ]
+  },
   river:
-    {info: {index: 0}, subtasks: [
-      {id:String(new Date().getTime()), 
-      title: String(new Date().toDateString()).slice(0, 11) + "'" + 
-      String(new Date().toDateString()).slice(13), subtasks: [], info: {}}
-    ]}, 
+  {
+    info: { index: 0 }, subtasks: [
+      {
+        id: String(new Date().getTime()),
+        title: new Date().toDateString(), subtasks: [], info: {}
+      }
+    ]
+  },
   settings: {
-    repeats: {'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 
-      'Fri': [], 'Sat': [], 'Sun': [], },
-    theme: 'space', 
+    repeats: {
+      'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [],
+      'Fri': [], 'Sat': [], 'Sun': [],
+    },
+    theme: 'space',
     mode: 'night',
     focused: '',
   }
@@ -249,7 +259,8 @@ var app;
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {hideComplete: '', 
+    this.state = {
+      hideComplete: '',
       bank: React.createRef(),
       river: React.createRef(),
       theme: data.settings.theme,
@@ -259,21 +270,70 @@ class App extends React.Component {
   }
   toggleComplete() {
     if (this.state.hideComplete == '') {
-      this.setState({hideComplete: 'hideComplete'});
+      this.setState({ hideComplete: 'hideComplete' });
     } else {
-      this.setState({hideComplete: ''});
+      this.setState({ hideComplete: '' });
     }
   }
-  render () {
+  onDragEnd = result => {
+    const { destination, source, draggableId } = result;
+    if (!destination) {
+      return;
+    }
+    if (destination.droppableId === source.droppableId &&
+      destination.index === source.index) {
+      return;
+    }
+    console.log(source, destination);
+    const sourceSplit = source.droppableId.split('-');
+    const destSplit = destination.droppableId.split('-');
+
+    function buildList(listSplit) {
+      var listObjs = [];
+      listObjs.push(app.current.state[listSplit[0]]);
+      listObjs.push(listObjs[0].current.frames.find(x =>
+        x.current.props.id == listSplit[1]));
+      var i = 2;
+      var task;
+      function getTask() {
+        console.log(listObjs[i - 1].current.taskList.current
+          .subtaskObjects);
+        task = listObjs[i - 1].current.taskList.current
+          .subtaskObjects.find(x => x.current.props.id === listSplit[i]);
+        listObjs.push(task);
+        i++;
+      }
+      while (i < listSplit.length) {
+        getTask();
+      }
+      // returns the item to update
+      return listObjs[listObjs.length - 1];
+    }
+    const sourceItem = buildList(sourceSplit);
+    const sourceState = sourceItem.current.state.subtasks;
+    const splicedTask = sourceState.splice(source.index, 1);
+    sourceItem.current.setState({ subtasks: sourceState });
+    const destItem = buildList(destSplit);
+    const destState = destItem.current.state.subtasks;
+    destState.splice(destination.index, 0, splicedTask[0]);
+    destItem.current.setState({ subtasks: destState });
+    // splice in the new DATA from the source into the OBJECT of the destination
+    save(sourceItem.current);
+    save(destItem.current);
+    selected = undefined;
+  }
+  render() {
     return (
       <>
         <StatusBar parent={this} />
-        <div className={'container ' + this.state.hideComplete}>
-          <Frame id='bank' info={data['river'].info} 
-            subtasks={data['bank'].subtasks} ref={this.state.bank} />
-          <Frame id='river' info={data['river'].info} 
-            subtasks={data['river'].subtasks} ref={this.state.river} />
-        </div>
+        <DragDropContext onDragEnd={this.onDragEnd}>
+          <div className={'container ' + this.state.hideComplete}>
+            <Frame id='bank' info={data['river'].info}
+              subtasks={data['bank'].subtasks} ref={this.state.bank} />
+            <Frame id='river' info={data['river'].info}
+              subtasks={data['river'].subtasks} ref={this.state.river} />
+          </div>
+        </DragDropContext>
       </>
     )
   }
@@ -282,16 +342,17 @@ class App extends React.Component {
 class StatusBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {searchString: '', foundTasks: {}};
+    this.state = { searchString: '', foundTasks: {} };
   }
   treeSearch(task, idString) {
+    // builds full tree list of IDs based on title contents
     let i = 0;
     for (let subtask of task.subtasks) {
       if (subtask.title.length > 0) {
         this.searches[subtask.title] = idString + ' ' + i;
       }
       this.treeSearch(subtask, idString + ' ' + i);
-      i ++;
+      i++;
     }
   }
   search(ev) {
@@ -300,14 +361,14 @@ class StatusBar extends React.Component {
       this.treeSearch(data.river, 'river');
       this.treeSearch(data.bank, 'bank');
     }
-    this.setState({searchString: ev.target.value});
+    this.setState({ searchString: ev.target.value });
     for (let x of Object.keys(this.searches)) {
       if (!new RegExp(this.state.searchString, 'i').test(x)) {
         delete this.searches[x];
       }
     }
     console.log(this.searches);
-    this.setState({foundTasks: this.searches});
+    this.setState({ foundTasks: this.searches });
   }
   goToSearch(title) {
     const splits = title.split(' ');
@@ -324,7 +385,7 @@ class StatusBar extends React.Component {
       preventSelect = false;
       selectTask(currentTask.current, true);
     }, 50);
-    this.setState({searchString: '', foundTasks: {}});
+    this.setState({ searchString: '', foundTasks: {} });
   }
   componentDidMount() {
     setTimeout(goToToday, 200);
@@ -335,37 +396,58 @@ class StatusBar extends React.Component {
     this.goToSearch = this.goToSearch.bind(this);
     this.searchResults = React.createRef();
     this.options = React.createRef();
+    this.functions = React.createRef();
     return (
       <div className='statusBar'>
-        <div className='buttonBar nowrap'>
+        <div style={{
+          display: 'flex', flexDirection: 'column',
+          position: 'relative'
+        }}>
           <input className='searchBar' onChange={(ev) => this.search(ev)}
             value={this.state.searchString}
             onKeyDown={(ev) => {
               if (ev.key === 'Backspace') {
-                this.setState({searchString: '', foundTasks: {}});
+                this.setState({ searchString: '', foundTasks: {} });
+              } else if (ev.key === 'Enter') {
+                if ($(this.searchResults.current).children().length > 0) {
+                  this.goToSearch(this.state.foundTasks[
+                    $($(this.searchResults.current)
+                      .children()[0]).attr('value')])
+                }
               }
             }}
             placeholder='search'></input>
-          <select ref={this.searchResults} onChange={() => {
-            this.goToSearch(this.state.foundTasks[
-              this.searchResults.current.value])
-            }}>
-            <option></option>
-            {Object.keys(this.state.foundTasks).map(x => 
-              <option key={x} value={x}>{x}</option>)}
-          </select>
-          <Timer />
+          {this.state.searchString.length > 0 &&
+            <select ref={this.searchResults} onChange={() => {
+              this.goToSearch(this.state.foundTasks[
+                this.searchResults.current.value])
+            }} style={{ width: '130px' }}>
+              {Object.keys(this.state.foundTasks).map(x =>
+                <option key={x} value={x}>{x}</option>)}
+            </select>
+          }
         </div>
+        <Timer />
         <div className='buttonBar nowrap'>
-          <button className='button' onClick={newTask}>+</button>
-          <button className='button' onClick={cutTask}>x</button>
-          <button className='button' onClick={copyTask}>c</button>
-          <button className='button' onClick={pasteTask}>v</button>
+          <select ref={this.functions} onChange={() => {
+            eval(this.functions.current.value);
+            this.functions.current.value = '';
+          }}>
+            <option value="" selected disabled hidden>functions...</option>
+            <option value='newTask()'>
+              new task (return)</option>
+            <option value='cutTask()'>
+              cut (ctrl-x)</option>
+            <option value='copyTask()'>
+              copy (ctrl-c)</option>
+            <option value='pasteTask()'>
+              paste (ctrl-v)</option>
+          </select>
           <select ref={this.options} onChange={() => {
-              eval(this.options.current.value);
-              this.options.current.value='';
-            }}>
-            <option></option>
+            eval(this.options.current.value);
+            this.options.current.value = '';
+          }}>
+            <option value="" selected disabled hidden>settings...</option>
             <option value='backup()'>backup</option>
             <option value='reset()'>reset</option>
             <option value='goToToday()'>today</option>
@@ -379,8 +461,50 @@ class StatusBar extends React.Component {
             <option value='setTheme("earth")'>theme: earth</option>
             <option value='setTheme("fire")'>theme: fire</option>
           </select>
+          <ListMenu />
         </div>
       </div>
+    )
+  }
+}
+
+class ListMenu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { bankLists: props.bankLists, riverLists: props.riverLists };
+  }
+  goToList(type) {
+    if (type === 'river') {
+      var parent = app.current.state.river.current;
+      var list = this.riverLister;
+    } else if (type === 'bank') {
+      var parent = app.current.state.bank.current;
+      var list = this.bankLister;
+    }
+    console.log(list.current.value);
+    parent.changeIndex(Number(list.current.value), true);
+    if (type === 'river') {
+      this.riverLister.current.value = '';
+    } else if (type === 'bank') {
+      this.bankLister.current.value = '';
+    }
+  }
+  render() {
+    this.riverLister = React.createRef();
+    this.bankLister = React.createRef();
+    return (
+      <>
+        <select ref={this.bankLister} onChange={() => this.goToList('bank')}>
+          <option value="" selected disabled hidden>lists...</option>
+          {data.bank.subtasks.filter(x => x.title != '').map((x, index) =>
+            <option value={index}>{x.title}</option>)}
+        </select>
+        <select ref={this.riverLister} onChange={() => this.goToList('river')}>
+          <option value="" selected disabled hidden>dates...</option>
+          {data.river.subtasks.map((x, index) =>
+            <option value={index}>{x.title}</option>)}
+        </select>
+      </>
     )
   }
 }
@@ -388,10 +512,10 @@ class StatusBar extends React.Component {
 class Timer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {seconds: 0, repeats: repeats};
+    this.state = { seconds: 0, repeats: repeats };
   }
   startTimer(val) {
-    this.setState({seconds: val * 60});
+    this.setState({ seconds: val * 60 });
     this.play();
   }
   play(stopwatch, backwards) {
@@ -403,7 +527,7 @@ class Timer extends React.Component {
       var add = -1;
     }
     this.interval = setInterval(() => {
-      this.setState({seconds: this.state.seconds + add});
+      this.setState({ seconds: this.state.seconds + add });
       if (this.state.seconds === 0) {
         this.end();
       }
@@ -414,45 +538,52 @@ class Timer extends React.Component {
   }
   playPause() {
     clearInterval(this.interval);
-    this.setState({minutes: 0, seconds: 0});
+    this.setState({ seconds: 0 });
+    this.options.current.value = '';
   }
-  render () {
+  render() {
     this.startTimer = this.startTimer.bind(this);
     this.playPause = this.playPause.bind(this);
     this.play = this.play.bind(this);
     this.audioRef = React.createRef();
     if (this.state.seconds >= 0) {
-      var timeReadout = Math.floor(this.state.seconds / 60) + ':' + 
-        String(this.state.seconds - 
-        (Math.floor(this.state.seconds / 60) * 60))
-        .padStart(2, '0')
+      var timeReadout = Math.floor(this.state.seconds / 60) + ':' +
+        String(this.state.seconds -
+          (Math.floor(this.state.seconds / 60) * 60))
+          .padStart(2, '0')
     } else {
-      if ((this.state.seconds / 60) === Math.floor(this.state.seconds / 60) 
+      if ((this.state.seconds / 60) === Math.floor(this.state.seconds / 60)
         && this.state.seconds != 0) {
         // right on minute
-        var timeReadout = '-' + 
+        var timeReadout = '-' +
           (-1 * (Math.floor(this.state.seconds / 60))) + ':00'
       } else {
-        var timeReadout = '-' + 
-          (-1 * (Math.floor(this.state.seconds / 60) + 1)) + ':' + 
-          String(60 - (this.state.seconds - 
-          (Math.floor(this.state.seconds / 60) * 60)))
-          .padStart(2, '0')
+        var timeReadout = '-' +
+          (-1 * (Math.floor(this.state.seconds / 60) + 1)) + ':' +
+          String(60 - (this.state.seconds -
+            (Math.floor(this.state.seconds / 60) * 60)))
+            .padStart(2, '0')
       }
     }
+    this.options = React.createRef();
     return (
       <>
-        <div className='buttonBar'>
-          <button className='button' onClick={() => this.startTimer(50)}>50</button>
-          <button className='button' onClick={() => this.startTimer(25)}>25</button>
-          <button className='button' onClick={() => this.startTimer(10)}>10</button>
-          <button className='button' onClick={() => this.startTimer(5)}>5</button>
-          <button className='button' onClick={() => {
-            this.setState({minutes: 0, seconds: 1});
-            this.play();
-          }}>:5</button>
-          <button className='button' onClick={() => this.playPause()}>&#9632;</button>
-        </div>
+        <select ref={this.options} onChange={() => {
+          if (this.options.current.value == 'clear') {
+            this.playPause();
+            this.options.current.value = '';
+          } else {
+            this.startTimer(this.options.current.value);
+          }
+        }}>
+          <option value="" selected disabled hidden>timer...</option>
+          <option value={'clear'}>--:--</option>
+          <option value={50}>50:00</option>
+          <option value={25}>25:00</option>
+          <option value={15}>15:00</option>
+          <option value={10}>10:00</option>
+          <option value={5}>5:00</option>
+        </select>
         <input className='timerBar' readOnly={true}
           value={timeReadout}></input>
       </>
@@ -463,8 +594,10 @@ class Timer extends React.Component {
 class Frame extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {subtasks: props.subtasks, info: props.info,
-      width: Math.floor(window.innerWidth / 200)};
+    this.state = {
+      subtasks: props.subtasks, info: props.info,
+      width: Math.floor(window.innerWidth / 200)
+    };
     $(window).on('resize', this.resizeCheck);
     if (props.id === 'river') {
       this.state.deadlines = deadlines;
@@ -481,81 +614,83 @@ class Frame extends React.Component {
     }
     if (newIndex < 0) newIndex = 0
     this.setState(prevState => ({
-      info: {...prevState.info, index: newIndex}
+      info: { ...prevState.info, index: newIndex }
     }));
   }
   render() {
     const now = new Date();
     let i = 0;
-    var lastDate = this.state.subtasks[this.state.subtasks.length - 1].title
-    lastDate = new Date(
-      lastDate.slice(0, 11) + '20' + lastDate.slice(12)
-    );
+    var lastDate = 
+      new Date(this.state.subtasks[this.state.subtasks.length - 1].title);
     while (this.state.subtasks.length < this.state.info.index + 7) {
-      i ++;
+      i++;
       if (this.props.id === 'bank') {
         var title = '';
       } else if (this.props.id === 'river') {
         const date = new Date(lastDate.getTime());
         date.setDate(lastDate.getDate() + i);
         var title = date.toDateString();
-        title = title.slice(0, 11) + "'" + title.slice(13);
       }
-      this.state.subtasks.push({id: String(now.getTime() + i), 
-        title: title, subtasks: [], info: {}});
+      this.state.subtasks.push({
+        id: String(now.getTime() + i),
+        title: title, subtasks: [], info: {}
+      });
     }
     function resizeCheck() {
       // TODO: debug "this" in this function
       if (this.state.info.focused != 'focused') {
         var width = Math.floor(window.innerWidth / 200);
+        $(':root').css('--frameWidth',
+          ((window.innerWidth - 40) / width) + 'px');
       } else {
         // focus mode
         var width = 1;
+        $(':root').css('--frameWidth', 'calc(100% - 10px)');
       }
-      $(':root').css('--frameWidth', 
-        ((window.innerWidth - 40) / width) + 'px');
+      
       if (width != this.state.width) {
-        this.setState({width: width});
+        this.setState({ width: width });
       }
     }
+    console.log(this.state.info.index, this.state.width);
     let endIndex = this.state.info.index + this.state.width;
     this.changeIndex = this.changeIndex.bind(this);
     resizeCheck = resizeCheck.bind(this);
     this.frames = [];
     window.addEventListener('resize', resizeCheck);
     resizeCheck();
-    const shownLists = 
+    const shownLists =
       this.state.subtasks.slice(this.state.info.index, endIndex);
-    const div = (
-      <div id={this.props.id} 
+    console.log(shownLists);
+    return (
+      <div id={this.props.id}
         className={'frame ' + this.state.info.focused}>
         <button className='changeButton'
           onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
-          </button>
+        </button>
         {shownLists.map(x => {
           this.frames.push(React.createRef());
           if (this.props.id === 'river') {
             // render state correctly in original lists
             return (
               <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this} 
-                deadlines={this.state.deadlines[x.title]} 
-                startdates={this.state.startdates[x.title]} 
+                subtasks={x.subtasks} parent={this}
+                deadlines={this.state.deadlines[x.title]}
+                startdates={this.state.startdates[x.title]}
                 ref={this.frames[this.frames.length - 1]} />
             )
           } else {
             return (
               <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this} 
+                subtasks={x.subtasks} parent={this}
                 ref={this.frames[this.frames.length - 1]} />
             )
           }
         })}
-        <button className='changeButton' 
+        <button className='changeButton'
           onClick={() => this.changeIndex(this.state.width)}>&gt;</button>
       </div>
-    )
-    return div;
+    );
   }
 }
 
@@ -563,11 +698,13 @@ class List extends React.Component {
   constructor(props) {
     super(props);
     this.taskList = React.createRef();
-    this.state = {subtasks: props.subtasks, title: props.title,
-      info: {}};
+    this.state = {
+      subtasks: props.subtasks, title: props.title,
+      info: {}
+    };
   }
   changeTitle(ev) {
-    this.setState({title: ev.target.value});
+    this.setState({ title: ev.target.value });
   }
   render() {
     function selectThis() {
@@ -579,30 +716,37 @@ class List extends React.Component {
     return (
       <div className='list' onClick={selectThis}>
         {this.props.parent.props.id === 'bank' ?
-          <input className='listInput' value={this.state.title} 
-          onChange={this.changeTitle} ref={this.listInput}></input> :
-          <input readOnly className='listInput listTitle'
-            value={this.state.title} ref={this.listInput}></input>
+          <input className='listInput' value={this.state.title}
+            onChange={this.changeTitle} ref={this.listInput}></input> :
+          <>
+            <div class='monthYear'>
+              <span>{this.state.title.slice(4,8)}</span>
+              <span>{this.state.title.slice(11)}</span>
+            </div>
+            <input readOnly className='listInput listTitle'
+              value={dateFormat(this.state.title)} ref={this.listInput}>
+              </input>
+          </>
         }
-        {this.props.parent.props.id === 'river' && 
-        this.props.deadlines &&
-        <ul>
-          {Object.keys(this.props.deadlines).map(x => {
-            return <li 
-              className='deadline' key={String(x)}>
-              {this.props.deadlines[x]}</li>;
-          })}
-        </ul>}
-        {this.props.parent.props.id === 'river' && 
-        this.props.startdates &&
-        <ul>
-          {Object.keys(this.props.startdates).map(x => {
-            return <li 
-              className='startdate' key={String(x)}>
-              {this.props.startdates[x]}</li>;
-          })}
-        </ul>}
-        {<TaskList ref={this.taskList} subtasks={this.state.subtasks} 
+        {this.props.parent.props.id === 'river' &&
+          this.props.deadlines &&
+          <ul>
+            {Object.keys(this.props.deadlines).map(x => {
+              return <li
+                className='deadline' key={String(x)}>
+                {this.props.deadlines[x]}</li>;
+            })}
+          </ul>}
+        {this.props.parent.props.id === 'river' &&
+          this.props.startdates &&
+          <ul>
+            {Object.keys(this.props.startdates).map(x => {
+              return <li
+                className='startdate' key={String(x)}>
+                {this.props.startdates[x]}</li>;
+            })}
+          </ul>}
+        {<TaskList ref={this.taskList} subtasks={this.state.subtasks}
           parent={this} />}
       </div>
     )
@@ -612,14 +756,14 @@ class List extends React.Component {
 class TaskList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {addTask: this.addTask};
+    this.state = { addTask: this.addTask };
   }
   render() {
     this.subtaskObjects = [];
-    const tasksListed = this.props.subtasks.map(x => {
+    const tasksListed = this.props.subtasks.map((x, index) => {
       this.subtaskObjects.push(React.createRef());
       const task = (
-        <Task 
+        <Task
           key={x.id}
           id={x.id}
           info={x.info}
@@ -627,14 +771,30 @@ class TaskList extends React.Component {
           subtasks={x.subtasks}
           parent={this.props.parent}
           ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
+          index={index}
         />
       )
-      return task});
+      return task
+    });
+    let parent = this.props.parent;
+    let id = [];
+    while (parent) {
+      id.push(parent.props.id);
+      parent = parent.props.parent;
+    }
+    id = id.reverse().join('-');
     return (
-      <ul className='listContent'>
-        {this.props.addTasks && this.props.addTasks}
-        {tasksListed}
-      </ul>
+      <Droppable droppableId={id}>
+        {(provided) => {
+          return (
+            <ul className='listContent' {...provided.droppableProps}
+              ref={provided.innerRef}>
+              {tasksListed}
+              {provided.placeholder}
+            </ul>
+          )
+        }}
+      </Droppable>
     )
   }
 }
@@ -643,8 +803,8 @@ class Task extends React.Component {
   constructor(props) {
     super();
     this.state = {
-      info: props.info, title: props.title, 
-      subtasks: props.subtasks, parent: props.parent, 
+      info: props.info, title: props.title,
+      subtasks: props.subtasks, parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false
     };
     if (!this.state.info.startDate) this.state.info.startDate = '';
@@ -656,26 +816,26 @@ class Task extends React.Component {
     }
   }
   displayOptions(ev, showHide) {
-    if ($(ev.target).hasClass('options') || 
+    if ($(ev.target).hasClass('options') ||
       $(ev.target).parent().hasClass('options')) {
       return
     }
     if (showHide === 'hide' || this.state.displayOptions === 'show') {
-      this.setState({displayOptions: 'hide'});
+      this.setState({ displayOptions: 'hide' });
     } else if (showHide == 'show' || this.state.displayOptions === 'hide') {
-      this.setState({displayOptions: 'show'});
+      this.setState({ displayOptions: 'show' });
     }
   }
-  changeTitle(ev) { 
-    this.setState({title: ev.target.value});
+  changeTitle(ev) {
+    this.setState({ title: ev.target.value });
     this.updateHeight();
   }
   updateHeight() {
     this.editBar.current.style.height = '0px';
-    this.editBar.current.style.height = 
+    this.editBar.current.style.height =
       (this.editBar.current.scrollHeight) + "px";
   }
-  changeEndDate(ev, type) { 
+  changeEndDate(ev, type) {
     if (type == 'end') {
       var check1 = this.state.info.endDate;
     } else if (type === 'start') {
@@ -687,30 +847,32 @@ class Task extends React.Component {
       const now = new Date();
       now.setMonth(Number(deadline[0]) - 1);
       now.setDate(Number(deadline[1]));
-      const string = dateFormat(now.toDateString());
+      const string = now.toDateString();
       if (type === 'end') {
-        if (deadlines[string] && 
+        if (deadlines[string] &&
           deadlines[string][this.props.id]) {
           delete deadlines[string][this.props.id];
         }
       } else if (type === 'start') {
-        if (startdates[string] && 
+        if (startdates[string] &&
           startdates[string][this.props.id]) {
           delete startdates[string][this.props.id];
         }
       }
     }
     if (ev === 'init') {
-      ev = {target: {value: check1}};
+      ev = { target: { value: check1 } };
     } else if (ev === 'destroy') {
-      ev = {target: {value: ' '}};
+      ev = { target: { value: ' ' } };
     } else {
       if (type === 'end') {
         this.setState(prevState => ({
-          info: {...prevState.info, endDate: ev.target.value}})); 
+          info: { ...prevState.info, endDate: ev.target.value }
+        }));
       } else if (type === 'start') {
         this.setState(prevState => ({
-          info: {...prevState.info, startDate: ev.target.value}})); 
+          info: { ...prevState.info, startDate: ev.target.value }
+        }));
       }
     }
     if (ev.target.value.includes('-')) {
@@ -719,18 +881,18 @@ class Task extends React.Component {
       const now = new Date();
       now.setMonth(Number(deadline[0]) - 1);
       now.setDate(Number(deadline[1]));
-      const string = dateFormat(now.toDateString());
+      const string = now.toDateString();
       if (type === 'end') {
         if (!deadlines[string]) {
           deadlines[string] = {};
         }
-        deadlines[string][this.props.id] = 
+        deadlines[string][this.props.id] =
           this.state.title;
       } else if (type === 'start') {
         if (!startdates[string]) {
           startdates[string] = {};
         }
-        startdates[string][this.props.id] = 
+        startdates[string][this.props.id] =
           this.state.title;
       }
       let parent = this.props.parent;
@@ -738,9 +900,9 @@ class Task extends React.Component {
         parent = parent.props.parent;
       }
       if (type === 'end') {
-        parent.setState({deadlines: deadlines});
+        parent.setState({ deadlines: deadlines });
       } else if (type === 'start') {
-        parent.setState({startdates: startdates});
+        parent.setState({ startdates: startdates });
       }
     }
   }
@@ -749,7 +911,8 @@ class Task extends React.Component {
     if (status === 'complete') { status = '' }
     else { status = 'complete' }
     this.setState(prevState => ({
-      info: {...prevState.info, complete: status}})); 
+      info: { ...prevState.info, complete: status }
+    }));
     if (change != false) {
       this.displayOptions('hide');
     }
@@ -759,7 +922,8 @@ class Task extends React.Component {
     if (status === 'important') { status = '' }
     else { status = 'important' }
     this.setState(prevState => ({
-      info: {...prevState.info, important: status, maybe: ''}})); 
+      info: { ...prevState.info, important: status, maybe: '' }
+    }));
     if (change != false) {
       this.displayOptions('hide');
     }
@@ -769,7 +933,8 @@ class Task extends React.Component {
     if (status === 'maybe') { status = '' }
     else { status = 'maybe' }
     this.setState(prevState => ({
-      info: {...prevState.info, maybe: status, important: ''}})); 
+      info: { ...prevState.info, maybe: status, important: '' }
+    }));
     if (change != false) {
       this.displayOptions('hide');
     }
@@ -779,12 +944,13 @@ class Task extends React.Component {
     if (status === 'collapsed') { status = '' }
     else { status = 'collapsed' }
     this.setState(prevState => ({
-      info: {...prevState.info, collapsed: status}})); 
+      info: { ...prevState.info, collapsed: status }
+    }));
     this.displayOptions('hide');
   }
   deleteThis() {
     // TODO: remove deadline, repeat & startdate 
-      // [[don't use global variable]]
+    // [[don't use global variable]]
     let parent = this.props.parent;
     while (parent.props.parent) {
       parent = parent.props.parent;
@@ -797,7 +963,7 @@ class Task extends React.Component {
     });
     subtasks.splice(currentTask, 1);
     selected = this.state.parent;
-    this.state.parent.setState({subtasks: subtasks});
+    this.state.parent.setState({ subtasks: subtasks });
     preventSelect = true;
     setTimeout(() => {
       preventSelect = false
@@ -827,19 +993,19 @@ class Task extends React.Component {
     this.editBar = React.createRef();
     this.heightSpan = React.createRef();
     this.startDateSpan = React.createRef();
-    const headingClass = this.state.subtasks.length > 0 ? 
+    const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
-    const hasTimes = this.state.info.startDate.length > 0 && 
+    const hasTimes = this.state.info.startDate.length > 0 &&
       this.state.info.endDate.length > 0 ? 'event' : '';
-    const startInput = 
-      <input className='optionsInput startDate' 
-      value={this.state.info.startDate} 
-      onChange={(ev) => this.changeEndDate(ev, 'start')}
-      ref={this.startDateSpan}></input>
-    const endInput = 
-      <input className='optionsInput endDate' 
-      value={this.state.info.endDate} 
-      onChange={(ev) => this.changeEndDate(ev, 'end')}>
+    const startInput =
+      <input className='optionsInput startDate'
+        value={this.state.info.startDate}
+        onChange={(ev) => this.changeEndDate(ev, 'start')}
+        ref={this.startDateSpan}></input>
+    const endInput =
+      <input className='optionsInput endDate'
+        value={this.state.info.endDate}
+        onChange={(ev) => this.changeEndDate(ev, 'end')}>
       </input>
     if (this.heightSpan.current) {
       console.log('setting height');
@@ -847,69 +1013,83 @@ class Task extends React.Component {
     }
     if (this.editBar.current) {
       this.editBar.current.style.height = '0px';
-      this.editBar.current.style.height = 
+      this.editBar.current.style.height =
         (this.editBar.current.scrollHeight) + "px";
     }
-    // task with info and subtasks
+    let parent = this;
+    let id = [];
+    while (parent) {
+      id.push(parent.props.id);
+      parent = parent.props.parent;
+    }
+    id = id.reverse().join('-');
     return (
-      <li 
-      className={'task ' + this.state.info.important + 
-        ' ' + this.state.info.complete + 
-        ' ' + this.state.info.maybe + 
-        ' ' + headingClass + 
-        ' ' + hasTimes + 
-        ' ' + this.state.info.collapsed} 
-      onClick={() => {selectTask(this)}}
-      >
-        <div class='taskContent'>
-          <div className={'options ' + this.state.displayOptions}>
-            <div className='buttonBar' style={{width: '100%', 
-              alignContent: 'center'}}>
-              <button 
-                className={'button ' + this.state.info.complete}
-                onClick={this.toggleComplete}>
-                √</button>
-              <button 
-                className={'button ' + this.state.info.important}
-                onClick={this.toggleImportant}>
-                !</button>
-              <button 
-                className={'button ' + this.state.info.maybe}
-                onClick={this.toggleMaybe}>
-                ?</button>
-              <button 
-                className={'button'}
-                onClick={this.deleteThis}>
-                x</button>
-              <button 
-                className={'button'}
-                onClick={() => {
-                  newTask('task');
-                  this.displayOptions('hide');
+      <Draggable draggableId={id} index={this.props.index}>
+        {(provided) => {
+          return (<li className={'task ' + this.state.info.important +
+            ' ' + this.state.info.complete +
+            ' ' + this.state.info.maybe +
+            ' ' + headingClass +
+            ' ' + hasTimes +
+            ' ' + this.state.info.collapsed}
+            onClick={() => { selectTask(this) }}
+            {...provided.draggableProps}
+            ref={provided.innerRef}>
+            <div className='taskContent'>
+              <div className={'options ' + this.state.displayOptions}>
+                <div className='buttonBar' style={{
+                  width: '100%',
+                  alignContent: 'center'
                 }}>
-                +</button>
-              <button 
-                className={'button'}
-                onClick={() => this.toggleCollapse()}>
-                {'[]'}</button>
+                  <button
+                    className={'button ' + this.state.info.complete}
+                    onClick={this.toggleComplete}>
+                    √</button>
+                  <button
+                    className={'button ' + this.state.info.important}
+                    onClick={this.toggleImportant}>
+                    !</button>
+                  <button
+                    className={'button ' + this.state.info.maybe}
+                    onClick={this.toggleMaybe}>
+                    ?</button>
+                  <button
+                    className={'button'}
+                    onClick={this.deleteThis}>
+                    x</button>
+                  <button
+                    className={'button'}
+                    onClick={() => {
+                      newTask('task');
+                      this.displayOptions('hide');
+                    }}>
+                    +</button>
+                  <button
+                    className={'button'}
+                    onClick={() => this.toggleCollapse()}>
+                    {'[]'}</button>
+                </div>
+                {startInput}
+                {endInput}
+              </div>
+              <span className='info' onClick={(ev) => this.displayOptions(ev)}
+                ref={this.optionsButton}
+                {...provided.dragHandleProps}>
+              </span>
+              <div className='startEndSpans'>
+                <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
+                <span className='optionsSpan endDate'>{this.state.info.endDate}
+                </span>
+              </div>
+              <textarea className='editBar' value={this.state.title}
+                onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}></textarea>
             </div>
-            {startInput}
-            {endInput}
-          </div>
-          <span className='info' onClick={(ev) => this.displayOptions(ev)}
-            ref={this.optionsButton}>
-          </span>
-          <div class='startEndSpans'>
-            <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
-            <span className='optionsSpan endDate'>{this.state.info.endDate}
-            </span>
-          </div>
-          <textarea className='editBar' value={this.state.title}
-            onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}></textarea>
-        </div>
-        <TaskList ref={this.taskList} subtasks={this.state.subtasks} 
-          parent={this} />
-      </li>
+            <TaskList ref={this.taskList} subtasks={this.state.subtasks}
+              parent={this} />
+          </li>
+          )
+        }}
+      </Draggable>
     )
   }
 }
@@ -926,7 +1106,7 @@ function newTask(type) {
   const now = today.getTime();
   const newTask = {
     id: String(now),
-    info: {complete: '', startDate: '', endDate: ''},
+    info: { complete: '', startDate: '', endDate: '' },
     title: '',
     subtasks: [],
   }
@@ -951,7 +1131,7 @@ function selectTask(el, force) {
     save(selected, 'task');
   }
   if (selected instanceof Task && el != selected) {
-    selected.displayOptions({target: undefined}, 'hide');
+    selected.displayOptions({ target: undefined }, 'hide');
   }
   selected = el;
   if (el instanceof Task) {
@@ -1003,8 +1183,10 @@ function cutTask() {
 function copyTask() {
   if (!selected || selected instanceof List) return;
   const state = selected.state;
-  copiedTask = {title: state.title, id: selected.props.id, 
-    info: {...state.info}, subtasks: state.subtasks.concat()};
+  copiedTask = {
+    title: state.title, id: selected.props.id,
+    info: { ...state.info }, subtasks: state.subtasks.concat()
+  };
 }
 
 function pasteTask(type) {
@@ -1012,13 +1194,14 @@ function pasteTask(type) {
   if (selected instanceof List || type === 'task') {
     const subtasks = selected.state.subtasks;
     subtasks.splice(0, 0, copiedTask);
-    selected.setState({subtasks: subtasks});
+    selected.setState({ subtasks: subtasks });
     save(selected, 'task');
   } else if (selected instanceof Task || type === 'list') {
     const subtasks = selected.state.parent.state.subtasks;
-    const insertIndex = subtasks.findIndex(x => x.id == selected.props.id) + 1;
+    const insertIndex = subtasks
+      .findIndex(x => x.id == selected.props.id) + 1;
     subtasks.splice(insertIndex, 0, copiedTask);
-    selected.state.parent.setState({subtasks: subtasks});
+    selected.state.parent.setState({ subtasks: subtasks });
     save(selected, 'list');
   }
 }
@@ -1029,6 +1212,16 @@ function backup() {
 }
 
 function keyComms(ev) {
+  if (!ev.ctrlKey) {
+    if (ev.key === 'Enter' && !$(':focus').hasClass('searchBar')) {
+      ev.preventDefault();
+      if (ev.shiftKey) {
+        newTask('task');
+      } else {
+        newTask();
+      }
+    }
+  }
   if (ev.ctrlKey && ev.shiftKey) {
     switch (ev.key) {
       case 'V':
@@ -1054,20 +1247,29 @@ function keyComms(ev) {
       case 'n':
         newTask();
         break;
+      case 'f':
+        focus();
+        break;
       case 'Backspace':
         if (selected && selected instanceof Task) {
           selected.deleteThis();
         }
         break;
-      case 'u':
+      case 'w':
         if (selected.props.parent.props.id != 'river') {
           moveTask(-1);
         }
         break;
-      case 'd':
+      case 's':
         if (selected.props.parent.props.id != 'river') {
           moveTask(1);
         }
+        break;
+      case 'a':
+        switchView(-1);
+        break;
+      case 'd':
+        switchView(1);
         break;
       case '1':
         if (selected instanceof Task) {
@@ -1086,7 +1288,7 @@ function keyComms(ev) {
         break;
       case 'i':
         if (selected && selected instanceof Task) {
-          selected.displayOptions({target: $('<p></p>')});
+          selected.displayOptions({ target: $('<p></p>') });
           if (selected.state.displayOptions === 'show') {
             selected.startDateSpan.current.focus();
           } else {
@@ -1110,21 +1312,32 @@ function keyComms(ev) {
   }
 }
 
-
-
-function dateFormat(string, reverse) {
-  if (reverse) {
-    return string.slice(0, 11) + '20' + string.slice(12);
-  } else {
-    return string.slice(0, 11) + "'" + string.slice(13);
-  }
+function dateFormat(title) {
+  // reformat dateString (Day Mon -- ----) to usable title
+  return title.slice(0, 4) + 
+    title.slice(8, 10);
 }
+
+function yearFormat(title) {
+  return title.slice(4, 8) + '<br>' + title.slice(11);
+}
+
+function switchView(direction) {
+  if (!selected) return;
+  let parent = selected;
+  while (parent instanceof Task) {
+    parent = parent.props.parent;
+  }
+  console.log(parent);
+  parent.props.parent.changeIndex(direction);
+}
+
 
 function moveTask(direction) {
   console.log('movetask');
   if (!selected) return;
   const subtasks = selected.props.parent.state.subtasks;
-  const selectedPlace = 
+  const selectedPlace =
     selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
   if (selectedPlace == 0 && direction == -1) return;
   else if (selectedPlace == selected.props.parent.state.subtasks.length
@@ -1150,13 +1363,30 @@ function focus(set) {
       var focusSet = 'focused';
     }
   }
-  console.log([focusSet]);
+  if (selected) {
+    // set the index of the focused list to the selected list
+    let focusView = selected
+    while (focusView instanceof Task) {
+      focusView = focusView.props.parent;
+    }
+    console.log(focusView);
+    focusView.props.parent.changeIndex(focusView.props.parent.frames
+      .findIndex(x => x.current.props.id == focusView.props.id));
+  }
   app.current.state.bank.current.setState(prevState => (
-    {info: {...prevState.info, 
-    focused: focusSet}}));
+    {
+      info: {
+        ...prevState.info,
+        focused: focusSet
+      }
+    }));
   app.current.state.river.current.setState(prevState => (
-    {info: {...prevState.info, 
-    focused: focusSet}}));
+    {
+      info: {
+        ...prevState.info,
+        focused: focusSet
+      }
+    }));
   saveSetting('focused', focusSet);
   if (set == undefined) {
     setTimeout(updateAllSizes, 50);
@@ -1181,7 +1411,7 @@ function updateAllSizes() {
 }
 
 function setTheme(theme) {
-  const newTheme =  themes[theme + '-' + 
+  const newTheme = themes[theme + '-' +
     data.settings.mode];
   console.log(theme + '-' + data.settings.mode);
   for (let key of Object.keys(newTheme)) {
@@ -1205,7 +1435,7 @@ function toggleMode() {
 }
 
 function goToToday() {
-  const today = dateFormat(new Date().toDateString());
+  const today = new Date().toDateString();
   const river = app.current.state.river.current;
   const days = river.state.subtasks;
   const thisDay = days.findIndex(x => x.title === today);
