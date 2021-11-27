@@ -620,7 +620,7 @@ class Frame extends React.Component {
   render() {
     const now = new Date();
     let i = 0;
-    var lastDate = 
+    const lastDate = 
       new Date(this.state.subtasks[this.state.subtasks.length - 1].title);
     while (this.state.subtasks.length < this.state.info.index + 7) {
       i++;
@@ -652,7 +652,6 @@ class Frame extends React.Component {
         this.setState({ width: width });
       }
     }
-    console.log(this.state.info.index, this.state.width);
     let endIndex = this.state.info.index + this.state.width;
     this.changeIndex = this.changeIndex.bind(this);
     resizeCheck = resizeCheck.bind(this);
@@ -1441,6 +1440,11 @@ function goToToday() {
   const thisDay = days.findIndex(x => x.title === today);
   river.changeIndex(thisDay, true);
   console.log('went to today');
+}
+
+// porting from previous version of dates
+for (let i of data['river'].subtasks) {
+  i.title = i.title.replace("'", "20");
 }
 
 function init() {

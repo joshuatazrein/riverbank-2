@@ -360,7 +360,6 @@ span.startDate, span.endDate {
 }
 
 .monthYear > span {
-  margin-top: -10px;
   font-size: 18px;
 }
 
