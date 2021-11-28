@@ -9,6 +9,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
+import timerSnd from './snd/timer.mp3';
+import popSnd from './snd/pop.mp3';
+import startSnd from './snd/start.mp3';
 
 var themes = {
   'earth-day': {
@@ -227,6 +230,7 @@ var resetData = {
     theme: 'space',
     mode: 'night',
     focused: '',
+    hideComplete: '',
   }
 };
 
@@ -260,20 +264,23 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      hideComplete: '',
+      hideComplete: data.settings.hideComplete,
       bank: React.createRef(),
       river: React.createRef(),
       theme: data.settings.theme,
       mode: data.settings.mode,
       focused: data.settings.focused,
+      popSnd: new Audio(popSnd),
     };
   }
   toggleComplete() {
     if (this.state.hideComplete == '') {
-      this.setState({ hideComplete: 'hideComplete' });
+      var hideComplete = 'hideComplete';
     } else {
-      this.setState({ hideComplete: '' });
+      var hideComplete = '';
     }
+    this.setState({ hideComplete: hideComplete });
+    saveSetting('hideComplete', hideComplete);
   }
   onDragEnd = result => {
     const { destination, source, draggableId } = result;
@@ -323,9 +330,10 @@ class App extends React.Component {
     selected = undefined;
   }
   render() {
+    this.statusBar = React.createRef();
     return (
       <>
-        <StatusBar parent={this} />
+        <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete}>
             <Frame id='bank' info={data['river'].info}
@@ -390,11 +398,18 @@ class StatusBar extends React.Component {
   componentDidMount() {
     setTimeout(goToToday, 200);
   }
+  goToFirst() {
+    this.goToSearch(this.state.foundTasks[
+      $($(this.searchResults.current)
+        .children()[0]).attr('value')])
+  }
   render() {
     this.search = this.search.bind(this);
     this.treeSearch = this.treeSearch.bind(this);
     this.goToSearch = this.goToSearch.bind(this);
+    this.goToFirst = this.goToFirst.bind(this);
     this.searchResults = React.createRef();
+    this.searchBar = React.createRef();
     this.options = React.createRef();
     this.functions = React.createRef();
     return (
@@ -403,16 +418,16 @@ class StatusBar extends React.Component {
           display: 'flex', flexDirection: 'column',
           position: 'relative'
         }}>
-          <input className='searchBar' onChange={(ev) => this.search(ev)}
+          <input 
+            ref={this.searchBar}
+            className='searchBar' onChange={(ev) => this.search(ev)}
             value={this.state.searchString}
             onKeyDown={(ev) => {
               if (ev.key === 'Backspace') {
                 this.setState({ searchString: '', foundTasks: {} });
               } else if (ev.key === 'Enter') {
                 if ($(this.searchResults.current).children().length > 0) {
-                  this.goToSearch(this.state.foundTasks[
-                    $($(this.searchResults.current)
-                      .children()[0]).attr('value')])
+                  this.goToFirst();
                 }
               }
             }}
@@ -442,18 +457,18 @@ class StatusBar extends React.Component {
               copy (ctrl-c)</option>
             <option value='pasteTask()'>
               paste (ctrl-v)</option>
+            <option value='goToToday()'>today (ctrl-t)</option>
           </select>
           <select ref={this.options} onChange={() => {
             eval(this.options.current.value);
             this.options.current.value = '';
           }}>
             <option value="" selected disabled hidden>settings...</option>
+            <option value='focus()'>toggle focus (ctrl-f)</option>
+            <option value='app.current.toggleComplete()'>
+              show/hide complete (ctrl-h)</option>
             <option value='backup()'>backup</option>
             <option value='reset()'>reset</option>
-            <option value='goToToday()'>today</option>
-            <option value='focus()'>toggle focus</option>
-            <option value='app.current.toggleComplete()'>
-              toggle complete</option>
             <option value='toggleMode()'>toggle day/night</option>
             <option value='setTheme("space")'>theme: space</option>
             <option value='setTheme("sky")'>theme: sky</option>
@@ -512,10 +527,16 @@ class ListMenu extends React.Component {
 class Timer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { seconds: 0, repeats: repeats };
+    this.state = { 
+      seconds: 0, 
+      audio: new Audio(timerSnd),
+      start: new Audio(startSnd),
+    };
+      
   }
   startTimer(val) {
     this.setState({ seconds: val * 60 });
+    this.state.start.play();
     this.play();
   }
   play(stopwatch, backwards) {
@@ -534,6 +555,9 @@ class Timer extends React.Component {
     }, 1000);
   }
   end() {
+    this.setState({ play: true });
+    this.state.audio.play();
+    this.options.current.value = '';
     alert('timer complete');
   }
   playPause() {
@@ -546,6 +570,7 @@ class Timer extends React.Component {
     this.playPause = this.playPause.bind(this);
     this.play = this.play.bind(this);
     this.audioRef = React.createRef();
+    this.options = React.createRef();
     if (this.state.seconds >= 0) {
       var timeReadout = Math.floor(this.state.seconds / 60) + ':' +
         String(this.state.seconds -
@@ -565,7 +590,6 @@ class Timer extends React.Component {
             .padStart(2, '0')
       }
     }
-    this.options = React.createRef();
     return (
       <>
         <select ref={this.options} onChange={() => {
@@ -583,6 +607,7 @@ class Timer extends React.Component {
           <option value={15}>15:00</option>
           <option value={10}>10:00</option>
           <option value={5}>5:00</option>
+          <option value={0.1}>0:05</option>
         </select>
         <input className='timerBar' readOnly={true}
           value={timeReadout}></input>
@@ -705,11 +730,18 @@ class List extends React.Component {
   changeTitle(ev) {
     this.setState({ title: ev.target.value });
   }
+  searchDate(text, type) {
+    setTimeout(() => {
+      app.current.statusBar.current.search({ target: { value: text } });
+      app.current.statusBar.current.goToFirst();
+    }, 100);
+  }
   render() {
     function selectThis() {
       selectTask(this);
     }
     selectThis = selectThis.bind(this);
+    this.searchDate = this.searchDate.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
     return (
@@ -732,7 +764,9 @@ class List extends React.Component {
           <ul>
             {Object.keys(this.props.deadlines).map(x => {
               return <li
-                className='deadline' key={String(x)}>
+                className='deadline' key={String(x)}
+                onClick={() => this.searchDate(this.props.deadlines[x], 
+                'start')}>
                 {this.props.deadlines[x]}</li>;
             })}
           </ul>}
@@ -741,7 +775,9 @@ class List extends React.Component {
           <ul>
             {Object.keys(this.props.startdates).map(x => {
               return <li
-                className='startdate' key={String(x)}>
+                className='startdate' key={String(x)}
+                onClick={() => this.searchDate(this.props.startdates[x], 
+                'start')}>
                 {this.props.startdates[x]}</li>;
             })}
           </ul>}
@@ -783,6 +819,10 @@ class TaskList extends React.Component {
     }
     id = id.reverse().join('-');
     return (
+      this.props.parent.props.parent instanceof Task ?
+      <ul className='listContent'>
+        {tasksListed}
+      </ul> :
       <Droppable droppableId={id}>
         {(provided) => {
           return (
@@ -908,7 +948,10 @@ class Task extends React.Component {
   toggleComplete(change) {
     let status = this.state.info.complete
     if (status === 'complete') { status = '' }
-    else { status = 'complete' }
+    else { 
+      status = 'complete';
+      app.current.state.popSnd.play();
+    }
     this.setState(prevState => ({
       info: { ...prevState.info, complete: status }
     }));
@@ -1081,7 +1124,8 @@ class Task extends React.Component {
                 </span>
               </div>
               <textarea className='editBar' value={this.state.title}
-                onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}></textarea>
+                onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
+                spellCheck='false'></textarea>
             </div>
             <TaskList ref={this.taskList} subtasks={this.state.subtasks}
               parent={this} />
@@ -1265,10 +1309,18 @@ function keyComms(ev) {
         }
         break;
       case 'a':
+        ev.preventDefault();
         switchView(-1);
         break;
       case 'd':
+        ev.preventDefault();
         switchView(1);
+        break;
+      case 'h':
+        app.toggleComplete();
+        break;
+      case 't':
+        goToToday();
         break;
       case '1':
         if (selected instanceof Task) {
@@ -1461,3 +1513,7 @@ function init() {
 }
 
 init();
+
+if (data.settings.hideComplete === undefined) {
+  data.settings.hideComplete = '';
+}
