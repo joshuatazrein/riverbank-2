@@ -32,6 +32,10 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
+    "--lineSpacing": "-10px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(59, 60, 54, 0.1)",
+    "--river": "rgba(85, 107, 47, 0.1)",
   },
   'earth-night': {
     "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
@@ -51,10 +55,14 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
+    "--lineSpacing": "-10px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(218, 222, 200, 0.1)",
+    "--river": "rgba(186, 208, 149, 0.1)",
   },
   'fire-day': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
-    "--fontSize": "21px",
+    "--fontSize": "23px",
     "--fontWeight": "300",
     "--bold": "500",
     "--background": "rgb(230, 230, 250)",
@@ -69,11 +77,15 @@ var themes = {
     "--menufont": "18px Courier New",
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
-    "--headingSize": "125%",
+    "--headingSize": "120%",
+    "--lineSpacing": "-5px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(53, 3, 58, 0.1)",
+    "--river": "rgba(242, 172, 229, 0.1)",
   },
   'fire-night': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
-    "--fontSize": "21px",
+    "--fontSize": "23px",
     "--fontWeight": "300",
     "--bold": "500",
     "--background": "rgb(5, 5, 26)",
@@ -89,6 +101,10 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
+    "--lineSpacing": "-5px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(248, 197, 252, 0.1)",
+    "--river": "rgba(183, 104, 162, 0.1)",
   },
   'sky-day': {
     "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
@@ -108,6 +124,10 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
+    "--lineSpacing": "0px",
+    "--frontWidth": "3em",
+    "--bank": "rgba(52, 64, 85, 0.1)",
+    "--river": "rgba(119, 152, 171, 0.1)",
   },
   'sky-night': {
     "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
@@ -127,6 +147,10 @@ var themes = {
     "--startDate": "var(--maybe)",
     "--endDate": "var(--important)",
     "--headingSize": "125%",
+    "--lineSpacing": "0px",
+    "--frontWidth": "3em",
+    "--bank": "rgba(170, 182, 203, 0.1)",
+    "--river": "rgba(83, 117, 136, 0.1)",
   },
   'space-day': {
     "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
@@ -146,6 +170,10 @@ var themes = {
     "--endDate": "var(--important)",
     "--bold": "600",
     "--headingSize": "125%",
+    "--lineSpacing": "-5px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(59, 47, 47, 0.1)",
+    "--river": "rgba(165, 113, 100, 0.1)",
   },
   'space-night': {
     "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
@@ -154,7 +182,7 @@ var themes = {
     "--background": "rgb(0, 0, 0)",
     "--border": "rgb(128, 128, 128, 0.3)",
     "--select": "rgb(101, 138, 149)",
-    "--event": "rgba(136, 165, 174, 0.3)",
+    "--event": "rgba(101, 138, 149, 0.3)",
     "--foreground": "rgb(191, 193, 194)",
     "--midground": "rgb(128, 128, 128)",
     "--padding": "14px",
@@ -165,6 +193,10 @@ var themes = {
     "--endDate": "var(--important)",
     "--bold": "600",
     "--headingSize": "125%",
+    "--lineSpacing": "-5px",
+    "--frontWidth": "2.5em",
+    "--bank": "rgba(191, 193, 194, 0.1)",
+    "--river": "rgba(101, 138, 149, 0.1)",
   },
   'water-day': {
     "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
@@ -184,6 +216,10 @@ var themes = {
     "--endDate": "var(--important)",
     "--bold": "400",
     "--headingSize": "1.15em",
+    "--lineSpacing": "0px",
+    "--frontWidth": "3.5em",
+    "--bank": "rgba(10, 10, 10, 0.1)",
+    "--river": "rgba(64, 71, 77, 0.1)",
   },
   'water-night': {
     "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
@@ -203,6 +239,10 @@ var themes = {
     "--endDate": "var(--important)",
     "--bold": "400",
     "--headingSize": "1.15em",
+    "--lineSpacing": "0px",
+    "--frontWidth": "3.5em",
+    "--bank": "rgba(245, 245, 245, 0.1)",
+    "--river": "rgba(145, 163, 176, 0.1)",
   }
 }
 
@@ -336,9 +376,11 @@ class App extends React.Component {
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete}>
-            <Frame id='bank' info={data['river'].info}
+            <Frame id='bank' info={{...data['bank'].info, 
+              focused: data.settings.focused}}
               subtasks={data['bank'].subtasks} ref={this.state.bank} />
-            <Frame id='river' info={data['river'].info}
+            <Frame id='river' info={{...data['river'].info, 
+              focused: data.settings.focused}}
               subtasks={data['river'].subtasks} ref={this.state.river} />
           </div>
         </DragDropContext>
@@ -414,6 +456,8 @@ class StatusBar extends React.Component {
     this.functions = React.createRef();
     return (
       <div className='statusBar'>
+        <span class='title'><span class='r'>River</span>
+            <span class='b'>Bank</span></span>
         <div style={{
           display: 'flex', flexDirection: 'column',
           position: 'relative'
@@ -444,11 +488,12 @@ class StatusBar extends React.Component {
         </div>
         <Timer />
         <div className='buttonBar nowrap'>
-          <select ref={this.functions} onChange={() => {
+          <select ref={this.functions} style={{width: '75px'}}
+            onChange={() => {
             eval(this.functions.current.value);
             this.functions.current.value = '';
           }}>
-            <option value="" selected disabled hidden>functions...</option>
+            <option value="" selected disabled hidden>functions</option>
             <option value='newTask()'>
               new task (return)</option>
             <option value='cutTask()'>
@@ -457,13 +502,13 @@ class StatusBar extends React.Component {
               copy (ctrl-c)</option>
             <option value='pasteTask()'>
               paste (ctrl-v)</option>
-            <option value='goToToday()'>today (ctrl-t)</option>
           </select>
           <select ref={this.options} onChange={() => {
             eval(this.options.current.value);
             this.options.current.value = '';
-          }}>
-            <option value="" selected disabled hidden>settings...</option>
+          }}
+            style={{width: '70px'}}>
+            <option value="" selected disabled hidden>settings</option>
             <option value='focus()'>toggle focus (ctrl-f)</option>
             <option value='app.current.toggleComplete()'>
               show/hide complete (ctrl-h)</option>
@@ -509,14 +554,27 @@ class ListMenu extends React.Component {
     this.bankLister = React.createRef();
     return (
       <>
-        <select ref={this.bankLister} onChange={() => this.goToList('bank')}>
-          <option value="" selected disabled hidden>lists...</option>
-          {data.bank.subtasks.filter(x => x.title != '').map((x, index) =>
+        <select ref={this.bankLister} onChange={() => this.goToList('bank')}
+          style={{width: '45px'}}>
+          <option value="" selected disabled hidden>lists</option>
+          {data.bank.subtasks.filter(x => x.title != '--')
+          .map((x, index) =>
             <option value={index}>{x.title}</option>)}
         </select>
-        <select ref={this.riverLister} onChange={() => this.goToList('river')}>
-          <option value="" selected disabled hidden>dates...</option>
-          {data.river.subtasks.map((x, index) =>
+        <select ref={this.riverLister} onChange={() => {
+          if (this.riverLister.current.value == 'today') {
+            goToToday();
+            this.riverLister.current.value = '';
+          } else {
+            this.goToList('river')
+          }
+        }}
+          style={{width: '50px'}}>
+          <option value="" selected disabled hidden>dates</option>
+          <option value='today'>today (ctrl-t)</option>
+          {data.river.subtasks.filter(x => new Date(x.title).getTime() >= 
+            new Date().getTime())
+            .map((x, index) =>
             <option value={index}>{x.title}</option>)}
         </select>
       </>
@@ -531,34 +589,41 @@ class Timer extends React.Component {
       seconds: 0, 
       audio: new Audio(timerSnd),
       start: new Audio(startSnd),
+      startTime: undefined,
+      ended: false,
     };
       
   }
   startTimer(val) {
-    this.setState({ seconds: val * 60 });
+    const endTime = 
+      new Date(new Date().getTime() + val * 60 * 1000).getTime();
+    this.setState({ endTime: endTime, seconds: val * 60 });
     this.state.start.play();
     this.play();
   }
   play(stopwatch, backwards) {
+    var permission = Notification.requestPermission();
     const multiplier = backwards ? -1 : 1;
     clearInterval(this.interval);
+    this.setState({ ended: false });
     if (stopwatch == 'stopwatch') {
       var add = 1;
     } else {
       var add = -1;
     }
     this.interval = setInterval(() => {
-      this.setState({ seconds: this.state.seconds + add });
-      if (this.state.seconds === 0) {
+      this.setState({ seconds: Math.ceil((this.state.endTime - 
+        new Date().getTime()) / 1000) });
+      if (this.state.seconds <= 0 && this.state.ended === false ) {
         this.end();
       }
     }, 1000);
   }
   end() {
-    this.setState({ play: true });
+    this.setState({ play: true, ended: true });
     this.state.audio.play();
     this.options.current.value = '';
-    alert('timer complete');
+    var alert = new Notification('timer complete');
   }
   playPause() {
     clearInterval(this.interval);
@@ -592,15 +657,19 @@ class Timer extends React.Component {
     }
     return (
       <>
+        <input className='timerBar' readOnly={true}
+          value={timeReadout}></input>
         <select ref={this.options} onChange={() => {
           if (this.options.current.value == 'clear') {
             this.playPause();
             this.options.current.value = '';
           } else {
             this.startTimer(this.options.current.value);
+            this.options.current.value = '';
           }
-        }}>
-          <option value="" selected disabled hidden>timer...</option>
+        }}
+          style={{width: '45px'}}>
+          <option value="" selected disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
           <option value={25}>25:00</option>
@@ -609,8 +678,6 @@ class Timer extends React.Component {
           <option value={5}>5:00</option>
           <option value={0.1}>0:05</option>
         </select>
-        <input className='timerBar' readOnly={true}
-          value={timeReadout}></input>
       </>
     )
   }
@@ -621,9 +688,8 @@ class Frame extends React.Component {
     super(props);
     this.state = {
       subtasks: props.subtasks, info: props.info,
-      width: Math.floor(window.innerWidth / 200)
+      width: processWidth(props.info.focused),
     };
-    $(window).on('resize', this.resizeCheck);
     if (props.id === 'river') {
       this.state.deadlines = deadlines;
       this.state.startdates = startdates;
@@ -636,6 +702,9 @@ class Frame extends React.Component {
       newIndex = val;
     } else {
       newIndex = this.state.info.index + val;
+    }
+    if (newIndex > 0 && this.state.subtasks[newIndex - 1].title === '--') {
+      return;
     }
     if (newIndex < 0) newIndex = 0
     this.setState(prevState => ({
@@ -650,7 +719,7 @@ class Frame extends React.Component {
     while (this.state.subtasks.length < this.state.info.index + 7) {
       i++;
       if (this.props.id === 'bank') {
-        var title = '';
+        var title = '--';
       } else if (this.props.id === 'river') {
         const date = new Date(lastDate.getTime());
         date.setDate(lastDate.getDate() + i);
@@ -662,19 +731,8 @@ class Frame extends React.Component {
       });
     }
     function resizeCheck() {
-      // TODO: debug "this" in this function
-      if (this.state.info.focused != 'focused') {
-        var width = Math.floor(window.innerWidth / 200);
-        $(':root').css('--frameWidth',
-          ((window.innerWidth - 40) / width) + 'px');
-      } else {
-        // focus mode
-        var width = 1;
-        $(':root').css('--frameWidth', 'calc(100% - 10px)');
-      }
-      
-      if (width != this.state.width) {
-        this.setState({ width: width });
+      if (this.state.width != processWidth(this.state.info.focused)) {
+        this.setState({ width: processWidth(this.state.info.focused) });
       }
     }
     let endIndex = this.state.info.index + this.state.width;
@@ -682,7 +740,6 @@ class Frame extends React.Component {
     resizeCheck = resizeCheck.bind(this);
     this.frames = [];
     window.addEventListener('resize', resizeCheck);
-    resizeCheck();
     const shownLists =
       this.state.subtasks.slice(this.state.info.index, endIndex);
     console.log(shownLists);
@@ -870,9 +927,16 @@ class Task extends React.Component {
     this.updateHeight();
   }
   updateHeight() {
-    this.editBar.current.style.height = '0px';
-    this.editBar.current.style.height =
-      (this.editBar.current.scrollHeight) + "px";
+    console.log(this.resizable);
+    if (this.resizable != false) {
+      this.editBar.current.style.height = '0px';
+      this.editBar.current.style.height =
+        (this.editBar.current.scrollHeight) + "px";
+      this.resizable = false;
+      console.log(this.editBar.current.value, 
+        this.editBar.current.style.height);
+    }
+    setTimeout(() => this.resizable = true, 100);
   }
   changeEndDate(ev, type) {
     if (type == 'end') {
@@ -1022,6 +1086,7 @@ class Task extends React.Component {
     selectTask(this);
     this.changeEndDate('init', 'end');
     this.changeEndDate('init', 'start');
+    this.resizable = true;
   }
   render() {
     // fuck react
@@ -1030,6 +1095,7 @@ class Task extends React.Component {
     this.toggleImportant = this.toggleImportant.bind(this);
     this.toggleMaybe = this.toggleMaybe.bind(this);
     this.deleteThis = this.deleteThis.bind(this);
+    this.updateHeight = this.updateHeight.bind(this);
     this.taskList = React.createRef();
     this.optionsButton = React.createRef();
     this.editBar = React.createRef();
@@ -1037,8 +1103,10 @@ class Task extends React.Component {
     this.startDateSpan = React.createRef();
     const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
-    const hasTimes = this.state.info.startDate.length > 0 &&
-      this.state.info.endDate.length > 0 ? 'event' : '';
+    const hasTimes = (this.state.info.startDate.length > 0 &&
+      !this.state.info.startDate.includes('-')) &&
+      (this.state.info.endDate.length > 0 && 
+      !this.state.info.endDate.includes('-')) ? 'event' : '';
     const startInput =
       <input className='optionsInput startDate'
         value={this.state.info.startDate}
@@ -1279,31 +1347,39 @@ function keyComms(ev) {
   } else if (ev.ctrlKey) {
     switch (ev.key) {
       case 'x':
+        ev.preventDefault();
         cutTask();
         break;
       case 'c':
+        ev.preventDefault();
         copyTask();
         break;
       case 'v':
+        ev.preventDefault();
         pasteTask();
         break;
       case 'n':
+        ev.preventDefault();
         newTask();
         break;
       case 'f':
+        ev.preventDefault();
         focus();
         break;
       case 'Backspace':
+        ev.preventDefault();
         if (selected && selected instanceof Task) {
           selected.deleteThis();
         }
         break;
       case 'w':
+        ev.preventDefault();
         if (selected.props.parent.props.id != 'river') {
           moveTask(-1);
         }
         break;
       case 's':
+        ev.preventDefault();
         if (selected.props.parent.props.id != 'river') {
           moveTask(1);
         }
@@ -1317,27 +1393,33 @@ function keyComms(ev) {
         switchView(1);
         break;
       case 'h':
-        app.toggleComplete();
+        ev.preventDefault();
+        app.current.toggleComplete();
         break;
       case 't':
+        ev.preventDefault();
         goToToday();
         break;
       case '1':
+        ev.preventDefault();
         if (selected instanceof Task) {
           selected.toggleComplete(false);
         }
         break;
       case '2':
+        ev.preventDefault();
         if (selected instanceof Task) {
           selected.toggleImportant(false);
         }
         break;
       case '3':
+        ev.preventDefault();
         if (selected instanceof Task) {
           selected.toggleMaybe(false);
         }
         break;
       case 'i':
+        ev.preventDefault();
         if (selected && selected instanceof Task) {
           selected.displayOptions({ target: $('<p></p>') });
           if (selected.state.displayOptions === 'show') {
@@ -1385,23 +1467,38 @@ function switchView(direction) {
 
 
 function moveTask(direction) {
-  console.log('movetask');
   if (!selected) return;
   const subtasks = selected.props.parent.state.subtasks;
-  const selectedPlace =
+  let selectedPlace =
     selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
+  const length = selected.props.parent.state.subtasks.length;
   if (selectedPlace == 0 && direction == -1) return;
   else if (selectedPlace == selected.props.parent.state.subtasks.length
     && direction == 1) return;
+  if (direction == -1) {
+    var subtasksChopped = subtasks.slice(0, selectedPlace).reverse();
+  } else {
+    var subtasksChopped = subtasks.slice(selectedPlace + 1);
+  }
+  if (data.settings.hideComplete == 'hideComplete') {
+    var insertPlace = (subtasksChopped.findIndex(x => 
+      x.info.complete != 'complete') + 1) * direction;
+  } else {
+    var insertPlace = 1 * direction;
+  }
   const spliceTask = subtasks.splice(selectedPlace, 1)[0];
-  subtasks.splice(selectedPlace + direction, 0, spliceTask);
+  subtasks.splice(selectedPlace + insertPlace, 0, spliceTask);
+  console.log(subtasks);
   selected.props.parent.setState(subtasks);
 }
 
 function reset() {
-  data = resetData;
-  localStorage.setItem('data', JSON.stringify(resetData));
-  setTimeout(function () { window.location.reload() }, 200);
+  var accept = window.confirm('Are you sure you want to reset all data?');
+  if (accept) {
+    data = resetData;
+    localStorage.setItem('data', JSON.stringify(resetData));
+    setTimeout(function () { window.location.reload() }, 200);
+  }
 }
 
 function focus(set) {
@@ -1428,20 +1525,20 @@ function focus(set) {
     {
       info: {
         ...prevState.info,
-        focused: focusSet
-      }
+        focused: focusSet,
+      },
+      width: processWidth(focusSet)
     }));
   app.current.state.river.current.setState(prevState => (
     {
       info: {
         ...prevState.info,
-        focused: focusSet
-      }
+        focused: focusSet,
+      },
+      width: processWidth(focusSet),
     }));
   saveSetting('focused', focusSet);
-  if (set == undefined) {
-    setTimeout(updateAllSizes, 50);
-  }
+  setTimeout(updateAllSizes, 50);
 }
 
 function updateAllSizes() {
@@ -1485,6 +1582,19 @@ function toggleMode() {
   localStorage.setItem('data', JSON.stringify(data));
 }
 
+function processWidth(focused) {
+  if (focused != 'focused') {
+    var width = Math.floor(window.innerWidth / 200);
+    $(':root').css('--frameWidth',
+      ((window.innerWidth - 40) / width) + 'px');
+  } else {
+    // focus mode
+    var width = 1;
+    $(':root').css('--frameWidth', 'calc(100% - 24px)');
+  }
+  return width;
+}
+
 function goToToday() {
   const today = new Date().toDateString();
   const river = app.current.state.river.current;
@@ -1510,6 +1620,10 @@ function init() {
   console.log(data.settings.focused);
   focus(data.settings.focused);
   setTheme(data.settings.theme);
+  window.addEventListener('resize', () => {
+    if (window.innerWidth / 10 != Math.floor(window.innerWidth / 10)) return;
+    updateAllSizes();
+  });
 }
 
 init();
