@@ -12,6 +12,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import timerSnd from './snd/timer.mp3';
 import popSnd from './snd/pop.mp3';
 import startSnd from './snd/start.mp3';
+import './taskContext.js';
 
 var themes = {
   'earth-day': {
@@ -306,8 +307,12 @@ class App extends React.Component {
       mode: data.settings.mode,
       focused: data.settings.focused,
       popSnd: new Audio(popSnd),
-      zoomed: ''
+      zoomed: '',
+      tasks: null, // TODO
     };
+  }
+  setTasks = (tasks) => {
+    this.setState({tasks: tasks})
   }
   toggleComplete() {
     if (this.state.hideComplete == '') {
@@ -365,7 +370,7 @@ class App extends React.Component {
   render() {
     this.statusBar = React.createRef();
     return (
-      <>
+      <TaskContext.Provider value={this.state}>
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete + ' ' + 
@@ -378,7 +383,7 @@ class App extends React.Component {
               subtasks={data['river'].subtasks} ref={this.state.river} />
           </div>
         </DragDropContext>
-      </>
+      </TaskContext.Provider>
     )
   }
 }
@@ -676,6 +681,7 @@ class Timer extends React.Component {
 }
 
 class Frame extends React.Component {
+  static contextType = MainContext;
   constructor(props) {
     super(props);
     this.state = {
