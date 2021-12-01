@@ -24,15 +24,15 @@ var themes = {
     "--select": "rgb(85, 107, 47)",
     "--event": "rgba(85, 107, 47, 0.3)",
     "--foreground": "rgb(59, 60, 54)",
-    "--midground": "rgba(59, 60, 54, 0.3)",
+    "--midground": "rgba(59, 60, 54, 0.1)",
     "--padding": "14px",
     "--important": "rgb(14, 41, 48)",
     "--maybe": "rgba(14, 41, 48, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(14, 41, 48, 0.8)",
+    "--endDate": "rgb(14, 41, 48)",
     "--headingSize": "125%",
-    "--lineSpacing": "-10px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(59, 60, 54, 0.1)",
     "--river": "rgba(85, 107, 47, 0.1)",
@@ -47,15 +47,15 @@ var themes = {
     "--select": "rgb(186, 208, 149)",
     "--event": "rgba(186, 208, 149, 0.3)",
     "--foreground": "rgb(218, 222, 200)",
-    "--midground": "rgba(59, 60, 54, 0.3)",
+    "--midground": "rgba(59, 60, 54, 0.1)",
     "--padding": "14px",
     "--important": "rgb(85, 107, 47)",
     "--maybe": "rgba(85, 107, 47, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(85, 107, 47, 0.8)",
+    "--endDate": "rgb(85, 107, 47)",
     "--headingSize": "125%",
-    "--lineSpacing": "-10px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(218, 222, 200, 0.1)",
     "--river": "rgba(186, 208, 149, 0.1)",
@@ -70,13 +70,13 @@ var themes = {
     "--select": "rgb(242, 172, 229)",
     "--event": "rgba(251, 217, 253, 0.3)",
     "--foreground": "rgb(53, 3, 58)",
-    "--midground": "rgba(200, 200, 230, 0.3)",
+    "--midground": "rgba(200, 200, 230, 0.1)",
     "--padding": "14px",
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(226, 156, 210, 0.8)",
+    "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "120%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -93,13 +93,13 @@ var themes = {
     "--select": "rgb(183, 104, 162)",
     "--event": "rgba(183, 104, 162, 0.3)",
     "--foreground": "rgb(248, 197, 252)",
-    "--midground": "rgba(40, 6, 34)",
+    "--midground": "rgba(40, 6, 34, 0.1)",
     "--padding": "14px",
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(226, 156, 210, 0.8)",
+    "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -116,13 +116,13 @@ var themes = {
     "--select": "rgb(119, 152, 171)",
     "--event": "rgba(119, 152, 171, 0.3)",
     "--foreground": "rgb(52, 64, 85)",
-    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--midground": "rgba(128, 128, 128, 0.1)",
     "--padding": "14px",
     "--important": "rgb(29, 41, 81)",
     "--maybe": "rgba(29, 41, 81, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(29, 41, 81, 0.8)",
+    "--endDate": "rgb(29, 41, 81)",
     "--headingSize": "125%",
     "--lineSpacing": "0px",
     "--frontWidth": "3em",
@@ -139,13 +139,13 @@ var themes = {
     "--select": "rgb(83, 117, 136)",
     "--event": "rgba(59, 75, 84, 0.3)",
     "--foreground": "rgb(170, 182, 203)",
-    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--midground": "rgba(128, 128, 128, 0.1)",
     "--padding": "14px",
     "--important": "rgb(173, 185, 225)",
     "--maybe": "rgba(173, 185, 225, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(173, 185, 225, 0.8)",
+    "--endDate": "rgb(173, 185, 225)",
     "--headingSize": "125%",
     "--lineSpacing": "0px",
     "--frontWidth": "3em",
@@ -160,14 +160,14 @@ var themes = {
     "--border": "rgba(128, 128, 128, 0.3)",
     "--select": "rgb(165, 113, 100)",
     "--event": "rgba(165, 113, 100, 0.3)",
-    "--foreground": "rgb(59, 47, 47)",
-    "--midground": "rgba(196, 174, 173, 0.5)",
+    "--foreground": "rgba(59, 47, 47)",
+    "--midground": "rgba(165, 113, 100, 0.5)",
     "--padding": "14px",
     "--important": "rgb(161, 122, 116)",
     "--maybe": "rgba(161, 122, 116, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(161, 122, 116, 0.8)",
+    "--endDate": "rgb(161, 122, 116)",
     "--bold": "600",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
@@ -184,13 +184,13 @@ var themes = {
     "--select": "rgb(101, 138, 149)",
     "--event": "rgba(101, 138, 149, 0.3)",
     "--foreground": "rgb(191, 193, 194)",
-    "--midground": "rgb(128, 128, 128)",
+    "--midground": "rgba(101, 138, 149, 0.1)",
     "--padding": "14px",
     "--important": "skyblue",
     "--maybe": "darkblue",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(135,206,235, 0.8)",
+    "--endDate": "rgb(135,206,235)",
     "--bold": "600",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
@@ -207,13 +207,13 @@ var themes = {
     "--select": "rgb(64, 71, 77)",
     "--event": "rgba(64, 71, 77, 0.3)",
     "--foreground": "rgb(10, 10, 10)",
-    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--midground": "rgba(64, 71, 77, 0.1)",
     "--padding": "14px",
     "--important": "rgb(41, 74, 112)",
     "--maybe": "rgba(41, 74, 112, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgb(41, 74, 112, 0.8)",
+    "--endDate": "rgb(41, 74, 112)",
     "--bold": "400",
     "--headingSize": "1.15em",
     "--lineSpacing": "0px",
@@ -230,13 +230,13 @@ var themes = {
     "--select": "rgb(145, 163, 176)",
     "--event": "rgba(145, 163, 176, 0.3)",
     "--foreground": "whitesmoke",
-    "--midground": "rgba(128, 128, 128, 0.3)",
+    "--midground": "rgba(145, 163, 176, 0.1)",
     "--padding": "14px",
     "--important": "rgb(143, 176, 214)",
     "--maybe": "rgba(143, 176, 214, 0.5)",
-    "--menufont": "18px Courier New",
-    "--startDate": "var(--maybe)",
-    "--endDate": "var(--important)",
+    "--menufont": "18px Dosis",
+    "--startDate": "rgba(143, 176, 214, 0.8)",
+    "--endDate": "rgb(143, 176, 214)",
     "--bold": "400",
     "--headingSize": "1.15em",
     "--lineSpacing": "0px",
@@ -279,19 +279,13 @@ try {
   data = !localStorage.getItem('data') ? { resetData } :
     JSON.parse(localStorage.getItem('data'));
 } catch (err) {
-  console.log(err);
   data = resetData;
 }
 
 var deadlines = {};
 var startdates = {};
 
-try {
-  var repeats = data.settings.repeats;
-} catch (err) {
-  console.log('error');
-  var data = resetData;
-}
+data = resetData;
 
 var selected;
 var preventSelect;
@@ -299,6 +293,7 @@ var copiedTask;
 var width;
 var prevWidth;
 var app;
+var zoomed;
 
 class App extends React.Component {
   constructor(props) {
@@ -311,6 +306,7 @@ class App extends React.Component {
       mode: data.settings.mode,
       focused: data.settings.focused,
       popSnd: new Audio(popSnd),
+      zoomed: ''
     };
   }
   toggleComplete() {
@@ -331,7 +327,6 @@ class App extends React.Component {
       destination.index === source.index) {
       return;
     }
-    console.log(source, destination);
     const sourceSplit = source.droppableId.split('-');
     const destSplit = destination.droppableId.split('-');
 
@@ -343,8 +338,6 @@ class App extends React.Component {
       var i = 2;
       var task;
       function getTask() {
-        console.log(listObjs[i - 1].current.taskList.current
-          .subtaskObjects);
         task = listObjs[i - 1].current.taskList.current
           .subtaskObjects.find(x => x.current.props.id === listSplit[i]);
         listObjs.push(task);
@@ -375,7 +368,8 @@ class App extends React.Component {
       <>
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
-          <div className={'container ' + this.state.hideComplete}>
+          <div className={'container ' + this.state.hideComplete + ' ' + 
+          this.state.zoomed}>
             <Frame id='bank' info={{...data['bank'].info, 
               focused: data.settings.focused}}
               subtasks={data['bank'].subtasks} ref={this.state.bank} />
@@ -397,7 +391,8 @@ class StatusBar extends React.Component {
   treeSearch(task, idString) {
     // builds full tree list of IDs based on title contents
     let i = 0;
-    for (let subtask of task.subtasks) {
+    for (let subtask of task.subtasks
+      .filter(x => x.info.complete != 'complete')) {
       if (subtask.title.length > 0) {
         this.searches[subtask.title] = idString + ' ' + i;
       }
@@ -417,7 +412,6 @@ class StatusBar extends React.Component {
         delete this.searches[x];
       }
     }
-    console.log(this.searches);
     this.setState({ foundTasks: this.searches });
   }
   goToSearch(title) {
@@ -431,7 +425,6 @@ class StatusBar extends React.Component {
         currentTask = currentTask.current.taskList.current.
           subtaskObjects[Number(place)];
       }
-      console.log(currentTask.current);
       preventSelect = false;
       selectTask(currentTask.current, true);
     }, 50);
@@ -488,7 +481,7 @@ class StatusBar extends React.Component {
         </div>
         <Timer />
         <div className='buttonBar nowrap'>
-          <select ref={this.functions} style={{width: '75px'}}
+          <select ref={this.functions} style={{width: '48px'}}
             onChange={() => {
             eval(this.functions.current.value);
             this.functions.current.value = '';
@@ -507,7 +500,7 @@ class StatusBar extends React.Component {
             eval(this.options.current.value);
             this.options.current.value = '';
           }}
-            style={{width: '70px'}}>
+            style={{width: '40px'}}>
             <option value="" selected disabled hidden>settings</option>
             <option value='focus()'>toggle focus (ctrl-f)</option>
             <option value='app.current.toggleComplete()'>
@@ -535,14 +528,13 @@ class ListMenu extends React.Component {
   }
   goToList(type) {
     if (type === 'river') {
-      var parent = app.current.state.river.current;
-      var list = this.riverLister;
+      searchDate(this.riverLister.current.value);
     } else if (type === 'bank') {
       var parent = app.current.state.bank.current;
       var list = this.bankLister;
+      parent.changeIndex(Number(list.current.value), true);
     }
-    console.log(list.current.value);
-    parent.changeIndex(Number(list.current.value), true);
+    
     if (type === 'river') {
       this.riverLister.current.value = '';
     } else if (type === 'bank') {
@@ -555,7 +547,7 @@ class ListMenu extends React.Component {
     return (
       <>
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
-          style={{width: '45px'}}>
+          style={{width: '25px'}}>
           <option value="" selected disabled hidden>lists</option>
           {data.bank.subtasks.filter(x => x.title != '--')
           .map((x, index) =>
@@ -569,13 +561,13 @@ class ListMenu extends React.Component {
             this.goToList('river')
           }
         }}
-          style={{width: '50px'}}>
+          style={{width: '30px'}}>
           <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
           {data.river.subtasks.filter(x => new Date(x.title).getTime() >= 
             new Date().getTime())
-            .map((x, index) =>
-            <option value={index}>{x.title}</option>)}
+            .map((x) =>
+            <option value={x.title}>{x.title}</option>)}
         </select>
       </>
     )
@@ -668,7 +660,7 @@ class Timer extends React.Component {
             this.options.current.value = '';
           }
         }}
-          style={{width: '45px'}}>
+          style={{width: '30px'}}>
           <option value="" selected disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
@@ -689,11 +681,11 @@ class Frame extends React.Component {
     this.state = {
       subtasks: props.subtasks, info: props.info,
       width: processWidth(props.info.focused),
+      zoomed: '',
     };
     if (props.id === 'river') {
       this.state.deadlines = deadlines;
       this.state.startdates = startdates;
-      this.state.repeats = repeats;
     }
   }
   changeIndex(val, set) {
@@ -742,10 +734,10 @@ class Frame extends React.Component {
     window.addEventListener('resize', resizeCheck);
     const shownLists =
       this.state.subtasks.slice(this.state.info.index, endIndex);
-    console.log(shownLists);
     return (
       <div id={this.props.id}
-        className={'frame ' + this.state.info.focused}>
+        className={'frame ' + this.state.info.focused + ' ' + 
+        this.state.zoomed}>
         <button className='changeButton'
           onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
         </button>
@@ -781,65 +773,62 @@ class List extends React.Component {
     this.taskList = React.createRef();
     this.state = {
       subtasks: props.subtasks, title: props.title,
-      info: {}
+      info: {}, zoomed: ''
     };
   }
   changeTitle(ev) {
     this.setState({ title: ev.target.value });
-  }
-  searchDate(text, type) {
-    setTimeout(() => {
-      app.current.statusBar.current.search({ target: { value: text } });
-      app.current.statusBar.current.goToFirst();
-    }, 100);
   }
   render() {
     function selectThis() {
       selectTask(this);
     }
     selectThis = selectThis.bind(this);
-    this.searchDate = this.searchDate.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
     return (
-      <div className='list' onClick={selectThis}>
-        {this.props.parent.props.id === 'bank' ?
-          <input className='listInput' value={this.state.title}
-            onChange={this.changeTitle} ref={this.listInput}></input> :
-          <>
-            <div class='monthYear'>
-              <span>{this.state.title.slice(4,8)}</span>
-              <span>{this.state.title.slice(11)}</span>
-            </div>
-            <input readOnly className='listInput listTitle'
-              value={dateFormat(this.state.title)} ref={this.listInput}>
-              </input>
-          </>
-        }
-        {this.props.parent.props.id === 'river' &&
-          this.props.deadlines &&
-          <ul>
-            {Object.keys(this.props.deadlines).map(x => {
-              return <li
-                className='deadline' key={String(x)}
-                onClick={() => this.searchDate(this.props.deadlines[x], 
-                'start')}>
-                {this.props.deadlines[x]}</li>;
-            })}
-          </ul>}
-        {this.props.parent.props.id === 'river' &&
-          this.props.startdates &&
-          <ul>
-            {Object.keys(this.props.startdates).map(x => {
-              return <li
-                className='startdate' key={String(x)}
-                onClick={() => this.searchDate(this.props.startdates[x], 
-                'start')}>
-                {this.props.startdates[x]}</li>;
-            })}
-          </ul>}
-        {<TaskList ref={this.taskList} subtasks={this.state.subtasks}
-          parent={this} />}
+      <div className={'list' + ' ' + this.state.zoomed} onClick={selectThis}>
+        <div className='listInputBackground'>
+          {this.props.parent.props.id === 'bank' ?
+            <input className='listInput' value={this.state.title}
+              onChange={this.changeTitle} ref={this.listInput}></input> :
+            <>
+              <div class='monthYear'>
+                <span>{this.state.title.slice(4,8)}</span>
+                <span>{this.state.title.slice(11)}</span>
+              </div>
+              <input readOnly className='listInput listTitle'
+                value={dateFormat(this.state.title)} ref={this.listInput}>
+                </input>
+            </>
+          }
+        </div>
+        <div className='listFrame'>
+          {this.props.parent.props.id === 'river' &&
+            this.props.deadlines &&
+            <ul>
+              {Object.keys(this.props.deadlines).map(x => {
+                return <li
+                  className='deadline' key={String(x)}
+                  onClick={() => searchDate(this.props.deadlines[x], 
+                  'start')}>
+                  {this.props.deadlines[x]}</li>;
+              })}
+            </ul>}
+          {this.props.parent.props.id === 'river' &&
+            this.props.startdates &&
+            <ul>
+              {Object.keys(this.props.startdates).map(x => {
+                return <li
+                  className='startdate' key={String(x)}
+                  onClick={() => searchDate(this.props.startdates[x], 
+                  'start')}>
+                  {this.props.startdates[x]}</li>;
+              })}
+            </ul>}
+          {<TaskList ref={this.taskList} subtasks={this.state.subtasks}
+            parent={this} />}
+        </div>
       </div>
     )
   }
@@ -901,7 +890,8 @@ class Task extends React.Component {
     this.state = {
       info: props.info, title: props.title,
       subtasks: props.subtasks, parent: props.parent,
-      id: props.id, displayOptions: 'hide', riverTask: false
+      id: props.id, displayOptions: 'hide', riverTask: false,
+      zoomed: '',
     };
     if (!this.state.info.startDate) this.state.info.startDate = '';
     if (!this.state.info.endDate) this.state.info.endDate = '';
@@ -912,6 +902,10 @@ class Task extends React.Component {
     }
   }
   displayOptions(ev, showHide) {
+    selectTask(this);
+    if (this.editBar.current) {
+      this.editBar.current.focus();
+    }
     if ($(ev.target).hasClass('options') ||
       $(ev.target).parent().hasClass('options')) {
       return
@@ -927,14 +921,11 @@ class Task extends React.Component {
     this.updateHeight();
   }
   updateHeight() {
-    console.log(this.resizable);
     if (this.resizable != false) {
       this.editBar.current.style.height = '0px';
       this.editBar.current.style.height =
         (this.editBar.current.scrollHeight) + "px";
       this.resizable = false;
-      console.log(this.editBar.current.value, 
-        this.editBar.current.style.height);
     }
     setTimeout(() => this.resizable = true, 100);
   }
@@ -1104,9 +1095,7 @@ class Task extends React.Component {
     const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
     const hasTimes = (this.state.info.startDate.length > 0 &&
-      !this.state.info.startDate.includes('-')) &&
-      (this.state.info.endDate.length > 0 && 
-      !this.state.info.endDate.includes('-')) ? 'event' : '';
+      !this.state.info.startDate.includes('-')) ? 'event' : '';
     const startInput =
       <input className='optionsInput startDate'
         value={this.state.info.startDate}
@@ -1118,7 +1107,6 @@ class Task extends React.Component {
         onChange={(ev) => this.changeEndDate(ev, 'end')}>
       </input>
     if (this.heightSpan.current) {
-      console.log('setting height');
       this.setHeight();
     }
     if (this.editBar.current) {
@@ -1141,7 +1129,8 @@ class Task extends React.Component {
             ' ' + this.state.info.maybe +
             ' ' + headingClass +
             ' ' + hasTimes +
-            ' ' + this.state.info.collapsed}
+            ' ' + this.state.info.collapsed +
+            ' ' + this.state.zoomed}
             onClick={() => { selectTask(this) }}
             {...provided.draggableProps}
             ref={provided.innerRef}>
@@ -1182,18 +1171,32 @@ class Task extends React.Component {
                 {startInput}
                 {endInput}
               </div>
-              <span className='info' onClick={(ev) => this.displayOptions(ev)}
-                ref={this.optionsButton}
-                {...provided.dragHandleProps}>
-              </span>
-              <div className='startEndSpans'>
-                <span className='optionsSpan startDate'>{this.state.info.startDate}</span>
-                <span className='optionsSpan endDate'>{this.state.info.endDate}
+              {hasTimes !== 'event' ?
+                <span className='info' 
+                  onClick={(ev) => this.displayOptions(ev)}
+                  ref={this.optionsButton}
+                  {...provided.dragHandleProps}></span> :
+                <span className='startDate' 
+                  onClick={(ev) => this.displayOptions(ev)}
+                  ref={this.optionsButton}
+                  {...provided.dragHandleProps}>
+                  {this.state.info.startDate}
                 </span>
-              </div>
+              }
               <textarea className='editBar' value={this.state.title}
                 onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
                 spellCheck='false'></textarea>
+            </div>
+            <div className='taskInfo'>
+                {hasTimes !== 'event' && 
+                  this.state.info.startDate.length > 0 &&
+                  <span className='startDate'>
+                  {this.state.info.startDate}
+                </span>}
+                {this.state.info.endDate.length > 0 &&
+                <span className='endDate'>
+                  {this.state.info.endDate}
+                </span>}
             </div>
             <TaskList ref={this.taskList} subtasks={this.state.subtasks}
               parent={this} />
@@ -1233,9 +1236,7 @@ function selectTask(el, force) {
   }
   preventSelect = true;
   setTimeout(function () { preventSelect = false }, 100);
-  console.log(selected);
   if (selected == el && !force) {
-    console.log('selected and el are the same');
     return;
   }
   if (selected) {
@@ -1319,7 +1320,6 @@ function pasteTask(type) {
 
 function backup() {
   const now = new Date();
-  console.log(JSON.stringify(data));
 }
 
 function keyComms(ev) {
@@ -1364,7 +1364,16 @@ function keyComms(ev) {
         break;
       case 'f':
         ev.preventDefault();
+        if (app.current.state.zoomed === 'zoomed') return;
         focus();
+        break
+      case 'r':
+        ev.preventDefault();
+        updateAllSizes();
+        break;
+      case 'z':
+        ev.preventDefault();
+        zoom();
         break;
       case 'Backspace':
         ev.preventDefault();
@@ -1386,10 +1395,12 @@ function keyComms(ev) {
         break;
       case 'a':
         ev.preventDefault();
+        if (app.current.state.zoomed === 'zoomed') return;
         switchView(-1);
         break;
       case 'd':
         ev.preventDefault();
+        if (app.current.state.zoomed === 'zoomed') return;
         switchView(1);
         break;
       case 'h':
@@ -1398,6 +1409,7 @@ function keyComms(ev) {
         break;
       case 't':
         ev.preventDefault();
+        if (app.current.state.zoomed === 'zoomed') return;
         goToToday();
         break;
       case '1':
@@ -1461,7 +1473,6 @@ function switchView(direction) {
   while (parent instanceof Task) {
     parent = parent.props.parent;
   }
-  console.log(parent);
   parent.props.parent.changeIndex(direction);
 }
 
@@ -1488,7 +1499,6 @@ function moveTask(direction) {
   }
   const spliceTask = subtasks.splice(selectedPlace, 1)[0];
   subtasks.splice(selectedPlace + insertPlace, 0, spliceTask);
-  console.log(subtasks);
   selected.props.parent.setState(subtasks);
 }
 
@@ -1517,7 +1527,6 @@ function focus(set) {
     while (focusView instanceof Task) {
       focusView = focusView.props.parent;
     }
-    console.log(focusView);
     focusView.props.parent.changeIndex(focusView.props.parent.frames
       .findIndex(x => x.current.props.id == focusView.props.id));
   }
@@ -1543,7 +1552,6 @@ function focus(set) {
 
 function updateAllSizes() {
   function update(list) {
-    console.log(list);
     for (let task of list.current.taskList.current.subtaskObjects) {
       task.current.updateHeight();
       for (let subtask of task.current.taskList.current.subtaskObjects) {
@@ -1561,7 +1569,6 @@ function updateAllSizes() {
 function setTheme(theme) {
   const newTheme = themes[theme + '-' +
     data.settings.mode];
-  console.log(theme + '-' + data.settings.mode);
   for (let key of Object.keys(newTheme)) {
     document.documentElement.style.setProperty(
       key, newTheme[key]
@@ -1601,12 +1608,46 @@ function goToToday() {
   const days = river.state.subtasks;
   const thisDay = days.findIndex(x => x.title === today);
   river.changeIndex(thisDay, true);
-  console.log('went to today');
+}
+
+function searchDate(text, type) {
+  setTimeout(() => {
+    app.current.statusBar.current.search({ target: { value: text } });
+    app.current.statusBar.current.goToFirst();
+  }, 100);
 }
 
 // porting from previous version of dates
 for (let i of data['river'].subtasks) {
   i.title = i.title.replace("'", "20");
+}
+
+function zoom() {
+  // zoom everything upwards
+  if (app.current.state.zoomed === 'zoomed') {
+    var zoomedSetting = '';
+  } else {
+    var zoomedSetting = 'zoomed';
+    if (!selected) { return }; // no zoomie
+  }
+  if (selected instanceof Task) {
+    var zoomTask = selected.props.parent;
+  } else {
+    var zoomTask = selected;
+  }
+  zoomTask.setState({zoomed: zoomedSetting});
+  let parent = zoomTask.props.parent;
+  while (parent) {
+    parent.setState({zoomed: zoomedSetting});
+    parent = parent.props.parent;
+  }
+  app.current.setState({zoomed: zoomedSetting})
+  if (!zoomed) {
+    // unzoom
+    zoomed = selected;
+  } else {
+    zoomed = undefined;
+  }
 }
 
 function init() {
@@ -1617,7 +1658,6 @@ function init() {
   $('body').append("<link rel='stylesheet' id='theme' href='./themes/space-night.css' />");
   ReactDOM.render(<App ref={app} />, document.getElementById('root'));
   $(document).on('keydown', keyComms);
-  console.log(data.settings.focused);
   focus(data.settings.focused);
   setTheme(data.settings.theme);
   window.addEventListener('resize', () => {
@@ -1630,4 +1670,26 @@ init();
 
 if (data.settings.hideComplete === undefined) {
   data.settings.hideComplete = '';
+}
+
+if (data.settings.migrated !== '12/1') {
+  data.settings.migrated = '12/1';
+  var tasksMigrated = {};
+  var newData = JSON.parse(JSON.stringify(data));
+  function treeSearch(task) {
+    tasksMigrated[task.id] = {info: task.info, title: task.title, 
+      subtasks: task.subtasks.map(x => x.id)};
+    for (let subtask of task.subtasks) {
+      treeSearch(subtask, task);
+    }
+    delete task.subtasks;
+  }
+  newData.river.id = 'river';
+  newData.bank.id = 'bank';
+  treeSearch(newData.river);
+  treeSearch(newData.bank);
+  delete newData.river;
+  delete newData.bank;
+  newData.tasks = tasksMigrated;
+  console.log(data, newData, tasksMigrated);
 }
