@@ -306,7 +306,7 @@ class App extends React.Component {
       mode: data.settings.mode,
       focused: data.settings.focused,
       popSnd: new Audio(popSnd),
-      zoomed: ''
+      zoomed: '',
     };
   }
   toggleComplete() {
@@ -364,18 +364,21 @@ class App extends React.Component {
   }
   render() {
     this.statusBar = React.createRef();
+    console.log(data.tasks['river'].subtasks);
     return (
       <>
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete + ' ' + 
           this.state.zoomed}>
-            <Frame id='bank' info={{...data['bank'].info, 
+            {/* <Frame id='bank' info={{...data.tasks['bank'].info, 
               focused: data.settings.focused}}
-              subtasks={data['bank'].subtasks} ref={this.state.bank} />
-            <Frame id='river' info={{...data['river'].info, 
+              subtasks={data.tasks['bank'].subtasks} 
+              ref={this.state.bank} />
+            <Frame id='river' info={{...data.tasks['river'].info, 
               focused: data.settings.focused}}
-              subtasks={data['river'].subtasks} ref={this.state.river} />
+              subtasks={data.tasks['river'].subtasks} 
+              ref={this.state.river} /> */}
           </div>
         </DragDropContext>
       </>
@@ -389,6 +392,7 @@ class StatusBar extends React.Component {
     this.state = { searchString: '', foundTasks: {} };
   }
   treeSearch(task, idString) {
+    return // TODO
     // builds full tree list of IDs based on title contents
     let i = 0;
     for (let subtask of task.subtasks
@@ -401,6 +405,7 @@ class StatusBar extends React.Component {
     }
   }
   search(ev) {
+    return // TODO
     if (this.state.searchString === '') {
       this.searches = {};
       this.treeSearch(data.river, 'river');
@@ -415,6 +420,7 @@ class StatusBar extends React.Component {
     this.setState({ foundTasks: this.searches });
   }
   goToSearch(title) {
+    return //TODO
     const splits = title.split(' ');
     const frame = app.current.state[splits[0]];
     frame.current.changeIndex(Number(splits[1]), true);
@@ -549,9 +555,9 @@ class ListMenu extends React.Component {
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
           style={{width: '25px'}}>
           <option value="" selected disabled hidden>lists</option>
-          {data.bank.subtasks.filter(x => x.title != '--')
-          .map((x, index) =>
-            <option value={index}>{x.title}</option>)}
+          {data.tasks['bank'].subtasks.filter(x => data.tasks[x].title 
+            != '--').map((x, index) =>
+            <option value={index}>{data.tasks[x]}</option>)}
         </select>
         <select ref={this.riverLister} onChange={() => {
           if (this.riverLister.current.value == 'today') {
@@ -564,10 +570,12 @@ class ListMenu extends React.Component {
           style={{width: '30px'}}>
           <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
-          {data.river.subtasks.filter(x => new Date(x.title).getTime() >= 
+          {data.tasks['river'].subtasks
+            .filter(x => new Date(data.tasks[x].title).getTime() >= 
             new Date().getTime())
             .map((x) =>
-            <option value={x.title}>{x.title}</option>)}
+            <option value={data.tasks[x].title}>
+            {data.tasks[x].title}</option>)}
         </select>
       </>
     )
@@ -707,7 +715,8 @@ class Frame extends React.Component {
     const now = new Date();
     let i = 0;
     const lastDate = 
-      new Date(this.state.subtasks[this.state.subtasks.length - 1].title);
+      new Date(data.tasks[
+        this.state.subtasks[this.state.subtasks.length - 1]].title);
     while (this.state.subtasks.length < this.state.info.index + 7) {
       i++;
       if (this.props.id === 'bank') {
@@ -717,10 +726,9 @@ class Frame extends React.Component {
         date.setDate(lastDate.getDate() + i);
         var title = date.toDateString();
       }
-      this.state.subtasks.push({
-        id: String(now.getTime() + i),
-        title: title, subtasks: [], info: {}
-      });
+      const id = String(now.getTime() + i);
+      data.tasks[id] = {title: title, info: [], subtasks: []};
+      this.state.subtasks.push(id);
     }
     function resizeCheck() {
       if (this.state.width != processWidth(this.state.info.focused)) {
@@ -746,16 +754,18 @@ class Frame extends React.Component {
           if (this.props.id === 'river') {
             // render state correctly in original lists
             return (
-              <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this}
-                deadlines={this.state.deadlines[x.title]}
-                startdates={this.state.startdates[x.title]}
+              <List key={x} id={x} title={data.tasks[x].title}
+                subtasks={data.tasks[x].subtasks} parent={this}
+                deadlines={this.state.deadlines[
+                  data.tasks[x].title]}
+                startdates={this.state.startdates[
+                  data.tasks[x].title]}
                 ref={this.frames[this.frames.length - 1]} />
             )
           } else {
             return (
-              <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this}
+              <List key={x} id={x} title={data.tasks[x].title}
+                subtasks={data.tasks[x].subtasks} parent={this}
                 ref={this.frames[this.frames.length - 1]} />
             )
           }
@@ -845,11 +855,11 @@ class TaskList extends React.Component {
       this.subtaskObjects.push(React.createRef());
       const task = (
         <Task
-          key={x.id}
-          id={x.id}
-          info={x.info}
-          title={x.title}
-          subtasks={x.subtasks}
+          key={x}
+          id={x}
+          info={data.tasks[x].info}
+          title={data.tasks[x].title}
+          subtasks={data.tasks[x].subtasks}
           parent={this.props.parent}
           ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
           index={index}
@@ -1255,29 +1265,14 @@ function selectTask(el, force) {
 
 function save(task, saveType) {
   // save the new data
-  let parent = task.props.parent;
-  let parents = [task.props.id];
-  while (parent && parent.props.id) {
-    parents.push(parent.props.id);
-    parent = parent.props.parent;
-  }
-  parents = parents.reverse();
-  let parentObject = data[parents[0]];
-  let endIndex;
   if (saveType === 'task') {
-    // save the TaskList which this task is in
-    endIndex = 0
-  } else if (saveType === 'list' || !saveType) {
-    // save this task's data
-    endIndex = -1
+    var taskObject = task;
+  } else if (saveType === 'parent') {
+    var taskObject = task.props.parent;
   }
-  for (let parentId of parents.slice(1, parents.length - endIndex)) {
-    parentObject = parentObject.subtasks.find(x => x.id === parentId);
-  }
-  if (!parentObject) return;
-  parentObject.title = task.state.title;
-  parentObject.subtasks = task.state.subtasks;
-  parentObject.info = task.state.info;
+  data.tasks[taskObject.props.id] = {
+    title: taskObject.state.title, info: taskObject.state.info,
+    subtasks: taskObject.state.subtasks};
   localStorage.setItem('data', JSON.stringify(data));
 }
 
@@ -1617,11 +1612,6 @@ function searchDate(text, type) {
   }, 100);
 }
 
-// porting from previous version of dates
-for (let i of data['river'].subtasks) {
-  i.title = i.title.replace("'", "20");
-}
-
 function zoom() {
   // zoom everything upwards
   if (app.current.state.zoomed === 'zoomed') {
@@ -1666,13 +1656,11 @@ function init() {
   });
 }
 
-init();
-
 if (data.settings.hideComplete === undefined) {
   data.settings.hideComplete = '';
 }
 
-if (data.settings.migrated !== '12/1') {
+if (data.settings.migrated !== '12/1a' || true) {
   data.settings.migrated = '12/1';
   var tasksMigrated = {};
   var newData = JSON.parse(JSON.stringify(data));
@@ -1692,4 +1680,7 @@ if (data.settings.migrated !== '12/1') {
   delete newData.bank;
   newData.tasks = tasksMigrated;
   console.log(data, newData, tasksMigrated);
+  data = newData;
 }
+
+init();
