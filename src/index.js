@@ -285,8 +285,6 @@ try {
 var deadlines = {};
 var startdates = {};
 
-data = resetData;
-
 var selected;
 var preventSelect;
 var copiedTask;
@@ -370,12 +368,12 @@ class App extends React.Component {
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete + ' ' + 
           this.state.zoomed}>
-            <Frame id='bank' info={{...data['bank'].info, 
+            <Frame id='bank' info={{...data.tasks['bank'].info, 
               focused: data.settings.focused}}
-              subtasks={data['bank'].subtasks} ref={this.state.bank} />
-            <Frame id='river' info={{...data['river'].info, 
+              subtasks={data.tasks['bank'].subtasks} ref={this.state.bank} />
+            <Frame id='river' info={{...data.tasks['river'].info, 
               focused: data.settings.focused}}
-              subtasks={data['river'].subtasks} ref={this.state.river} />
+              subtasks={data.tasks['river'].subtasks} ref={this.state.river} />
           </div>
         </DragDropContext>
       </>
@@ -388,59 +386,65 @@ class StatusBar extends React.Component {
     super(props);
     this.state = { searchString: '', foundTasks: {} };
   }
-  treeSearch(task, idString) {
-    // builds full tree list of IDs based on title contents
-    let i = 0;
-    for (let subtask of task.subtasks
-      .filter(x => x.info.complete != 'complete')) {
-      if (subtask.title.length > 0) {
-        this.searches[subtask.title] = idString + ' ' + i;
-      }
-      this.treeSearch(subtask, idString + ' ' + i);
-      i++;
-    }
-  }
   search(ev) {
     if (this.state.searchString === '') {
-      this.searches = {};
-      this.treeSearch(data.river, 'river');
-      this.treeSearch(data.bank, 'bank');
+      this.searches = {...data.tasks}; 
     }
     this.setState({ searchString: ev.target.value });
     for (let x of Object.keys(this.searches)) {
-      if (!new RegExp(this.state.searchString, 'i').test(x)) {
+      if (!new RegExp(this.state.searchString, 'i').test(
+        this.searches[x].title) ||
+        this.searches[x].info.complete === 'complete') {
         delete this.searches[x];
       }
     }
+    // id : {title, subtasks, info}
     this.setState({ foundTasks: this.searches });
+    console.log(this.searches);
   }
-  goToSearch(title) {
-    const splits = title.split(' ');
-    const frame = app.current.state[splits[0]];
-    frame.current.changeIndex(Number(splits[1]), true);
-    setTimeout(() => {
-      let currentTask = frame.current.frames[0];
-      for (let place of splits.slice(2)) {
-        // zoom into places until you find the task
-        currentTask = currentTask.current.taskList.current.
-          subtaskObjects[Number(place)];
+  goToSearch(id) {
+    var idList = [id];
+    console.log(data.tasks['river']);
+    function buildParents(otherId) {
+      for (let x of Object.keys(data.tasks)) {
+        if (data.tasks[x].subtasks.includes(otherId)) {
+          idList.splice(0, 0, x);
+          buildParents(x);
+          return;
+        }
       }
-      preventSelect = false;
-      selectTask(currentTask.current, true);
-    }, 50);
+    }
+    buildParents(id);
+    console.log(id, data.tasks[id], idList);
+    const frame = app.current.state[idList[0]].current;
+    const listIndex = frame.state.subtasks.findIndex(x => x === idList[1]);
+    frame.changeIndex(listIndex, true);
+    const list = frame.frames[0].current;
+    let foundTask = list;
+    let i = 2;
+    while (idList.length > i) {
+      // find in tasks starting at index 2 (if it's there)
+      let taskId = idList[i];
+      const taskIndex = foundTask.state.subtasks
+        .findIndex(x => x === taskId);
+      foundTask = foundTask.taskList.current
+        .subtaskObjects[taskIndex].current;
+      i ++;
+    }
+    console.log(foundTask);
+    selectTask(foundTask);
     this.setState({ searchString: '', foundTasks: {} });
+    // go through IDs and find the trace paths
   }
   componentDidMount() {
     setTimeout(goToToday, 200);
   }
   goToFirst() {
-    this.goToSearch(this.state.foundTasks[
-      $($(this.searchResults.current)
-        .children()[0]).attr('value')])
+    this.goToSearch($($(this.searchResults.current)
+      .children()[0]).attr('value'));
   }
   render() {
     this.search = this.search.bind(this);
-    this.treeSearch = this.treeSearch.bind(this);
     this.goToSearch = this.goToSearch.bind(this);
     this.goToFirst = this.goToFirst.bind(this);
     this.searchResults = React.createRef();
@@ -471,11 +475,12 @@ class StatusBar extends React.Component {
             placeholder='search'></input>
           {this.state.searchString.length > 0 &&
             <select ref={this.searchResults} onChange={() => {
-              this.goToSearch(this.state.foundTasks[
-                this.searchResults.current.value])
+              this.goToSearch(this.searchResults.current.value)
             }} style={{ width: '130px' }}>
               {Object.keys(this.state.foundTasks).map(x =>
-                <option key={x} value={x}>{x}</option>)}
+                <option key={x} value={x}>
+                  {this.state.foundTasks[x].title}
+                </option>)}
             </select>
           }
         </div>
@@ -506,6 +511,7 @@ class StatusBar extends React.Component {
             <option value='app.current.toggleComplete()'>
               show/hide complete (ctrl-h)</option>
             <option value='backup()'>backup</option>
+            <option value='restore()'>restore</option>
             <option value='reset()'>reset</option>
             <option value='toggleMode()'>toggle day/night</option>
             <option value='setTheme("space")'>theme: space</option>
@@ -549,9 +555,10 @@ class ListMenu extends React.Component {
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
           style={{width: '25px'}}>
           <option value="" selected disabled hidden>lists</option>
-          {data.bank.subtasks.filter(x => x.title != '--')
-          .map((x, index) =>
-            <option value={index}>{x.title}</option>)}
+          {data.tasks['bank'].subtasks.filter(
+            x => data.tasks[x].title != '--')
+            .map((x, index) =>
+            <option value={index}>{data.tasks[x].title}</option>)}
         </select>
         <select ref={this.riverLister} onChange={() => {
           if (this.riverLister.current.value == 'today') {
@@ -564,10 +571,12 @@ class ListMenu extends React.Component {
           style={{width: '30px'}}>
           <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
-          {data.river.subtasks.filter(x => new Date(x.title).getTime() >= 
+          {data.tasks['river'].subtasks.filter(x => new Date(
+            data.tasks[x].title).getTime() >= 
             new Date().getTime())
             .map((x) =>
-            <option value={x.title}>{x.title}</option>)}
+            <option value={data.tasks[x].title}>
+            {data.tasks[x].title}</option>)}
         </select>
       </>
     )
@@ -689,13 +698,15 @@ class Frame extends React.Component {
     }
   }
   changeIndex(val, set) {
+    console.log(data.tasks);
     let newIndex;
     if (set === true) {
       newIndex = val;
     } else {
       newIndex = this.state.info.index + val;
     }
-    if (newIndex > 0 && this.state.subtasks[newIndex - 1].title === '--') {
+    if (newIndex > 0 && 
+      data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
       return;
     }
     if (newIndex < 0) newIndex = 0
@@ -705,22 +716,25 @@ class Frame extends React.Component {
   }
   render() {
     const now = new Date();
-    let i = 0;
-    const lastDate = 
-      new Date(this.state.subtasks[this.state.subtasks.length - 1].title);
+    const lastDate = new Date(
+      data.tasks[this.state.subtasks[this.state.subtasks.length - 1]].title);
+    let j = 0;
     while (this.state.subtasks.length < this.state.info.index + 7) {
-      i++;
+      j ++;
       if (this.props.id === 'bank') {
         var title = '--';
       } else if (this.props.id === 'river') {
         const date = new Date(lastDate.getTime());
-        date.setDate(lastDate.getDate() + i);
+        date.setDate(lastDate.getDate() + j);
         var title = date.toDateString();
       }
-      this.state.subtasks.push({
-        id: String(now.getTime() + i),
-        title: title, subtasks: [], info: {}
-      });
+      const id = now.getTime();
+      let i = 0;
+      while (data.tasks[String(id + i)]) {
+        i += 1;
+      }
+      data.tasks[String(id + i)] = {title: title, subtasks: [], info: {}};
+      this.state.subtasks.push(String(id + i));
     }
     function resizeCheck() {
       if (this.state.width != processWidth(this.state.info.focused)) {
@@ -743,19 +757,20 @@ class Frame extends React.Component {
         </button>
         {shownLists.map(x => {
           this.frames.push(React.createRef());
+          const task = data.tasks[x];
           if (this.props.id === 'river') {
             // render state correctly in original lists
             return (
-              <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this}
-                deadlines={this.state.deadlines[x.title]}
-                startdates={this.state.startdates[x.title]}
+              <List key={x} id={x} title={task.title}
+                subtasks={task.subtasks} parent={this}
+                deadlines={this.state.deadlines[task.title]}
+                startdates={this.state.startdates[task.title]}
                 ref={this.frames[this.frames.length - 1]} />
             )
           } else {
             return (
-              <List key={x.id} id={x.id} title={x.title}
-                subtasks={x.subtasks} parent={this}
+              <List key={x} id={x} title={task.title}
+                subtasks={task.subtasks} parent={this}
                 ref={this.frames[this.frames.length - 1]} />
             )
           }
@@ -772,7 +787,9 @@ class List extends React.Component {
     super(props);
     this.taskList = React.createRef();
     this.state = {
-      subtasks: props.subtasks, title: props.title,
+      // filter subtasks here
+      subtasks: props.subtasks.filter(x =>
+        data.tasks[x]), title: props.title,
       info: {}, zoomed: ''
     };
   }
@@ -841,22 +858,24 @@ class TaskList extends React.Component {
   }
   render() {
     this.subtaskObjects = [];
-    const tasksListed = this.props.subtasks.map((x, index) => {
+    // subtasks are filtered for deleted tasks
+    const tasksListed = this.props.subtasks.filter(x =>
+      data.tasks[x]).map((x, index) => {
       this.subtaskObjects.push(React.createRef());
       const task = (
         <Task
-          key={x.id}
-          id={x.id}
-          info={x.info}
-          title={x.title}
-          subtasks={x.subtasks}
+          key={x}
+          id={x}
+          info={data.tasks[x].info}
+          title={data.tasks[x].title}
+          subtasks={data.tasks[x].subtasks}
           parent={this.props.parent}
           ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
           index={index}
         />
       )
-      return task
-    });
+      return task;
+    })
     let parent = this.props.parent;
     let id = [];
     while (parent) {
@@ -889,7 +908,8 @@ class Task extends React.Component {
     super();
     this.state = {
       info: props.info, title: props.title,
-      subtasks: props.subtasks, parent: props.parent,
+      subtasks: props.subtasks.filter(x =>
+        data.tasks[x]), parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false,
       zoomed: '',
     };
@@ -1045,7 +1065,7 @@ class Task extends React.Component {
     }));
     this.displayOptions('hide');
   }
-  deleteThis() {
+  deleteThis(removeData) {
     // TODO: remove deadline, repeat & startdate 
     // [[don't use global variable]]
     let parent = this.props.parent;
@@ -1055,13 +1075,14 @@ class Task extends React.Component {
     this.changeEndDate('destroy', 'end');
     this.changeEndDate('destroy', 'start');
     const subtasks = this.state.parent.state.subtasks;
-    const currentTask = subtasks.findIndex(x => {
-      return x.id === this.state.id;
-    });
+    const currentTask = subtasks.findIndex(x => x == this.props.id);
     subtasks.splice(currentTask, 1);
     selected = this.state.parent;
-    this.state.parent.setState({ subtasks: subtasks });
     preventSelect = true;
+    this.state.parent.setState({ subtasks: subtasks });
+    if (removeData != false) {
+      delete data.tasks[this.props.id];
+    }
     setTimeout(() => {
       preventSelect = false
       save(this.props.parent, 'list');
@@ -1218,12 +1239,12 @@ function newTask(type) {
   }
   const today = new Date();
   const now = today.getTime();
-  const newTask = {
-    id: String(now),
+  const newTask = String(now);
+  data.tasks[newTask] = {
     info: { complete: '', startDate: '', endDate: '' },
     title: '',
     subtasks: [],
-  }
+  };
   copiedTask = newTask;
   pasteTask(type);
 }
@@ -1236,11 +1257,11 @@ function selectTask(el, force) {
   }
   preventSelect = true;
   setTimeout(function () { preventSelect = false }, 100);
-  if (selected == el && !force) {
-    return;
-  }
   if (selected) {
     save(selected, 'task');
+  }
+  if (selected == el && !force) {
+    return;
   }
   if (selected instanceof Task && el != selected) {
     selected.displayOptions({ target: undefined }, 'hide');
@@ -1255,29 +1276,13 @@ function selectTask(el, force) {
 
 function save(task, saveType) {
   // save the new data
-  let parent = task.props.parent;
-  let parents = [task.props.id];
-  while (parent && parent.props.id) {
-    parents.push(parent.props.id);
-    parent = parent.props.parent;
-  }
-  parents = parents.reverse();
-  let parentObject = data[parents[0]];
-  let endIndex;
   if (saveType === 'task') {
-    // save the TaskList which this task is in
-    endIndex = 0
-  } else if (saveType === 'list' || !saveType) {
-    // save this task's data
-    endIndex = -1
+    var saveObject = task;
+  } else {
+    var saveObject = task.props.parent;
   }
-  for (let parentId of parents.slice(1, parents.length - endIndex)) {
-    parentObject = parentObject.subtasks.find(x => x.id === parentId);
-  }
-  if (!parentObject) return;
-  parentObject.title = task.state.title;
-  parentObject.subtasks = task.state.subtasks;
-  parentObject.info = task.state.info;
+  data.tasks[saveObject.props.id] = {title: saveObject.state.title,
+    info: saveObject.state.info, subtasks: saveObject.state.subtasks};
   localStorage.setItem('data', JSON.stringify(data));
 }
 
@@ -1289,29 +1294,29 @@ function saveSetting(setting, value) {
 function cutTask() {
   if (!selected || selected instanceof List) return;
   copyTask();
-  selected.deleteThis();
+  selected.deleteThis(false);
 }
 
 function copyTask() {
   if (!selected || selected instanceof List) return;
   const state = selected.state;
-  copiedTask = {
-    title: state.title, id: selected.props.id,
-    info: { ...state.info }, subtasks: state.subtasks.concat()
-  };
+  copiedTask = selected.props.id;
 }
 
 function pasteTask(type) {
+  console.log(selected);
   if (!selected) return;
   if (selected instanceof List || type === 'task') {
+    console.log('1');
     const subtasks = selected.state.subtasks;
     subtasks.splice(0, 0, copiedTask);
     selected.setState({ subtasks: subtasks });
+    console.log(selected.state.subtasks, selected.state.title);
     save(selected, 'task');
   } else if (selected instanceof Task || type === 'list') {
+    console.log('2');
     const subtasks = selected.state.parent.state.subtasks;
-    const insertIndex = subtasks
-      .findIndex(x => x.id == selected.props.id) + 1;
+    const insertIndex = subtasks.findIndex(x => x == selected.props.id) + 1;
     subtasks.splice(insertIndex, 0, copiedTask);
     selected.state.parent.setState({ subtasks: subtasks });
     save(selected, 'list');
@@ -1511,6 +1516,18 @@ function reset() {
   }
 }
 
+function restore() {
+  const textarea = $('<textarea class="restore"></textarea>');
+  $('#root').append(textarea);
+  textarea.on('keydown', ev => {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      data = JSON.parse(textarea.val());
+      textarea.remove();
+    }
+  })
+}
+
 function focus(set) {
   if (set != undefined) {
     var focusSet = set;
@@ -1617,11 +1634,6 @@ function searchDate(text, type) {
   }, 100);
 }
 
-// porting from previous version of dates
-for (let i of data['river'].subtasks) {
-  i.title = i.title.replace("'", "20");
-}
-
 function zoom() {
   // zoom everything upwards
   if (app.current.state.zoomed === 'zoomed') {
@@ -1666,8 +1678,6 @@ function init() {
   });
 }
 
-init();
-
 if (data.settings.hideComplete === undefined) {
   data.settings.hideComplete = '';
 }
@@ -1692,4 +1702,7 @@ if (data.settings.migrated !== '12/1') {
   delete newData.bank;
   newData.tasks = tasksMigrated;
   console.log(data, newData, tasksMigrated);
+  data = newData;
 }
+
+init();
