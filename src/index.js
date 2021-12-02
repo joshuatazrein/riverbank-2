@@ -512,6 +512,7 @@ class StatusBar extends React.Component {
               show/hide complete (ctrl-h)</option>
             <option value='backup()'>backup</option>
             <option value='restore()'>restore</option>
+            <option value='fixDates()'>fix dates</option>
             <option value='reset()'>reset</option>
             <option value='toggleMode()'>toggle day/night</option>
             <option value='setTheme("space")'>theme: space</option>
@@ -1516,6 +1517,35 @@ function reset() {
   }
 }
 
+function fixDates() {
+  let today = new Date();
+  var dates = [];
+  for (let i = 0; i < 30; i ++) {
+    const dateString = today.toDateString();
+    var found = false;
+    for (let x of Object.keys(data.tasks)) {
+      if (data.tasks[x].title == dateString) {
+        dates.push(x);
+        found = true;
+        break;
+      }
+    }
+    if (found === false) {
+      let now = new Date().getTime();
+      while (data.tasks[String(now)]) {
+        now += 1;
+      }
+      now = String(now);
+      data.tasks[now] = {title: dateString, info: {}, subtasks: []};
+      dates.push(now);
+    }
+    today.setDate(today.getDate() + 1);
+  }
+  data.tasks['river'].subtasks = dates;
+  localStorage.setItem('data', JSON.stringify(data));
+  window.location.reload();
+}
+
 function restore() {
   const textarea = $('<textarea class="restore"></textarea>');
   $('#root').append(textarea);
@@ -1523,6 +1553,8 @@ function restore() {
     if (ev.key === 'Enter') {
       ev.preventDefault();
       data = JSON.parse(textarea.val());
+      textarea.remove();
+    } else if (ev.key === 'Escape') {
       textarea.remove();
     }
   })
