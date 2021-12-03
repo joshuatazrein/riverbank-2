@@ -282,15 +282,13 @@ try {
   data = resetData;
 }
 
-var deadlines = {};
-var startdates = {};
-
 var selected;
 var preventSelect;
 var copiedTask;
 var width;
 var prevWidth;
 var app;
+var preventReturn;
 var zoomed;
 
 class App extends React.Component {
@@ -304,7 +302,8 @@ class App extends React.Component {
       mode: data.settings.mode,
       focused: data.settings.focused,
       popSnd: new Audio(popSnd),
-      zoomed: ''
+      zoomed: '',
+      disableSelect: '',
     };
   }
   toggleComplete() {
@@ -367,7 +366,7 @@ class App extends React.Component {
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete + ' ' + 
-          this.state.zoomed}>
+          this.state.zoomed + ' ' + this.state.disableSelect}>
             <Frame id='bank' info={{...data.tasks['bank'].info, 
               focused: data.settings.focused}}
               subtasks={data.tasks['bank'].subtasks} ref={this.state.bank} />
@@ -400,9 +399,9 @@ class StatusBar extends React.Component {
     }
     // id : {title, subtasks, info}
     this.setState({ foundTasks: this.searches });
-    console.log(this.searches);
   }
   goToSearch(id) {
+    preventReturn = true;
     var idList = [id];
     console.log(data.tasks['river']);
     function buildParents(otherId) {
@@ -435,6 +434,7 @@ class StatusBar extends React.Component {
     selectTask(foundTask);
     this.setState({ searchString: '', foundTasks: {} });
     // go through IDs and find the trace paths
+    setTimeout(() => preventReturn = false, 100);
   }
   componentDidMount() {
     setTimeout(goToToday, 200);
@@ -694,8 +694,8 @@ class Frame extends React.Component {
       zoomed: '',
     };
     if (props.id === 'river') {
-      this.state.deadlines = deadlines;
-      this.state.startdates = startdates;
+      this.state.deadlines = {};
+      this.state.startdates = {};
     }
   }
   changeIndex(val, set) {
@@ -716,10 +716,10 @@ class Frame extends React.Component {
     }));
   }
   render() {
-    const now = new Date();
     const lastDate = new Date(
       data.tasks[this.state.subtasks[this.state.subtasks.length - 1]].title);
     let j = 0;
+    let c = Math.floor(Math.random() * 1000);
     while (this.state.subtasks.length < this.state.info.index + 7) {
       j ++;
       if (this.props.id === 'bank') {
@@ -729,9 +729,11 @@ class Frame extends React.Component {
         date.setDate(lastDate.getDate() + j);
         var title = date.toDateString();
       }
+      const now = new Date();
       const id = now.getTime();
-      let i = 0;
-      while (data.tasks[String(id + i)]) {
+      // preventing overlap
+      let i = Math.floor(Math.random() * 1000) + c;
+      while (data.tasks[String(id + i)] !== undefined) {
         i += 1;
       }
       data.tasks[String(id + i)] = {title: title, subtasks: [], info: {}};
@@ -825,23 +827,22 @@ class List extends React.Component {
           {this.props.parent.props.id === 'river' &&
             this.props.deadlines &&
             <ul>
-              {Object.keys(this.props.deadlines).map(x => {
+              {this.props.deadlines.map(x => {
                 return <li
                   className='deadline' key={String(x)}
-                  onClick={() => searchDate(this.props.deadlines[x], 
-                  'start')}>
-                  {this.props.deadlines[x]}</li>;
+                  onClick={() => searchDate(data.tasks[x].title, 'start')}>
+                  {data.tasks[x].title}</li>;
               })}
             </ul>}
           {this.props.parent.props.id === 'river' &&
             this.props.startdates &&
             <ul>
-              {Object.keys(this.props.startdates).map(x => {
+              {this.props.startdates.map(x => {
                 return <li
                   className='startdate' key={String(x)}
-                  onClick={() => searchDate(this.props.startdates[x], 
+                  onClick={() => searchDate(data.tasks[x].title, 
                   'start')}>
-                  {this.props.startdates[x]}</li>;
+                  {data.tasks[x].title}</li>;
               })}
             </ul>}
           {<TaskList ref={this.taskList} subtasks={this.state.subtasks}
@@ -912,10 +913,13 @@ class Task extends React.Component {
       subtasks: props.subtasks.filter(x =>
         data.tasks[x]), parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false,
-      zoomed: '',
+      zoomed: ''
     };
-    if (!this.state.info.startDate) this.state.info.startDate = '';
-    if (!this.state.info.endDate) this.state.info.endDate = '';
+    // TODO
+    if (!this.state.info.startDate) this.state.info.startDate = ['--', '--'];
+    if (!this.state.info.endDate) this.state.info.endDate = ['--', '--'];
+    if (!this.state.info.notes) this.state.info.notes = '';
+    if (!this.state.info.type) this.state.info.type = 'date';
     if (!this.state.info.collapsed) this.state.info.collapsed = '';
     let parent = props.parent;
     while (parent.props.parent) {
@@ -950,75 +954,44 @@ class Task extends React.Component {
     }
     setTimeout(() => this.resizable = true, 100);
   }
-  changeEndDate(ev, type) {
-    if (type == 'end') {
-      var check1 = this.state.info.endDate;
-    } else if (type === 'start') {
-      var check1 = this.state.info.startDate;
+  updateRiverDate(type, action) {
+    // remove from startdates/deadlines
+    let parent = this.props.parent;
+    while (parent.props.parent) {
+      parent = parent.props.parent;
     }
-    if (check1.includes('-')) {
-      // delete deadline string if no longer there
-      const deadline = check1.split('-');
-      const now = new Date();
-      now.setMonth(Number(deadline[0]) - 1);
-      now.setDate(Number(deadline[1]));
-      const string = now.toDateString();
-      if (type === 'end') {
-        if (deadlines[string] &&
-          deadlines[string][this.props.id]) {
-          delete deadlines[string][this.props.id];
-        }
-      } else if (type === 'start') {
-        if (startdates[string] &&
-          startdates[string][this.props.id]) {
-          delete startdates[string][this.props.id];
-        }
-      }
+    const river = parent;
+    console.log(river.state.startdates);
+    var date = new Date();
+    var deadlineData;
+    if (type === 'start') {
+      if (this.state.info.startDate.includes('--')) return;
+      deadlineData = river.state.startdates;
+      date.setMonth(this.state.info.startDate[0] - 1);
+      date.setDate(this.state.info.startDate[1]);
+    } else if (type === 'end') {
+      if (this.state.info.endDate.includes('--')) return;
+      deadlineData = river.state.deadlines;
+      date.setMonth(this.state.info.endDate[0] - 1);
+      date.setDate(this.state.info.endDate[1]);
     }
-    if (ev === 'init') {
-      ev = { target: { value: check1 } };
-    } else if (ev === 'destroy') {
-      ev = { target: { value: ' ' } };
-    } else {
-      if (type === 'end') {
-        this.setState(prevState => ({
-          info: { ...prevState.info, endDate: ev.target.value }
-        }));
-      } else if (type === 'start') {
-        this.setState(prevState => ({
-          info: { ...prevState.info, startDate: ev.target.value }
-        }));
-      }
+    var dateString = date.toDateString();
+    if (action === 'add') {
+      if (!deadlineData[dateString]) { deadlineData[dateString] = [this.props.id] }
+      else { deadlineData[dateString].push(this.props.id) }
+    } else if (action === 'remove') {
+      if (!deadlineData[dateString]) return
+      else { deadlineData[dateString].splice(deadlineData[dateString].findIndex(
+        x => x === this.props.id), 1) };
     }
-    if (ev.target.value.includes('-')) {
-      // process deadline string
-      const deadline = ev.target.value.split('-');
-      const now = new Date();
-      now.setMonth(Number(deadline[0]) - 1);
-      now.setDate(Number(deadline[1]));
-      const string = now.toDateString();
-      if (type === 'end') {
-        if (!deadlines[string]) {
-          deadlines[string] = {};
-        }
-        deadlines[string][this.props.id] =
-          this.state.title;
-      } else if (type === 'start') {
-        if (!startdates[string]) {
-          startdates[string] = {};
-        }
-        startdates[string][this.props.id] =
-          this.state.title;
-      }
-      let parent = this.props.parent;
-      while (parent.props.parent) {
-        parent = parent.props.parent;
-      }
-      if (type === 'end') {
-        parent.setState({ deadlines: deadlines });
-      } else if (type === 'start') {
-        parent.setState({ startdates: startdates });
-      }
+    console.log(dateString, deadlineData);
+    return;
+    // add to the things
+    // TODO: fix weird children bug
+    if (type === 'start') {
+      river.setState( { startdates: { ...deadlineData }});
+    } else if (type === 'end') {
+      river.setState( { deadlines: { ...deadlineData }});
     }
   }
   toggleComplete(change) {
@@ -1073,8 +1046,8 @@ class Task extends React.Component {
     while (parent.props.parent) {
       parent = parent.props.parent;
     }
-    this.changeEndDate('destroy', 'end');
-    this.changeEndDate('destroy', 'start');
+    this.updateRiverDate('start', 'remove');
+    this.updateRiverDate('end', 'remove');
     const subtasks = this.state.parent.state.subtasks;
     const currentTask = subtasks.findIndex(x => x == this.props.id);
     subtasks.splice(currentTask, 1);
@@ -1097,9 +1070,233 @@ class Task extends React.Component {
       }, 50
     )
     selectTask(this);
-    this.changeEndDate('init', 'end');
-    this.changeEndDate('init', 'start');
+    this.updateRiverDate('start', 'add');
+    this.updateRiverDate('end', 'add');
     this.resizable = true;
+  }
+  dateRender = (type) => {
+    if (type === 'start') {
+      var info = this.state.info.startDate;
+    } else if (type === 'end') {
+      var info = this.state.info.endDate;
+    }
+    if (this.state.info.type === 'event') {
+      if (type === 'start') {
+        return info[0] + ':' + String(info[1]).padStart(2, 0);
+      } else if (type === 'end') {
+        let string = '';
+        if (info[0] != 0) string += info[0] + 'h';
+        if (info[1] != 0) string += info[1] + 'm';
+        return string;
+      }
+    } else if (this.state.info.type === 'date') {
+      return info[0] + '-' + info[1];
+    }
+  }
+  timeDrag = (ev, unit, type) => {
+    window.addEventListener(
+      'mouseup', () => {
+        window.removeEventListener('mousemove', changeTime);
+        app.current.setState({ disableSelect: '' });
+      });
+    var change = 10;
+    var pageY = ev.screenY;
+    var updateTime = (value, unit) => {
+      let val;
+      let date;
+      let infoOrig;
+      let orig2;
+      if (this.state.info.type === 'event') {
+        if (type === 'start') {
+          if (unit === 's') {
+            infoOrig = this.state.info.startDate[0];
+            orig2 = this.state.info.startDate[1];
+            if (infoOrig === '--') {
+              infoOrig = new Date().getHours();
+            }
+            if (orig2 === '--') {
+              orig2 = 0;
+            }
+            val = infoOrig + value;
+            if (val >= 24) {
+              val -= 24;
+            } else if (val < 0) {
+              val = '--';
+              orig2 = '--';
+            }
+            this.setState({ info: {...this.state.info, 
+              startDate: [val, orig2]} });
+          } else if (unit === 'e') {
+            infoOrig = this.state.info.startDate[1];
+            if (infoOrig === '--') {
+              infoOrig = 0;
+            }
+            val = infoOrig + (value * 15);
+            if (val >= 60) {
+              val = 0;
+              updateTime(1, 's');
+            } else if (val < 0) {
+              val = 45;
+              updateTime(-1, 's');
+            }
+            orig2 = this.state.info.startDate[0];
+            if (orig2 === '--') {
+              orig2 = new Date().getHours();
+            }
+            this.setState({ info: {...this.state.info, 
+              startDate: [orig2, val]} });
+          }
+        } else if (type === 'end') {
+          if (unit === 's') {
+            infoOrig = this.state.info.endDate[0];
+            orig2 = this.state.info.endDate[1];
+            if (orig2 === '--') {
+              orig2 = 0;
+            }
+            if (infoOrig === '--') {
+              infoOrig = 0;
+            }
+            val = infoOrig + value;
+            if (val < 0) {
+              val = '--';
+              orig2 = '--';
+            }
+            this.setState({ info: {...this.state.info, 
+              endDate: [val, orig2]} });
+          } else if (unit === 'e') {
+            console.log(this.state.info.endDate, value);
+            if ((['--'].includes(this.state.info.endDate[0]) && 
+              ['--'].includes(this.state.info.endDate[1]) && value == -1)) {
+              console.log('no');
+              return;
+            }
+            infoOrig = this.state.info.endDate[1];
+            if (infoOrig === '--') {
+              infoOrig = 0;
+            }
+            val = infoOrig + (value * 15);
+            orig2 = this.state.info.endDate[0];
+            if (orig2 === '--') {
+              orig2 = new Date().getHours();
+            }
+            if (val >= 60) {
+              val = 0;
+              updateTime(1, 's');
+              orig2 = this.state.info.endDate[0];
+            } else if (val < 0) {
+              if (this.state.info.endDate[0] === 0) {
+                val = '--';
+                orig2 = '--';
+              } else {
+                val = 45;
+                updateTime(-1, 's');
+                orig2 = this.state.info.endDate[0];
+              }
+            }
+            this.setState({ info: {...this.state.info, 
+              endDate: [orig2, val]} });
+          }
+        }
+      } else {
+        // dates
+        this.updateRiverDate(type, 'remove');
+        if (unit === 's') {
+          if (type === 'start') {
+            infoOrig = this.state.info.startDate[0];
+            orig2 = this.state.info.startDate[1];
+            console.log(infoOrig, orig2);
+          } else if (type === 'end') {
+            infoOrig = this.state.info.endDate[0];
+            orig2 = this.state.info.endDate[1];
+          }
+          if (infoOrig === '--' || Number.isNaN(infoOrig)) {
+            console.log('fixing orig');
+            infoOrig = new Date().getMonth() + 1;
+          }
+          if (orig2 === '--' || Number.isNaN(orig2)) {
+            orig2 = 1;
+          }
+          val = infoOrig + value;
+          if (val < new Date().getMonth() + 1 && value < 0) {
+            val = '--';
+            orig2 = '--';
+          } else {
+            date = new Date();
+            date.setMonth(val - 1);
+            val = date.getMonth() + 1;
+          }
+          if (type === 'start') {
+            this.setState({ info: {...this.state.info,
+              startDate: [val, orig2]
+            }});
+          } else if (type === 'end') {
+            this.setState({ info: {...this.state.info,
+              endDate: [val, orig2]
+            }});
+          }
+        } else if (unit === 'e') {
+          if (type === 'start') {
+            infoOrig = this.state.info.startDate[1];
+            orig2 = this.state.info.startDate[0];
+          } else if (type === 'end') {
+            infoOrig = this.state.info.endDate[1];
+            orig2 = this.state.info.endDate[0];
+          }
+          if (infoOrig === '--' || Number.isNaN(infoOrig)) {
+            infoOrig = new Date().getDate();
+          }
+          if (orig2 === '--' || Number.isNaN(orig2)) {
+            orig2 = new Date().getMonth() + 1;
+          }
+          val = infoOrig + value;
+          date = new Date();
+          date.setMonth(orig2 - 1);
+          date.setDate(val);
+          date.setFullYear(new Date().getFullYear());
+          if (date.getTime() < new Date().getTime()) {
+            if (type === 'start') {
+              this.setState({ info: {...this.state.info,
+                startDate: ['--', '--']
+              }});
+            } else if (type === 'end') {
+              this.setState({ info: {...this.state.info,
+                endDate: ['--', '--']
+              }});
+            }
+            return;
+          }
+          if (type === 'start') {
+            this.setState({ info: {...this.state.info,
+              startDate: [date.getMonth() + 1, date.getDate()]
+            }});
+          } else if (type === 'end') {
+            this.setState({ info: {...this.state.info,
+              endDate: [date.getMonth() + 1, date.getDate()]
+            }});
+          }
+        }
+        if (type === 'start' && !this.state.info.startDate.includes('--')) {
+          this.updateRiverDate(type, 'add');
+        } else if (type === 'end' && !this.state.info.endDate.includes('--')) {
+          this.updateRiverDate(type, 'add');
+        }
+      }
+    }
+    var changeTime = (ev) => {
+      var changeTime = false;
+      if (ev.screenY < pageY - change) {
+        pageY -= change;
+        changeTime = -1;
+      } else if (ev.screenY > pageY + change) {
+        pageY += change;
+        changeTime = 1;
+      }
+      if (changeTime !== false) {
+        updateTime(changeTime, unit);
+      }
+    }
+    app.current.setState({ disableSelect: 'disable-select' });
+    window.addEventListener('mousemove', changeTime);
   }
   render() {
     // fuck react
@@ -1114,20 +1311,9 @@ class Task extends React.Component {
     this.editBar = React.createRef();
     this.heightSpan = React.createRef();
     this.startDateSpan = React.createRef();
+    this.infoInput = React.createRef();
     const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
-    const hasTimes = (this.state.info.startDate.length > 0 &&
-      !this.state.info.startDate.includes('-')) ? 'event' : '';
-    const startInput =
-      <input className='optionsInput startDate'
-        value={this.state.info.startDate}
-        onChange={(ev) => this.changeEndDate(ev, 'start')}
-        ref={this.startDateSpan}></input>
-    const endInput =
-      <input className='optionsInput endDate'
-        value={this.state.info.endDate}
-        onChange={(ev) => this.changeEndDate(ev, 'end')}>
-      </input>
     if (this.heightSpan.current) {
       this.setHeight();
     }
@@ -1143,6 +1329,8 @@ class Task extends React.Component {
       parent = parent.props.parent;
     }
     id = id.reverse().join('-');
+    const hasTimes = this.state.info.type == 'event' &&
+      !this.state.info.startDate.includes('--');
     return (
       <Draggable draggableId={id} index={this.props.index}>
         {(provided) => {
@@ -1150,7 +1338,7 @@ class Task extends React.Component {
             ' ' + this.state.info.complete +
             ' ' + this.state.info.maybe +
             ' ' + headingClass +
-            ' ' + hasTimes +
+            ' ' + this.state.info.type +
             ' ' + this.state.info.collapsed +
             ' ' + this.state.zoomed}
             onClick={() => { selectTask(this) }}
@@ -1160,40 +1348,101 @@ class Task extends React.Component {
               <div className={'options ' + this.state.displayOptions}>
                 <div className='buttonBar' style={{
                   width: '100%',
-                  alignContent: 'center'
+                  alignContent: 'center',
+                  flexWrap: 'nowrap',
                 }}>
-                  <button
-                    className={'button ' + this.state.info.complete}
-                    onClick={this.toggleComplete}>
-                    √</button>
-                  <button
-                    className={'button ' + this.state.info.important}
-                    onClick={this.toggleImportant}>
-                    !</button>
-                  <button
-                    className={'button ' + this.state.info.maybe}
-                    onClick={this.toggleMaybe}>
-                    ?</button>
-                  <button
-                    className={'button'}
-                    onClick={this.deleteThis}>
-                    x</button>
-                  <button
-                    className={'button'}
-                    onClick={() => {
-                      newTask('task');
-                      this.displayOptions('hide');
-                    }}>
-                    +</button>
-                  <button
-                    className={'button'}
-                    onClick={() => this.toggleCollapse()}>
-                    {'[]'}</button>
+                  <div className='buttonBar' style={{flexGrow: '1'}}>
+                    <button
+                      className={'button ' + this.state.info.complete}
+                      onClick={this.toggleComplete}>
+                      √</button>
+                    <button
+                      className={'button ' + this.state.info.important}
+                      onClick={this.toggleImportant}>
+                      !</button>
+                    <button
+                      className={'button ' + this.state.info.maybe}
+                      onClick={this.toggleMaybe}>
+                      ?</button>
+                    <button
+                      className={'button'}
+                      onClick={this.deleteThis}>
+                      x</button>
+                    <button
+                      className={'button'}
+                      onClick={() => {
+                        newTask('task');
+                        this.displayOptions('hide');
+                      }}>
+                      +</button>
+                    <button
+                      className={'button'}
+                      onClick={() => this.toggleCollapse()}>
+                      {'[]'}</button>
+                  </div>
+                  {/* <div className='buttonBar'>
+                    <button className='button'>M</button>
+                    <button className='button'>T</button>
+                    <button className='button'>W</button>
+                    <button className='button'>R</button>
+                    <button className='button'>F</button>
+                    <button className='button'>S</button>
+                    <button className='button'>U</button>
+                  </div> */}
                 </div>
-                {startInput}
-                {endInput}
+                <div className='timeDiv buttonBar' style={{
+                  flexWrap: 'nowrap',
+                }}>
+                  <button className='button timeSwitch'
+                    onClick={() => {
+                      var changeValue = this.state.info.type === 'event' ? 
+                        'date' : 'event';
+                      this.setState({info: {...this.state.info, 
+                        type: changeValue,
+                        startDate: ['--', '--'],
+                        endDate: ['--', '--'],
+                      }})
+                    }}>
+                    {this.state.info.type}
+                  </button>
+                  <span className='startSpan start'>
+                    <span className='s' onMouseDown={(ev) => {
+                      this.timeDrag(ev, 's', 'start');
+                    }}>{this.state.info.startDate[0]}</span>
+                    <span className='m'>{
+                      this.state.info.type === 'event' ? ':' : '/'
+                    }</span>
+                    <span className='e' onMouseDown={(ev) => {
+                      this.timeDrag(ev, 'e', 'start');
+                    }}
+                    >{this.state.info.type === 'event' ?
+                      String(this.state.info.startDate[1]).padStart(2, 0) :
+                      this.state.info.startDate[1]
+                    }</span>
+                  </span>
+                  <span className='startSpan end'>
+                    <span className='s' onMouseDown={(ev) => {
+                      this.timeDrag(ev, 's', 'end');
+                    }}>{this.state.info.endDate[0]}</span>
+                    <span className='m'>{
+                      this.state.info.type === 'event' ? 'h' : '/'
+                    }</span>
+                    <span className='e' onMouseDown={(ev) => {
+                      this.timeDrag(ev, 'e', 'end');
+                    }}>{this.state.info.endDate[1]}</span>
+                    <span>{this.state.info.type === 'event' ?
+                      'm' : ''}</span>
+                  </span>
+                  <input ref={this.infoInput} className='infoSpan' placeholder='notes'
+                    style={{marginLeft: '5px'}} 
+                    value={this.state.info.notes}
+                    onChange={() => {
+                      this.setState({info: {...this.state.info,
+                      notes: this.infoInput.current.value}})
+                    }}></input>
+                </div>
               </div>
-              {hasTimes !== 'event' ?
+              {!hasTimes ?
                 <span className='info' 
                   onClick={(ev) => this.displayOptions(ev)}
                   ref={this.optionsButton}
@@ -1202,24 +1451,43 @@ class Task extends React.Component {
                   onClick={(ev) => this.displayOptions(ev)}
                   ref={this.optionsButton}
                   {...provided.dragHandleProps}>
-                  {this.state.info.startDate}
+                  {this.dateRender('start')}
                 </span>
+              }
+              {this.state.info.notes.length == 0 &&
+                <div style={{display: 'flex', flexDirection: 'column'}}>
+                  {!hasTimes &&
+                    !this.state.info.startDate.includes('--') &&
+                    <span className='startDate'>
+                    {this.dateRender('start')}
+                  </span>}
+                  {!this.state.info.endDate.includes('--') &&
+                  <span className='endDate'>
+                    {this.dateRender('end')}
+                  </span>}
+                </div>
               }
               <textarea className='editBar' value={this.state.title}
                 onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
                 spellCheck='false'></textarea>
             </div>
-            <div className='taskInfo'>
-                {hasTimes !== 'event' && 
-                  this.state.info.startDate.length > 0 &&
+            {this.state.info.notes.length > 0 &&
+              <div className='taskInfo'>
+                {this.state.info.notes.length > 0 &&
+                  <span className='notesSpan'>
+                    {this.state.info.notes}
+                  </span>}
+                {!hasTimes &&
+                  !this.state.info.startDate.includes('--') &&
                   <span className='startDate'>
-                  {this.state.info.startDate}
+                  {this.dateRender('start')}
                 </span>}
-                {this.state.info.endDate.length > 0 &&
+                {!this.state.info.endDate.includes('--') &&
                 <span className='endDate'>
-                  {this.state.info.endDate}
+                  {this.dateRender('end')}
                 </span>}
-            </div>
+              </div>
+            }
             <TaskList ref={this.taskList} subtasks={this.state.subtasks}
               parent={this} />
           </li>
@@ -1325,12 +1593,13 @@ function pasteTask(type) {
 }
 
 function backup() {
-  const now = new Date();
+  console.log(JSON.stringify(data));
+  alert('open console to copy data (file download option will be added soon)');
 }
 
 function keyComms(ev) {
   if (!ev.ctrlKey) {
-    if (ev.key === 'Enter' && !$(':focus').hasClass('searchBar')) {
+    if (ev.key === 'Enter' && !preventReturn) {
       ev.preventDefault();
       if (ev.shiftKey) {
         newTask('task');
@@ -1547,15 +1816,19 @@ function fixDates() {
 }
 
 function restore() {
+  preventReturn = true;
   const textarea = $('<textarea class="restore"></textarea>');
   $('#root').append(textarea);
   textarea.on('keydown', ev => {
     if (ev.key === 'Enter') {
       ev.preventDefault();
+      console.log(textarea.val());
       data = JSON.parse(textarea.val());
-      textarea.remove();
+      localStorage.setItem('data', JSON.stringify(data));
+      window.location.reload();
     } else if (ev.key === 'Escape') {
       textarea.remove();
+      setTimeout(() => preventReturn = false, 100);
     }
   })
 }
@@ -1714,8 +1987,8 @@ if (data.settings.hideComplete === undefined) {
   data.settings.hideComplete = '';
 }
 
-if (data.settings.migrated !== '12/1') {
-  data.settings.migrated = '12/1';
+if (!data.settings.migrated || !data.settings.migrated.includes('12/1')) {
+  data.settings.migrated = ['12/1'];
   var tasksMigrated = {};
   var newData = JSON.parse(JSON.stringify(data));
   function treeSearch(task) {
@@ -1737,4 +2010,16 @@ if (data.settings.migrated !== '12/1') {
   data = newData;
 }
 
+if (!data.settings.migrated || 
+  !data.settings.migrated.includes('12/2')) {
+  data.settings.migrated = ['12/1', '12/2'];
+  for (let task of Object.keys(data.tasks)) {
+    const foundTask = data.tasks[task];
+    delete foundTask.info.startDate;
+    delete foundTask.info.endDate;
+  }
+}
+
 init();
+
+console.log(app.current.state.river.current.state);

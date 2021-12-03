@@ -347,6 +347,8 @@ ul {
 
 .taskInfo * {
   margin-right: 5px;
+  font: var(--menufont);
+  font-size: 10px;
 }
 
 .taskInfo *:empty {
@@ -367,7 +369,7 @@ ul {
 
 .options {
   height: 60px;
-  width: 150px;
+  width: 100%;
   background-color: var(--background);
   position: absolute;
   top: calc(100% + 5px);
@@ -379,6 +381,16 @@ ul {
 
 .options * {
   z-index: 2;
+}
+
+.options .buttonBar {
+  margin: 3px 2px;
+}
+
+.options button {
+  font-size: 10px !important;
+  margin: 0;
+  padding: 0px 5px;
 }
 
 .optionsInput {
@@ -401,6 +413,14 @@ ul {
   margin: 0;
 }
 
+.taskContent > span.startDate {
+  width: 50px;
+}
+
+.event > .taskContent > div:not(.options) > span.endDate {
+  width: fit-content;
+}
+
 .startDate {
   color: var(--startDate);
 }
@@ -408,6 +428,8 @@ ul {
 span.startDate, span.endDate {
   font: var(--menufont);
   font-size: 11px;
+  width: 2em;
+  text-align: center;
 }
 
 .event > .taskContent span.startDate {
@@ -542,4 +564,54 @@ span.startDate, span.endDate {
 .task .task .startEndSpans {
   height: 0.85em;
   line-height: 1em;
+}
+
+/* NEW INFO AREA */
+
+.timeDiv span {
+  margin: 0px 0px 0px 1.5px;
+  font: var(--menufont);
+  font-size: 12px;
+}
+
+.e, .s {
+  width: 1em;
+  text-align: right;
+}
+
+.timeDiv > span {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 1px;
+}
+
+.startSpan.start {
+  color: var(--startDate);
+}
+
+.startSpan.end {
+  color: var(--endDate);
+  margin-left: 3px;
+}
+
+.notesSpan {
+  color: var(--foreground);
+}
+
+.disable-select * {
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+
+.infoSpan {
+  font: var(--menufont);
+  display: block;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  flex-grow: 1;
+  width: 100%;
+  height: 1.5em;
 }
