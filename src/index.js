@@ -267,6 +267,8 @@ var resetData = {
       'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [],
       'Fri': [], 'Sat': [], 'Sun': [],
     },
+    deadlines: {},
+    startdates: {},
     theme: 'space',
     mode: 'night',
     focused: '',
@@ -276,11 +278,12 @@ var resetData = {
 
 var data;
 try {
-  data = !localStorage.getItem('data') ? { resetData } :
+  data = !localStorage.getItem('data') ? resetData :
     JSON.parse(localStorage.getItem('data'));
 } catch (err) {
   data = resetData;
 }
+
 
 var selected;
 var preventSelect;
@@ -314,6 +317,7 @@ class App extends React.Component {
     }
     this.setState({ hideComplete: hideComplete });
     saveSetting('hideComplete', hideComplete);
+    updateAllSizes();
   }
   onDragEnd = result => {
     const { destination, source, draggableId } = result;
@@ -402,11 +406,11 @@ class StatusBar extends React.Component {
   }
   goToSearch(id) {
     preventReturn = true;
+    preventSelect = true;
     var idList = [id];
-    console.log(data.tasks['river']);
     function buildParents(otherId) {
       for (let x of Object.keys(data.tasks)) {
-        if (data.tasks[x].subtasks.includes(otherId)) {
+        if (data.tasks[stripR(x)].subtasks.includes(otherId)) {
           idList.splice(0, 0, x);
           buildParents(x);
           return;
@@ -414,27 +418,38 @@ class StatusBar extends React.Component {
       }
     }
     buildParents(id);
-    console.log(id, data.tasks[id], idList);
     const frame = app.current.state[idList[0]].current;
     const listIndex = frame.state.subtasks.findIndex(x => x === idList[1]);
     frame.changeIndex(listIndex, true);
-    const list = frame.frames[0].current;
-    let foundTask = list;
-    let i = 2;
-    while (idList.length > i) {
-      // find in tasks starting at index 2 (if it's there)
-      let taskId = idList[i];
-      const taskIndex = foundTask.state.subtasks
-        .findIndex(x => x === taskId);
-      foundTask = foundTask.taskList.current
-        .subtaskObjects[taskIndex].current;
-      i ++;
-    }
-    console.log(foundTask);
-    selectTask(foundTask);
-    this.setState({ searchString: '', foundTasks: {} });
-    // go through IDs and find the trace paths
-    setTimeout(() => preventReturn = false, 100);
+    setTimeout(() => {
+      const list = frame.frames[0].current;
+      let foundTask = list;
+      let i = 2;
+      console.log(foundTask);
+      while (idList.length > i) {
+        // find in tasks starting at index 2 (if it's there)
+        let taskId = idList[i];
+        let taskIndex;
+        if (foundTask.subtasksCurrent && 
+          foundTask.subtasksCurrent.length > 0) {
+          taskIndex = foundTask.subtasksCurrent
+            .findIndex(x => x === taskId);
+        } else {
+          taskIndex = foundTask.state.subtasks
+            .findIndex(x => x === taskId);
+        }
+        foundTask = foundTask.taskList.current
+          .subtaskObjects[taskIndex].current;
+        i ++;
+      }
+      preventSelect = false;
+      selectTask(foundTask);
+      this.setState({ searchString: '', foundTasks: {} });
+      // go through IDs and find the trace paths
+      setTimeout(() => {
+        preventReturn = false;
+      }, 100);
+    }, 100);
   }
   componentDidMount() {
     setTimeout(goToToday, 200);
@@ -465,8 +480,10 @@ class StatusBar extends React.Component {
             value={this.state.searchString}
             onKeyDown={(ev) => {
               if (ev.key === 'Backspace') {
+                ev.preventDefault();
                 this.setState({ searchString: '', foundTasks: {} });
               } else if (ev.key === 'Enter') {
+                ev.preventDefault();
                 if ($(this.searchResults.current).children().length > 0) {
                   this.goToFirst();
                 }
@@ -498,8 +515,12 @@ class StatusBar extends React.Component {
               cut (ctrl-x)</option>
             <option value='copyTask()'>
               copy (ctrl-c)</option>
+            <option value='copyTask(true)'>
+              mirror (ctrl-shift-C)</option>
             <option value='pasteTask()'>
               paste (ctrl-v)</option>
+            <option value="deleteTask()">
+              delete (ctrl-delete)</option>
           </select>
           <select ref={this.options} onChange={() => {
             eval(this.options.current.value);
@@ -694,12 +715,12 @@ class Frame extends React.Component {
       zoomed: '',
     };
     if (props.id === 'river') {
-      this.state.deadlines = {};
-      this.state.startdates = {};
+      this.state.deadlines = data.settings.deadlines;
+      this.state.startdates = data.settings.startdates;
+      this.state.repeats = data.settings.repeats;
     }
   }
   changeIndex(val, set) {
-    console.log(data.tasks);
     let newIndex;
     if (set === true) {
       newIndex = val;
@@ -768,6 +789,8 @@ class Frame extends React.Component {
                 subtasks={task.subtasks} parent={this}
                 deadlines={this.state.deadlines[task.title]}
                 startdates={this.state.startdates[task.title]}
+                repeats={this.state.repeats[dateFormat(task.title)
+                  .slice(0, 3)]}
                 ref={this.frames[this.frames.length - 1]} />
             )
           } else {
@@ -792,9 +815,19 @@ class List extends React.Component {
     this.state = {
       // filter subtasks here
       subtasks: props.subtasks.filter(x =>
-        data.tasks[x]), title: props.title,
+        data.tasks[stripR(x)] &&
+        !(x.charAt(0) === 'R' && !props.repeats.includes(x))), 
+      title: props.title,
       info: {}, zoomed: ''
     };
+    if (props.parent.props.id === 'river') {
+      for (let task of props.repeats) {
+        if (!this.state.subtasks.includes(task) && 
+          !this.state.subtasks.includes(stripR(task))) {
+          this.state.subtasks.push(task);
+        }
+      }
+    }
   }
   changeTitle(ev) {
     this.setState({ title: ev.target.value });
@@ -806,6 +839,16 @@ class List extends React.Component {
     selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
+    this.subtasksCurrent = this.state.subtasks.filter(x =>
+      !(x.charAt(0) === 'R' && !this.props.repeats.includes(x)));
+    if (this.props.parent.props.id === 'river') {
+      for (let task of this.props.repeats) {
+        if (!this.subtasksCurrent.includes(task) && 
+        !this.subtasksCurrent.includes(stripR(task))) {
+          this.subtasksCurrent.push(task);
+        }
+      }
+    }
     return (
       <div className={'list' + ' ' + this.state.zoomed} onClick={selectThis}>
         <div className='listInputBackground'>
@@ -830,8 +873,8 @@ class List extends React.Component {
               {this.props.deadlines.map(x => {
                 return <li
                   className='deadline' key={String(x)}
-                  onClick={() => searchDate(data.tasks[x].title, 'start')}>
-                  {data.tasks[x].title}</li>;
+                  onClick={() => searchDate(data.tasks[stripR(x)].title, 'start')}>
+                  {data.tasks[stripR(x)].title}</li>;
               })}
             </ul>}
           {this.props.parent.props.id === 'river' &&
@@ -840,12 +883,12 @@ class List extends React.Component {
               {this.props.startdates.map(x => {
                 return <li
                   className='startdate' key={String(x)}
-                  onClick={() => searchDate(data.tasks[x].title, 
+                  onClick={() => searchDate(data.tasks[stripR(x)].title, 
                   'start')}>
-                  {data.tasks[x].title}</li>;
+                  {data.tasks[stripR(x)].title}</li>;
               })}
             </ul>}
-          {<TaskList ref={this.taskList} subtasks={this.state.subtasks}
+          {<TaskList ref={this.taskList} subtasks={this.subtasksCurrent}
             parent={this} />}
         </div>
       </div>
@@ -854,23 +897,19 @@ class List extends React.Component {
 }
 
 class TaskList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { addTask: this.addTask };
-  }
   render() {
     this.subtaskObjects = [];
     // subtasks are filtered for deleted tasks
     const tasksListed = this.props.subtasks.filter(x =>
-      data.tasks[x]).map((x, index) => {
+      data.tasks[stripR(x)]).map((x, index) => {
       this.subtaskObjects.push(React.createRef());
       const task = (
         <Task
           key={x}
           id={x}
-          info={data.tasks[x].info}
-          title={data.tasks[x].title}
-          subtasks={data.tasks[x].subtasks}
+          info={data.tasks[stripR(x)].info}
+          title={data.tasks[stripR(x)].title}
+          subtasks={data.tasks[stripR(x)].subtasks}
           parent={this.props.parent}
           ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
           index={index}
@@ -886,7 +925,7 @@ class TaskList extends React.Component {
     }
     id = id.reverse().join('-');
     return (
-      this.props.parent.props.parent instanceof Task ?
+      this.props.parent instanceof Task ?
       <ul className='listContent'>
         {tasksListed}
       </ul> :
@@ -911,7 +950,7 @@ class Task extends React.Component {
     this.state = {
       info: props.info, title: props.title,
       subtasks: props.subtasks.filter(x =>
-        data.tasks[x]), parent: props.parent,
+        data.tasks[stripR(x)]), parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false,
       zoomed: ''
     };
@@ -921,13 +960,19 @@ class Task extends React.Component {
     if (!this.state.info.notes) this.state.info.notes = '';
     if (!this.state.info.type) this.state.info.type = 'date';
     if (!this.state.info.collapsed) this.state.info.collapsed = '';
+    if (!this.state.info.excludes) this.state.info.excludes = [];
     let parent = props.parent;
     while (parent.props.parent) {
       parent = parent.props.parent;
     }
   }
   displayOptions(ev, showHide) {
-    selectTask(this);
+    save(this);
+    if (this.freeze === true) return;
+    console.trace();
+    if (selected != this) {
+      selectTask(this);
+    }
     if (this.editBar.current) {
       this.editBar.current.focus();
     }
@@ -956,12 +1001,7 @@ class Task extends React.Component {
   }
   updateRiverDate(type, action) {
     // remove from startdates/deadlines
-    let parent = this.props.parent;
-    while (parent.props.parent) {
-      parent = parent.props.parent;
-    }
-    const river = parent;
-    console.log(river.state.startdates);
+    var river = app.current.state.river.current;
     var date = new Date();
     var deadlineData;
     if (type === 'start') {
@@ -977,21 +1017,21 @@ class Task extends React.Component {
     }
     var dateString = date.toDateString();
     if (action === 'add') {
-      if (!deadlineData[dateString]) { deadlineData[dateString] = [this.props.id] }
+      if (!deadlineData[dateString]) { 
+        deadlineData[dateString] = [this.props.id] }
       else { deadlineData[dateString].push(this.props.id) }
     } else if (action === 'remove') {
       if (!deadlineData[dateString]) return
       else { deadlineData[dateString].splice(deadlineData[dateString].findIndex(
         x => x === this.props.id), 1) };
     }
-    console.log(dateString, deadlineData);
-    return;
     // add to the things
-    // TODO: fix weird children bug
     if (type === 'start') {
       river.setState( { startdates: { ...deadlineData }});
+      saveSetting('startdates', deadlineData);
     } else if (type === 'end') {
       river.setState( { deadlines: { ...deadlineData }});
+      saveSetting('deadlines', deadlineData);
     }
   }
   toggleComplete(change) {
@@ -1001,9 +1041,32 @@ class Task extends React.Component {
       status = 'complete';
       app.current.state.popSnd.play();
     }
-    this.setState(prevState => ({
-      info: { ...prevState.info, complete: status }
-    }));
+    // excludes lets it put it in complete
+    const repeats = app.current.state.river.current.state.repeats;
+    let repeating = false;
+    let parent = this.props.parent; /// find list it's in
+    while (!parent instanceof List) {
+      parent = parent.props.parent;
+    }
+    const excludes = this.state.info.excludes;
+    for (let x of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
+      if (repeats[x].includes('R' + stripR(this.props.id))) {
+        repeating = true;
+        if (!excludes.includes(parent.state.title)) {
+          excludes.push(parent.state.title);
+        } else {
+          excludes.splice(excludes
+            .findIndex(x => x === parent.state.title), 1);
+        }
+      }
+    }
+    if (repeating === true) {
+      this.setState({info: {...this.state.info, excludes: excludes}})
+    } else {
+      this.setState(prevState => ({
+        info: { ...prevState.info, complete: status }
+      }));
+    }
     if (change != false) {
       this.displayOptions('hide');
     }
@@ -1046,8 +1109,6 @@ class Task extends React.Component {
     while (parent.props.parent) {
       parent = parent.props.parent;
     }
-    this.updateRiverDate('start', 'remove');
-    this.updateRiverDate('end', 'remove');
     const subtasks = this.state.parent.state.subtasks;
     const currentTask = subtasks.findIndex(x => x == this.props.id);
     subtasks.splice(currentTask, 1);
@@ -1055,7 +1116,10 @@ class Task extends React.Component {
     preventSelect = true;
     this.state.parent.setState({ subtasks: subtasks });
     if (removeData != false) {
-      delete data.tasks[this.props.id];
+      this.updateRiverDate('start', 'remove');
+      this.updateRiverDate('end', 'remove');
+      this.toggleRepeat('all', true);
+      delete data.tasks[stripR(this.props.id)];
     }
     setTimeout(() => {
       preventSelect = false
@@ -1070,8 +1134,6 @@ class Task extends React.Component {
       }, 50
     )
     selectTask(this);
-    this.updateRiverDate('start', 'add');
-    this.updateRiverDate('end', 'add');
     this.resizable = true;
   }
   dateRender = (type) => {
@@ -1093,12 +1155,48 @@ class Task extends React.Component {
       return info[0] + '-' + info[1];
     }
   }
+  toggleRepeat = (dayInput, del) => {
+    var days;
+    if (dayInput === 'all') {
+      days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    } else {
+      days = [dayInput];
+    }
+    if (this.props.id.charAt(0) === 'R') {
+      var repeatId = this.props.id;
+    } else {
+      var repeatId = 'R' + this.props.id;
+    }
+    const repeats = {...app.current.state.river.current.state.repeats};
+    for (let day of days) {
+      if (repeats[day].includes(repeatId) || del === true) {
+        if (repeats[day].includes(repeatId)) {
+          repeats[day].splice(repeats[day]
+            .findIndex(x => x === repeatId), 1);
+        }
+      } else {
+        repeats[day].push(repeatId);
+      }
+    }
+    app.current.state.river.current.setState({
+      repeats: repeats
+    });
+    saveSetting('repeats', repeats);
+  }
   timeDrag = (ev, unit, type) => {
-    window.addEventListener(
-      'mouseup', () => {
-        window.removeEventListener('mousemove', changeTime);
-        app.current.setState({ disableSelect: '' });
-      });
+    var mouseup = () => {
+      window.removeEventListener('mousemove', changeTime);
+      app.current.setState({ disableSelect: '' });
+      if (unit === 's') {
+        this.setState({ displayOptions: 'show' });
+      } else if (unit === 'e') {
+        this.setState({ displayOptions: 'hide' });
+      }
+      this.freeze = true;
+      setTimeout(() => this.freeze = false, 200);
+      window.removeEventListener('mouseup', mouseup);
+    }
+    window.addEventListener('mouseup', mouseup);
     var change = 10;
     var pageY = ev.screenY;
     var updateTime = (value, unit) => {
@@ -1164,10 +1262,8 @@ class Task extends React.Component {
             this.setState({ info: {...this.state.info, 
               endDate: [val, orig2]} });
           } else if (unit === 'e') {
-            console.log(this.state.info.endDate, value);
             if ((['--'].includes(this.state.info.endDate[0]) && 
               ['--'].includes(this.state.info.endDate[1]) && value == -1)) {
-              console.log('no');
               return;
             }
             infoOrig = this.state.info.endDate[1];
@@ -1177,7 +1273,7 @@ class Task extends React.Component {
             val = infoOrig + (value * 15);
             orig2 = this.state.info.endDate[0];
             if (orig2 === '--') {
-              orig2 = new Date().getHours();
+              orig2 = 0;
             }
             if (val >= 60) {
               val = 0;
@@ -1204,13 +1300,11 @@ class Task extends React.Component {
           if (type === 'start') {
             infoOrig = this.state.info.startDate[0];
             orig2 = this.state.info.startDate[1];
-            console.log(infoOrig, orig2);
           } else if (type === 'end') {
             infoOrig = this.state.info.endDate[0];
             orig2 = this.state.info.endDate[1];
           }
           if (infoOrig === '--' || Number.isNaN(infoOrig)) {
-            console.log('fixing orig');
             infoOrig = new Date().getMonth() + 1;
           }
           if (orig2 === '--' || Number.isNaN(orig2)) {
@@ -1309,14 +1403,9 @@ class Task extends React.Component {
     this.taskList = React.createRef();
     this.optionsButton = React.createRef();
     this.editBar = React.createRef();
-    this.heightSpan = React.createRef();
-    this.startDateSpan = React.createRef();
     this.infoInput = React.createRef();
     const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
-    if (this.heightSpan.current) {
-      this.setHeight();
-    }
     if (this.editBar.current) {
       this.editBar.current.style.height = '0px';
       this.editBar.current.style.height =
@@ -1331,11 +1420,209 @@ class Task extends React.Component {
     id = id.reverse().join('-');
     const hasTimes = this.state.info.type == 'event' &&
       !this.state.info.startDate.includes('--');
+    let repeatsOn = {};
+    for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
+      if (data.settings.repeats[day].map(x => stripR(x)).includes(
+        stripR(this.props.id))) {
+        repeatsOn[day] = 'repeatOn';
+      } else {
+        repeatsOn[day] = '';
+      }
+    }
+    let completed = this.state.info.complete;
+    parent = this.props.parent;
+    // hacking completed for repeats
+    while (!parent instanceof List) {
+      parent = parent.props.parent;
+    }
+    if (this.state.info.excludes.includes(parent.state.title)) {
+      completed = 'complete';
+    }
+    const listRender = (provided) => (<>
+      <div className='taskContent'>
+        <div className={'options ' + this.state.displayOptions}>
+          <div className='buttonBar' style={{
+            width: '100%',
+            justifyContent: 'space-around',
+            flexWrap: 'nowrap',
+          }}>
+            <div className='buttonBar'>
+              <button
+                className={'button ' + this.state.info.complete}
+                onClick={this.toggleComplete}>
+                √</button>
+              <button
+                className={'button ' + this.state.info.important}
+                onClick={this.toggleImportant}>
+                !</button>
+              <button
+                className={'button ' + this.state.info.maybe}
+                onClick={this.toggleMaybe}>
+                ?</button>
+              <button
+                className={'button'}
+                onClick={this.deleteThis}>
+                x</button>
+              <button
+                className={'button'}
+                onClick={() => {
+                  newTask('task');
+                  this.displayOptions('hide');
+                }}>
+                +</button>
+              <button
+                className={'button'}
+                onClick={() => this.toggleCollapse()}>
+                {'[]'}</button>
+            </div>
+            <div className='buttonBar'>
+              <button className={'button ' + repeatsOn['Mon']}
+                onClick={() => {this.toggleRepeat('Mon');}}>M</button>
+              <button className={'button ' + repeatsOn['Tue']} 
+                onClick={() => {
+                this.toggleRepeat('Tue');
+              }}>T</button>
+              <button className={'button ' + repeatsOn['Wed']} 
+                onClick={() => {
+                this.toggleRepeat('Wed');
+              }}>W</button>
+              <button className={'button ' + repeatsOn['Thu']} 
+                onClick={() => {
+                this.toggleRepeat('Thu');
+              }}>R</button>
+              <button className={'button ' + repeatsOn['Fri']} 
+                onClick={() => {
+                this.toggleRepeat('Fri');
+              }}>F</button>
+              <button className={'button ' + repeatsOn['Sat']} 
+                onClick={() => {
+                this.toggleRepeat('Sat');
+              }}>S</button>
+              <button className={'button ' + repeatsOn['Sun']} 
+                onClick={() => {
+                this.toggleRepeat('Sun');
+              }}>U</button>
+            </div>
+          </div>
+          <div className='timeDiv buttonBar' style={{
+            flexWrap: 'nowrap',
+          }}>
+            <button className='button timeSwitch'
+              onClick={() => {
+                var changeValue = this.state.info.type === 'event' ? 
+                  'date' : 'event';
+                this.setState({info: {...this.state.info, 
+                  type: changeValue,
+                  startDate: ['--', '--'],
+                  endDate: ['--', '--'],
+                }})
+              }}>
+              {this.state.info.type}
+            </button>
+            <span className='startSpan start'>
+              <span className='s' onMouseDown={(ev) => {
+                this.timeDrag(ev, 's', 'start');
+              }}>{this.state.info.startDate[0]}</span>
+              <span className='m'>{
+                this.state.info.type === 'event' ? ':' : '/'
+              }</span>
+              <span className='e' onMouseDown={(ev) => {
+                this.timeDrag(ev, 'e', 'start');
+              }}
+              >{this.state.info.type === 'event' ?
+                String(this.state.info.startDate[1]).padStart(2, 0) :
+                this.state.info.startDate[1]
+              }</span>
+            </span>
+            <span className='startSpan end'>
+              <span className='s' onMouseDown={(ev) => {
+                this.timeDrag(ev, 's', 'end');
+              }}>{this.state.info.endDate[0]}</span>
+              <span className='m'>{
+                this.state.info.type === 'event' ? 'h' : '/'
+              }</span>
+              <span className='e' onMouseDown={(ev) => {
+                this.timeDrag(ev, 'e', 'end');
+              }}>{this.state.info.endDate[1]}</span>
+              <span>{this.state.info.type === 'event' ?
+                'm' : ''}</span>
+            </span>
+            <input ref={this.infoInput} className='infoSpan' placeholder='notes'
+              style={{marginLeft: '5px'}} 
+              value={this.state.info.notes}
+              onChange={() => {
+                this.setState({info: {...this.state.info,
+                notes: this.infoInput.current.value}})
+              }}></input>
+          </div>
+        </div>
+        {provided ?
+          !hasTimes ?
+            <span className='info' 
+              onClick={(ev) => this.displayOptions(ev)}
+              ref={this.optionsButton}
+              {...provided.dragHandleProps}></span> :
+            <span className='startDate' 
+              onClick={(ev) => this.displayOptions(ev)}
+              ref={this.optionsButton}
+              {...provided.dragHandleProps}>
+              {this.dateRender('start')}
+            </span>
+          :
+          !hasTimes ?
+            <span className='info' 
+              onClick={(ev) => this.displayOptions(ev)}
+              ref={this.optionsButton}></span> :
+            <span className='startDate' 
+              onClick={(ev) => this.displayOptions(ev)}
+              ref={this.optionsButton}>
+              {this.dateRender('start')}
+            </span>
+        }
+        <textarea className='editBar' value={this.state.title}
+          onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
+          spellCheck='false'></textarea>
+        {this.state.info.notes.length == 0 &&
+          <div style={{display: 'flex', flexDirection: 'column',
+          marginRight: '5px'}}>
+            {!hasTimes &&
+              !this.state.info.startDate.includes('--') &&
+              <span className='startDate'>
+              {this.dateRender('start')}
+            </span>}
+            {!this.state.info.endDate.includes('--') &&
+            <span className='endDate'>
+              {this.dateRender('end')}
+            </span>}
+          </div>
+        }
+      </div>
+      {this.state.info.notes.length > 0 &&
+        <div className='taskInfo'>
+          {this.state.info.notes.length > 0 &&
+            <span className='notesSpan'>
+              {this.state.info.notes}
+            </span>}
+          {!hasTimes &&
+            !this.state.info.startDate.includes('--') &&
+            <span className='startDate'>
+            {this.dateRender('start')}
+          </span>}
+          {!this.state.info.endDate.includes('--') &&
+          <span className='endDate'>
+            {this.dateRender('end')}
+          </span>}
+        </div>
+      }
+      <TaskList ref={this.taskList} subtasks={this.state.subtasks}
+        parent={this} />
+    </>)
     return (
-      <Draggable draggableId={id} index={this.props.index}>
-        {(provided) => {
-          return (<li className={'task ' + this.state.info.important +
-            ' ' + this.state.info.complete +
+      this.props.parent instanceof List ?
+        <Draggable draggableId={id} index={this.props.index}>
+          {(provided) => {
+            return (<li className={'task ' + this.state.info.important +
+            ' ' + completed +
             ' ' + this.state.info.maybe +
             ' ' + headingClass +
             ' ' + this.state.info.type +
@@ -1344,162 +1631,41 @@ class Task extends React.Component {
             onClick={() => { selectTask(this) }}
             {...provided.draggableProps}
             ref={provided.innerRef}>
-            <div className='taskContent'>
-              <div className={'options ' + this.state.displayOptions}>
-                <div className='buttonBar' style={{
-                  width: '100%',
-                  alignContent: 'center',
-                  flexWrap: 'nowrap',
-                }}>
-                  <div className='buttonBar' style={{flexGrow: '1'}}>
-                    <button
-                      className={'button ' + this.state.info.complete}
-                      onClick={this.toggleComplete}>
-                      √</button>
-                    <button
-                      className={'button ' + this.state.info.important}
-                      onClick={this.toggleImportant}>
-                      !</button>
-                    <button
-                      className={'button ' + this.state.info.maybe}
-                      onClick={this.toggleMaybe}>
-                      ?</button>
-                    <button
-                      className={'button'}
-                      onClick={this.deleteThis}>
-                      x</button>
-                    <button
-                      className={'button'}
-                      onClick={() => {
-                        newTask('task');
-                        this.displayOptions('hide');
-                      }}>
-                      +</button>
-                    <button
-                      className={'button'}
-                      onClick={() => this.toggleCollapse()}>
-                      {'[]'}</button>
-                  </div>
-                  {/* <div className='buttonBar'>
-                    <button className='button'>M</button>
-                    <button className='button'>T</button>
-                    <button className='button'>W</button>
-                    <button className='button'>R</button>
-                    <button className='button'>F</button>
-                    <button className='button'>S</button>
-                    <button className='button'>U</button>
-                  </div> */}
-                </div>
-                <div className='timeDiv buttonBar' style={{
-                  flexWrap: 'nowrap',
-                }}>
-                  <button className='button timeSwitch'
-                    onClick={() => {
-                      var changeValue = this.state.info.type === 'event' ? 
-                        'date' : 'event';
-                      this.setState({info: {...this.state.info, 
-                        type: changeValue,
-                        startDate: ['--', '--'],
-                        endDate: ['--', '--'],
-                      }})
-                    }}>
-                    {this.state.info.type}
-                  </button>
-                  <span className='startSpan start'>
-                    <span className='s' onMouseDown={(ev) => {
-                      this.timeDrag(ev, 's', 'start');
-                    }}>{this.state.info.startDate[0]}</span>
-                    <span className='m'>{
-                      this.state.info.type === 'event' ? ':' : '/'
-                    }</span>
-                    <span className='e' onMouseDown={(ev) => {
-                      this.timeDrag(ev, 'e', 'start');
-                    }}
-                    >{this.state.info.type === 'event' ?
-                      String(this.state.info.startDate[1]).padStart(2, 0) :
-                      this.state.info.startDate[1]
-                    }</span>
-                  </span>
-                  <span className='startSpan end'>
-                    <span className='s' onMouseDown={(ev) => {
-                      this.timeDrag(ev, 's', 'end');
-                    }}>{this.state.info.endDate[0]}</span>
-                    <span className='m'>{
-                      this.state.info.type === 'event' ? 'h' : '/'
-                    }</span>
-                    <span className='e' onMouseDown={(ev) => {
-                      this.timeDrag(ev, 'e', 'end');
-                    }}>{this.state.info.endDate[1]}</span>
-                    <span>{this.state.info.type === 'event' ?
-                      'm' : ''}</span>
-                  </span>
-                  <input ref={this.infoInput} className='infoSpan' placeholder='notes'
-                    style={{marginLeft: '5px'}} 
-                    value={this.state.info.notes}
-                    onChange={() => {
-                      this.setState({info: {...this.state.info,
-                      notes: this.infoInput.current.value}})
-                    }}></input>
-                </div>
-              </div>
-              {!hasTimes ?
-                <span className='info' 
-                  onClick={(ev) => this.displayOptions(ev)}
-                  ref={this.optionsButton}
-                  {...provided.dragHandleProps}></span> :
-                <span className='startDate' 
-                  onClick={(ev) => this.displayOptions(ev)}
-                  ref={this.optionsButton}
-                  {...provided.dragHandleProps}>
-                  {this.dateRender('start')}
-                </span>
-              }
-              {this.state.info.notes.length == 0 &&
-                <div style={{display: 'flex', flexDirection: 'column'}}>
-                  {!hasTimes &&
-                    !this.state.info.startDate.includes('--') &&
-                    <span className='startDate'>
-                    {this.dateRender('start')}
-                  </span>}
-                  {!this.state.info.endDate.includes('--') &&
-                  <span className='endDate'>
-                    {this.dateRender('end')}
-                  </span>}
-                </div>
-              }
-              <textarea className='editBar' value={this.state.title}
-                onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
-                spellCheck='false'></textarea>
-            </div>
-            {this.state.info.notes.length > 0 &&
-              <div className='taskInfo'>
-                {this.state.info.notes.length > 0 &&
-                  <span className='notesSpan'>
-                    {this.state.info.notes}
-                  </span>}
-                {!hasTimes &&
-                  !this.state.info.startDate.includes('--') &&
-                  <span className='startDate'>
-                  {this.dateRender('start')}
-                </span>}
-                {!this.state.info.endDate.includes('--') &&
-                <span className='endDate'>
-                  {this.dateRender('end')}
-                </span>}
-              </div>
-            }
-            <TaskList ref={this.taskList} subtasks={this.state.subtasks}
-              parent={this} />
+            {listRender(provided)}
           </li>
-          )
-        }}
-      </Draggable>
+          )}}
+        </Draggable> :
+        <li className={'task ' + this.state.info.important +
+          ' ' + completed +
+          ' ' + this.state.info.maybe +
+          ' ' + headingClass +
+          ' ' + this.state.info.type +
+          ' ' + this.state.info.collapsed +
+          ' ' + this.state.zoomed}
+          onClick={() => { selectTask(this) }}>
+          {listRender()}
+        </li>
     )
+  }
+}
+
+function stripR(x) {
+  if (x.charAt(0) === 'R') {
+    return x.slice(1);
+  } else {
+    return x;
+  }
+}
+
+function deleteTask() {
+  if (selected && selected instanceof Task) {
+    selected.deleteThis();
   }
 }
 
 function newTask(type) {
   // create new task after selected
+  if (!selected) return;
   let el;
   if (type == 'task' || !selected.state.parent) {
     el = selected;
@@ -1545,12 +1711,12 @@ function selectTask(el, force) {
 
 function save(task, saveType) {
   // save the new data
-  if (saveType === 'task') {
-    var saveObject = task;
-  } else {
+  if (saveType === 'list') {
     var saveObject = task.props.parent;
+  } else {
+    var saveObject = task;
   }
-  data.tasks[saveObject.props.id] = {title: saveObject.state.title,
+  data.tasks[stripR(saveObject.props.id)] = {title: saveObject.state.title,
     info: saveObject.state.info, subtasks: saveObject.state.subtasks};
   localStorage.setItem('data', JSON.stringify(data));
 }
@@ -1566,24 +1732,28 @@ function cutTask() {
   selected.deleteThis(false);
 }
 
-function copyTask() {
+function copyTask(mirror) {
   if (!selected || selected instanceof List) return;
-  const state = selected.state;
-  copiedTask = selected.props.id;
+  if (mirror) {
+    copiedTask = selected.props.id;
+  } else {
+    // only copy data
+    const today = new Date();
+    const now = today.getTime();
+    const newTask = String(now);
+    data.tasks[newTask] = {...data.tasks[stripR(selected.props.id)]};
+    copiedTask = newTask;
+  }
 }
 
 function pasteTask(type) {
-  console.log(selected);
   if (!selected) return;
   if (selected instanceof List || type === 'task') {
-    console.log('1');
     const subtasks = selected.state.subtasks;
     subtasks.splice(0, 0, copiedTask);
     selected.setState({ subtasks: subtasks });
-    console.log(selected.state.subtasks, selected.state.title);
     save(selected, 'task');
   } else if (selected instanceof Task || type === 'list') {
-    console.log('2');
     const subtasks = selected.state.parent.state.subtasks;
     const insertIndex = subtasks.findIndex(x => x == selected.props.id) + 1;
     subtasks.splice(insertIndex, 0, copiedTask);
@@ -1593,8 +1763,12 @@ function pasteTask(type) {
 }
 
 function backup() {
-  console.log(JSON.stringify(data));
   alert('open console to copy data (file download option will be added soon)');
+  consoleLog(data);
+}
+
+function consoleLog(x) {
+  console.log(x);
 }
 
 function keyComms(ev) {
@@ -1606,6 +1780,20 @@ function keyComms(ev) {
       } else {
         newTask();
       }
+      return;
+    } else if (ev.key === 'Escape') {
+      ev.preventDefault();
+      document.activeElement.blur();
+      if (selected) {
+        save(selected, 'task');
+        if (selected instanceof Task && 
+          selected.state.displayOptions === 'show') {
+          selected.displayOptions('hide');
+        } else {
+          selected = undefined;
+        }
+      }
+      return;
     }
   }
   if (ev.ctrlKey && ev.shiftKey) {
@@ -1615,6 +1803,10 @@ function keyComms(ev) {
         break;
       case 'N':
         newTask('task');
+        break;
+      case 'C':
+        // mirror task
+        copyTask(true);
         break;
       default:
         break;
@@ -1709,22 +1901,10 @@ function keyComms(ev) {
         ev.preventDefault();
         if (selected && selected instanceof Task) {
           selected.displayOptions({ target: $('<p></p>') });
-          if (selected.state.displayOptions === 'show') {
-            selected.startDateSpan.current.focus();
-          } else {
+          if (selected.state.displayOptions === 'hide') {
             selected.editBar.current.focus();
           }
         };
-        break;
-      default:
-        break;
-    }
-  } else if (!ev.metaKey && !ev.ctrlKey && !ev.altKey) {
-    switch (ev.key) {
-      case 'Escape':
-        ev.preventDefault();
-        document.activeElement.blur();
-        selectTask(undefined);
         break;
       default:
         break;
@@ -1749,17 +1929,21 @@ function switchView(direction) {
     parent = parent.props.parent;
   }
   parent.props.parent.changeIndex(direction);
+  updateAllSizes();
 }
-
 
 function moveTask(direction) {
   if (!selected) return;
-  const subtasks = selected.props.parent.state.subtasks;
+  if (selected.props.parent.subtasksCurrent) {
+    var subtasks = selected.props.parent.subtasksCurrent.concat();
+  } else {
+    var subtasks = selected.props.parent.state.subtasks;
+  }
   let selectedPlace =
-    selected.props.parent.state.subtasks.findIndex(x => x.id === selected.props.id);
-  const length = selected.props.parent.state.subtasks.length;
+    subtasks.findIndex(x => x === selected.props.id);
+  const length = subtasks.length;
   if (selectedPlace == 0 && direction == -1) return;
-  else if (selectedPlace == selected.props.parent.state.subtasks.length
+  else if (selectedPlace == subtasks.length
     && direction == 1) return;
   if (direction == -1) {
     var subtasksChopped = subtasks.slice(0, selectedPlace).reverse();
@@ -1768,13 +1952,14 @@ function moveTask(direction) {
   }
   if (data.settings.hideComplete == 'hideComplete') {
     var insertPlace = (subtasksChopped.findIndex(x => 
-      x.info.complete != 'complete') + 1) * direction;
+      data.tasks[stripR(x)].info.complete != 'complete') + 1) * direction;
   } else {
     var insertPlace = 1 * direction;
   }
   const spliceTask = subtasks.splice(selectedPlace, 1)[0];
   subtasks.splice(selectedPlace + insertPlace, 0, spliceTask);
-  selected.props.parent.setState(subtasks);
+  selected.props.parent.setState({ subtasks: subtasks });
+  save(selected.props.parent, 'task');
 }
 
 function reset() {
@@ -1822,7 +2007,6 @@ function restore() {
   textarea.on('keydown', ev => {
     if (ev.key === 'Enter') {
       ev.preventDefault();
-      console.log(textarea.val());
       data = JSON.parse(textarea.val());
       localStorage.setItem('data', JSON.stringify(data));
       window.location.reload();
@@ -1869,16 +2053,14 @@ function focus(set) {
       width: processWidth(focusSet),
     }));
   saveSetting('focused', focusSet);
-  setTimeout(updateAllSizes, 50);
+  updateAllSizes();
 }
 
 function updateAllSizes() {
   function update(list) {
+    if (list.current instanceof Task) { list.current.updateHeight(); }
     for (let task of list.current.taskList.current.subtaskObjects) {
-      task.current.updateHeight();
-      for (let subtask of task.current.taskList.current.subtaskObjects) {
-        update(subtask);
-      }
+      update(task);
     }
   }
   const riverLists = app.current.state.river.current.frames;
@@ -1925,11 +2107,7 @@ function processWidth(focused) {
 }
 
 function goToToday() {
-  const today = new Date().toDateString();
-  const river = app.current.state.river.current;
-  const days = river.state.subtasks;
-  const thisDay = days.findIndex(x => x.title === today);
-  river.changeIndex(thisDay, true);
+  searchDate(new Date().toDateString());
 }
 
 function searchDate(text, type) {
@@ -1965,6 +2143,38 @@ function zoom() {
   } else {
     zoomed = undefined;
   }
+  updateAllSizes();
+}
+
+function clean() {
+  function removeDeadline(list, id) {
+    for (let x of Object.keys(list)) {
+      // switch it out of things
+      let deadlineList = list[x];
+      if (deadlineList.includes(id)) {
+        deadlineList = 
+          deadlineList.splice(deadlineList.findIndex(x => x === id), 1);
+      }
+    }
+  }
+  // clean out tasks which aren't in lists
+  for (let id of Object.keys(data.tasks).filter(x => 
+    !['river', 'bank'].includes(x))) {
+    let found = false;
+    for (let containerId of Object.keys(data.tasks)) {
+      if (data.tasks[containerId].subtasks.map(x => 
+        stripR(x)).includes(id)) {
+        console.log('found', data.tasks[id].title);
+        found = true;
+        break;
+      }
+    }
+    if (found == false) {
+      delete data.tasks[id];
+      removeDeadline(data.settings.deadlines, id);
+      removeDeadline(data.settings.startdates, id);
+    }
+  }
 }
 
 function init() {
@@ -1983,12 +2193,14 @@ function init() {
   });
 }
 
-if (data.settings.hideComplete === undefined) {
-  data.settings.hideComplete = '';
+// MIGRATION PROTOCOLS
+
+if (!data.settings.migrated) {
+  data.settings.migrated = [];
 }
 
-if (!data.settings.migrated || !data.settings.migrated.includes('12/1')) {
-  data.settings.migrated = ['12/1'];
+if (!data.settings.migrated.includes('12/1')) {
+  data.settings.migrated.push('12/1');
   var tasksMigrated = {};
   var newData = JSON.parse(JSON.stringify(data));
   function treeSearch(task) {
@@ -2006,20 +2218,24 @@ if (!data.settings.migrated || !data.settings.migrated.includes('12/1')) {
   delete newData.river;
   delete newData.bank;
   newData.tasks = tasksMigrated;
-  console.log(data, newData, tasksMigrated);
   data = newData;
 }
 
-if (!data.settings.migrated || 
-  !data.settings.migrated.includes('12/2')) {
-  data.settings.migrated = ['12/1', '12/2'];
+if (!data.settings.migrated.includes('12/2')) {
+  data.settings.migrated.push('12/2');
   for (let task of Object.keys(data.tasks)) {
-    const foundTask = data.tasks[task];
+    const foundTask = data.tasks[stripR(task)];
     delete foundTask.info.startDate;
     delete foundTask.info.endDate;
   }
 }
 
-init();
+if (!data.settings.migrated.includes('12/3')) {
+  data.settings.migrated.push('12/3');
+  data.settings.startdates = {};
+  data.settings.deadlines = {};
+}
 
-console.log(app.current.state.river.current.state);
+clean();
+
+init();
