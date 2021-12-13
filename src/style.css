@@ -2,7 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,500;0,700;1,300;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,400;0,600;1,100;1,400;1,600&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400&family=Dosis:wght@200;300;400&family=Exo+2:wght@100;200;300&family=Exo:wght@100;200;300&family=Josefin+Sans:wght@100;200;300&family=Kanit:wght@100;200;300&family=Lato:wght@100;300&family=Montserrat:wght@100;300&family=Nunito:wght@200;300&family=Quicksand:wght@300;400&family=Raleway:wght@100;200;300&family=Roboto:wght@100;400&family=Work+Sans:wght@100;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400&family=Dosis:wght@200;300;400&family=EB+Garamond:wght@400;500&family=Exo+2:wght@100;200;300&family=Exo:wght@100;200;300&family=Josefin+Sans:wght@100;200;300&family=Kanit:wght@100;200;300&family=Lato:wght@100;300&family=Montserrat:wght@100;300&family=Nunito:wght@200;300&family=Quicksand:wght@300;400&family=Raleway:wght@100;200;300&family=Roboto:wght@100;300&family=Work+Sans:wght@100;300&display=swap');
 
 * {
   box-sizing: border-box;
@@ -64,8 +64,8 @@ select {
   -webkit-appearance: none;
   border: 1px solid var(--border);
   padding: 3px;
-  height: 1.7em;
   margin: 0px 1px;
+  height: 1.5em;
   cursor: pointer;
 }
 
@@ -74,9 +74,8 @@ select {
 select, option {
   font: var(--menufont);
   font-weight: 200;
-  font-size: 12px;
+  font-size: 18px;
   padding: 0 2px;
-  height: 1.7em;
 }
 
 body {
@@ -134,7 +133,7 @@ body {
 .title {
   font: var(--font);
   font-weight: var(--bold);
-  width: 120px;
+  width: 150px;
 }
 
 .title > .r {
@@ -148,7 +147,8 @@ body {
 .searchBar {
   width: 5em;
   font: var(--font);
-  font-size: 16px;
+  font-size: 18px;
+  height: 1.5em;
   border: 1px solid var(--border);
 }
 
@@ -167,12 +167,12 @@ body {
 .timerBar {
   width: 65px;
   font: var(--menufont);
-  font-size: 16px;
+  font-size: 18px;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: 5px;
   margin-left: 2px;
-  height: 1.3em;
+  height: 1.5em;
   vertical-align: top;
 }
 

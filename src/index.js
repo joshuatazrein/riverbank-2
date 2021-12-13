@@ -15,10 +15,10 @@ import startSnd from './snd/start.mp3';
 
 var themes = {
   'earth-day': {
-    "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
-    "--fontSize": "26px",
-    "--fontWeight": "400",
-    "--bold": "600",
+    "--font": "var(--fontSize) 'Quicksand', sans-serif",
+    "--fontSize": "30px",
+    "--fontWeight": "300",
+    "--bold": "400",
     "--background": "rgb(218, 221, 216)",
     "--border": "rgba(60, 52, 31, 0.3)",
     "--select": "rgb(85, 107, 47)",
@@ -28,7 +28,7 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(14, 41, 48)",
     "--maybe": "rgba(14, 41, 48, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(14, 41, 48, 0.8)",
     "--endDate": "rgb(14, 41, 48)",
     "--headingSize": "125%",
@@ -38,10 +38,10 @@ var themes = {
     "--river": "rgba(85, 107, 47, 0.1)",
   },
   'earth-night': {
-    "--font": "var(--fontSize) 'Caveat', Cochin, cursive",
-    "--fontSize": "26px",
-    "--fontWeight": "400",
-    "--bold": "600",
+    "--font": "var(--fontSize) 'Quicksand', sans-serif",
+    "--fontSize": "30px",
+    "--fontWeight": "300",
+    "--bold": "400",
     "--background": "rgb(35, 38, 33)",
     "--border": "rgba(224, 223, 225, 0.3)",
     "--select": "rgb(186, 208, 149)",
@@ -51,7 +51,7 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(85, 107, 47)",
     "--maybe": "rgba(85, 107, 47, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(85, 107, 47, 0.8)",
     "--endDate": "rgb(85, 107, 47)",
     "--headingSize": "125%",
@@ -62,9 +62,9 @@ var themes = {
   },
   'fire-day': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
-    "--fontSize": "23px",
-    "--fontWeight": "300",
-    "--bold": "500",
+    "--fontSize": "30px",
+    "--fontWeight": "100",
+    "--bold": "300",
     "--background": "rgb(230, 230, 250)",
     "--border": "rgba(53, 3, 58, 0.3)",
     "--select": "rgb(242, 172, 229)",
@@ -74,20 +74,20 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "120%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "0px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(53, 3, 58, 0.1)",
     "--river": "rgba(242, 172, 229, 0.1)",
   },
   'fire-night': {
     "--font": "var(--fontSize) 'Josefin Sans', Cochin, sans-serif",
-    "--fontSize": "23px",
-    "--fontWeight": "300",
-    "--bold": "500",
+    "--fontSize": "30px",
+    "--fontWeight": "100",
+    "--bold": "300",
     "--background": "rgb(5, 5, 26)",
     "--border": "rgba(212, 112, 162, 0.3)",
     "--select": "rgb(183, 104, 162)",
@@ -97,18 +97,18 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(226, 156, 210)",
     "--maybe": "rgba(212, 93, 194, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "0px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(248, 197, 252, 0.1)",
     "--river": "rgba(183, 104, 162, 0.1)",
   },
   'sky-day': {
-    "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
-    "--fontSize": "22px",
+    "--font": "var(--fontSize) 'Roboto', sans-serif",
+    "--fontSize": "30px",
     "--fontWeight": "100",
     "--bold": "300",
     "--background": "#E4EDF1",
@@ -120,18 +120,18 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(29, 41, 81)",
     "--maybe": "rgba(29, 41, 81, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(29, 41, 81, 0.8)",
     "--endDate": "rgb(29, 41, 81)",
     "--headingSize": "125%",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "3em",
     "--bank": "rgba(52, 64, 85, 0.1)",
     "--river": "rgba(119, 152, 171, 0.1)",
   },
   'sky-night': {
-    "--font": "var(--fontSize) 'Helvetica Neue', Cochin, sans-serif",
-    "--fontSize": "22px",
+    "--font": "var(--fontSize) 'Roboto', sans-serif",
+    "--fontSize": "30px",
     "--fontWeight": "100",
     "--bold": "300",
     "--background": "rgb(14, 23, 27)",
@@ -143,19 +143,19 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(173, 185, 225)",
     "--maybe": "rgba(173, 185, 225, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(173, 185, 225, 0.8)",
     "--endDate": "rgb(173, 185, 225)",
     "--headingSize": "125%",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "3em",
     "--bank": "rgba(170, 182, 203, 0.1)",
     "--river": "rgba(83, 117, 136, 0.1)",
   },
   'space-day': {
-    "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
-    "--fontSize": "24px",
-    "--fontWeight": "300",
+    "--font": "var(--fontSize) 'Lato', Cochin, serif",
+    "--fontSize": "30px",
+    "--fontWeight": "100",
     "--background": "rgb(201, 192, 187)",
     "--border": "rgba(128, 128, 128, 0.3)",
     "--select": "rgb(165, 113, 100)",
@@ -165,10 +165,10 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(161, 122, 116)",
     "--maybe": "rgba(161, 122, 116, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(161, 122, 116, 0.8)",
     "--endDate": "rgb(161, 122, 116)",
-    "--bold": "600",
+    "--bold": "300",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -176,9 +176,9 @@ var themes = {
     "--river": "rgba(165, 113, 100, 0.1)",
   },
   'space-night': {
-    "--font": "var(--fontSize) 'Cormorant Garamond', Cochin, serif",
-    "--fontSize": "24px",
-    "--fontWeight": "300",
+    "--font": "var(--fontSize) 'Lato', serif",
+    "--fontSize": "30px",
+    "--fontWeight": "100",
     "--background": "rgb(0, 0, 0)",
     "--border": "rgb(128, 128, 128, 0.3)",
     "--select": "rgb(101, 138, 149)",
@@ -188,10 +188,10 @@ var themes = {
     "--padding": "14px",
     "--important": "skyblue",
     "--maybe": "darkblue",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(135,206,235, 0.8)",
     "--endDate": "rgb(135,206,235)",
-    "--bold": "600",
+    "--bold": "300",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -199,8 +199,8 @@ var themes = {
     "--river": "rgba(101, 138, 149, 0.1)",
   },
   'water-day': {
-    "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
-    "--fontSize": "19px",
+    "--font": "var(--fontSize) 'Exo', sans-serif",
+    "--fontSize": "30px",
     "--fontWeight": "100",
     "--background": "rgb(188, 212, 230)",
     "--border": "rgba(36, 40, 43, 0.3)",
@@ -211,19 +211,19 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(41, 74, 112)",
     "--maybe": "rgba(41, 74, 112, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgb(41, 74, 112, 0.8)",
     "--endDate": "rgb(41, 74, 112)",
-    "--bold": "400",
+    "--bold": "300",
     "--headingSize": "1.15em",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "3.5em",
     "--bank": "rgba(10, 10, 10, 0.1)",
     "--river": "rgba(64, 71, 77, 0.1)",
   },
   'water-night': {
-    "--font": "var(--fontSize) 'Roboto Mono', Cochin, monospace",
-    "--fontSize": "19px",
+    "--font": "var(--fontSize) 'Exo', sans-serif",
+    "--fontSize": "30px",
     "--fontWeight": "100",
     "--background": "rgb(31, 40, 52)",
     "--border": "rgba(176, 194, 212, 0.3)",
@@ -234,12 +234,12 @@ var themes = {
     "--padding": "14px",
     "--important": "rgb(143, 176, 214)",
     "--maybe": "rgba(143, 176, 214, 0.5)",
-    "--menufont": "18px Dosis",
+    "--menufont": "24px Dosis",
     "--startDate": "rgba(143, 176, 214, 0.8)",
     "--endDate": "rgb(143, 176, 214)",
-    "--bold": "400",
+    "--bold": "300",
     "--headingSize": "1.15em",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "-5px",
     "--frontWidth": "3.5em",
     "--bank": "rgba(245, 245, 245, 0.1)",
     "--river": "rgba(145, 163, 176, 0.1)",
@@ -425,7 +425,6 @@ class StatusBar extends React.Component {
       const list = frame.frames[0].current;
       let foundTask = list;
       let i = 2;
-      console.log(foundTask);
       while (idList.length > i) {
         // find in tasks starting at index 2 (if it's there)
         let taskId = idList[i];
@@ -493,7 +492,7 @@ class StatusBar extends React.Component {
           {this.state.searchString.length > 0 &&
             <select ref={this.searchResults} onChange={() => {
               this.goToSearch(this.searchResults.current.value)
-            }} style={{ width: '130px' }}>
+            }}>
               {Object.keys(this.state.foundTasks).map(x =>
                 <option key={x} value={x}>
                   {this.state.foundTasks[x].title}
@@ -503,7 +502,7 @@ class StatusBar extends React.Component {
         </div>
         <Timer />
         <div className='buttonBar nowrap'>
-          <select ref={this.functions} style={{width: '48px'}}
+          <select ref={this.functions} style={{width: '70px'}}
             onChange={() => {
             eval(this.functions.current.value);
             this.functions.current.value = '';
@@ -526,7 +525,7 @@ class StatusBar extends React.Component {
             eval(this.options.current.value);
             this.options.current.value = '';
           }}
-            style={{width: '40px'}}>
+            style={{width: '60px'}}>
             <option value="" selected disabled hidden>settings</option>
             <option value='focus()'>toggle focus (ctrl-f)</option>
             <option value='app.current.toggleComplete()'>
@@ -575,7 +574,7 @@ class ListMenu extends React.Component {
     return (
       <>
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
-          style={{width: '25px'}}>
+          style={{width: '35px'}}>
           <option value="" selected disabled hidden>lists</option>
           {data.tasks['bank'].subtasks.filter(
             x => data.tasks[x].title != '--')
@@ -590,7 +589,7 @@ class ListMenu extends React.Component {
             this.goToList('river')
           }
         }}
-          style={{width: '30px'}}>
+          style={{width: '45px'}}>
           <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
           {data.tasks['river'].subtasks.filter(x => new Date(
@@ -691,7 +690,7 @@ class Timer extends React.Component {
             this.options.current.value = '';
           }
         }}
-          style={{width: '30px'}}>
+          style={{width: '45px'}}>
           <option value="" selected disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
@@ -731,7 +730,10 @@ class Frame extends React.Component {
       data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
       return;
     }
-    if (newIndex < 0) newIndex = 0
+    if (set !== undefined && newIndex > this.state.info.index) {
+      newIndex -= (this.state.width - 1);
+    }
+    if (newIndex < 0) newIndex = 0;
     this.setState(prevState => ({
       info: { ...prevState.info, index: newIndex }
     }));
@@ -814,20 +816,10 @@ class List extends React.Component {
     this.taskList = React.createRef();
     this.state = {
       // filter subtasks here
-      subtasks: props.subtasks.filter(x =>
-        data.tasks[stripR(x)] &&
-        !(x.charAt(0) === 'R' && !props.repeats.includes(x))), 
+      subtasks: props.subtasks,
       title: props.title,
       info: {}, zoomed: ''
     };
-    if (props.parent.props.id === 'river') {
-      for (let task of props.repeats) {
-        if (!this.state.subtasks.includes(task) && 
-          !this.state.subtasks.includes(stripR(task))) {
-          this.state.subtasks.push(task);
-        }
-      }
-    }
   }
   changeTitle(ev) {
     this.setState({ title: ev.target.value });
@@ -944,6 +936,14 @@ class TaskList extends React.Component {
   }
 }
 
+function getFrame(task) {
+  let parent = task;
+  while (parent.props.parent) {
+    parent = parent.props.parent;
+  }
+  return parent;
+}
+
 class Task extends React.Component {
   constructor(props) {
     super();
@@ -958,18 +958,20 @@ class Task extends React.Component {
     if (!this.state.info.startDate) this.state.info.startDate = ['--', '--'];
     if (!this.state.info.endDate) this.state.info.endDate = ['--', '--'];
     if (!this.state.info.notes) this.state.info.notes = '';
-    if (!this.state.info.type) this.state.info.type = 'date';
+    if (!this.state.info.type) {
+      if (props.parent instanceof List && 
+        getFrame(props.parent).props.id === 'river') {
+        this.state.info.type = 'event';
+      } else {
+        this.state.info.type = 'date';
+      }
+    };
     if (!this.state.info.collapsed) this.state.info.collapsed = '';
     if (!this.state.info.excludes) this.state.info.excludes = [];
-    let parent = props.parent;
-    while (parent.props.parent) {
-      parent = parent.props.parent;
-    }
   }
   displayOptions(ev, showHide) {
     save(this);
     if (this.freeze === true) return;
-    console.trace();
     if (selected != this) {
       selectTask(this);
     }
@@ -1054,9 +1056,11 @@ class Task extends React.Component {
         repeating = true;
         if (!excludes.includes(parent.state.title)) {
           excludes.push(parent.state.title);
+          break;
         } else {
           excludes.splice(excludes
             .findIndex(x => x === parent.state.title), 1);
+          break;
         }
       }
     }
@@ -1716,8 +1720,10 @@ function save(task, saveType) {
   } else {
     var saveObject = task;
   }
+  if (saveObject.subtasksCurrent) var subtasks = saveObject.subtasksCurrent;
+  else var subtasks = saveObject.state.subtasks;
   data.tasks[stripR(saveObject.props.id)] = {title: saveObject.state.title,
-    info: saveObject.state.info, subtasks: saveObject.state.subtasks};
+    info: saveObject.state.info, subtasks: subtasks};
   localStorage.setItem('data', JSON.stringify(data));
 }
 
@@ -1734,6 +1740,7 @@ function cutTask() {
 
 function copyTask(mirror) {
   if (!selected || selected instanceof List) return;
+  save(selected);
   if (mirror) {
     copiedTask = selected.props.id;
   } else {
@@ -2095,7 +2102,7 @@ function toggleMode() {
 
 function processWidth(focused) {
   if (focused != 'focused') {
-    var width = Math.floor(window.innerWidth / 200);
+    var width = Math.floor(window.innerWidth / 250);
     $(':root').css('--frameWidth',
       ((window.innerWidth - 40) / width) + 'px');
   } else {
@@ -2164,7 +2171,6 @@ function clean() {
     for (let containerId of Object.keys(data.tasks)) {
       if (data.tasks[containerId].subtasks.map(x => 
         stripR(x)).includes(id)) {
-        console.log('found', data.tasks[id].title);
         found = true;
         break;
       }
@@ -2191,6 +2197,7 @@ function init() {
     if (window.innerWidth / 10 != Math.floor(window.innerWidth / 10)) return;
     updateAllSizes();
   });
+  document.addEventListener('fullscreenchange', updateAllSizes);
 }
 
 // MIGRATION PROTOCOLS
