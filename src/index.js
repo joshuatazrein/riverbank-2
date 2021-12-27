@@ -26,8 +26,8 @@ var themes = {
     "--foreground": "rgb(59, 60, 54)",
     "--midground": "rgba(59, 60, 54, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(14, 41, 48)",
-    "--maybe": "rgba(14, 41, 48, 0.5)",
+    "--importantE": "rgba(85, 107, 47, 0.5)",
+    "--important": "rgba(59, 60, 54, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(14, 41, 48, 0.8)",
     "--endDate": "rgb(14, 41, 48)",
@@ -153,9 +153,9 @@ var themes = {
     "--river": "rgba(83, 117, 136, 0.1)",
   },
   'space-day': {
-    "--font": "var(--fontSize) 'Lato', Cochin, serif",
+    "--font": "var(--fontSize) 'Halant', Cochin, serif",
     "--fontSize": "30px",
-    "--fontWeight": "100",
+    "--fontWeight": "300",
     "--background": "rgb(201, 192, 187)",
     "--border": "rgba(128, 128, 128, 0.3)",
     "--select": "rgb(165, 113, 100)",
@@ -168,7 +168,7 @@ var themes = {
     "--menufont": "24px Dosis",
     "--startDate": "rgba(161, 122, 116, 0.8)",
     "--endDate": "rgb(161, 122, 116)",
-    "--bold": "300",
+    "--bold": "400",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -176,9 +176,9 @@ var themes = {
     "--river": "rgba(165, 113, 100, 0.1)",
   },
   'space-night': {
-    "--font": "var(--fontSize) 'Lato', serif",
+    "--font": "var(--fontSize) 'Halant', serif",
     "--fontSize": "30px",
-    "--fontWeight": "100",
+    "--fontWeight": "300",
     "--background": "rgb(0, 0, 0)",
     "--border": "rgb(128, 128, 128, 0.3)",
     "--select": "rgb(101, 138, 149)",
@@ -191,7 +191,7 @@ var themes = {
     "--menufont": "24px Dosis",
     "--startDate": "rgba(135,206,235, 0.8)",
     "--endDate": "rgb(135,206,235)",
-    "--bold": "300",
+    "--bold": "400",
     "--headingSize": "125%",
     "--lineSpacing": "-5px",
     "--frontWidth": "2.5em",
@@ -293,6 +293,8 @@ var prevWidth;
 var app;
 var preventReturn;
 var zoomed;
+var undoData = localStorage.getItem('data');
+var lastSelect;
 
 class App extends React.Component {
   constructor(props) {
@@ -369,13 +371,17 @@ class App extends React.Component {
       <>
         <StatusBar parent={this} ref={this.statusBar} />
         <DragDropContext onDragEnd={this.onDragEnd}>
-          <div className={'container ' + this.state.hideComplete + ' ' + 
-          this.state.zoomed + ' ' + this.state.disableSelect}>
-            <Frame id='bank' info={{...data.tasks['bank'].info, 
-              focused: data.settings.focused}}
+          <div className={'container ' + this.state.hideComplete + ' ' +
+            this.state.zoomed + ' ' + this.state.disableSelect}>
+            <Frame id='bank' info={{
+              ...data.tasks['bank'].info,
+              focused: data.settings.focused
+            }}
               subtasks={data.tasks['bank'].subtasks} ref={this.state.bank} />
-            <Frame id='river' info={{...data.tasks['river'].info, 
-              focused: data.settings.focused}}
+            <Frame id='river' info={{
+              ...data.tasks['river'].info,
+              focused: data.settings.focused
+            }}
               subtasks={data.tasks['river'].subtasks} ref={this.state.river} />
           </div>
         </DragDropContext>
@@ -391,7 +397,7 @@ class StatusBar extends React.Component {
   }
   search(ev) {
     if (this.state.searchString === '') {
-      this.searches = {...data.tasks}; 
+      this.searches = { ...data.tasks };
     }
     this.setState({ searchString: ev.target.value });
     for (let x of Object.keys(this.searches)) {
@@ -429,7 +435,7 @@ class StatusBar extends React.Component {
         // find in tasks starting at index 2 (if it's there)
         let taskId = idList[i];
         let taskIndex;
-        if (foundTask.subtasksCurrent && 
+        if (foundTask.subtasksCurrent &&
           foundTask.subtasksCurrent.length > 0) {
           taskIndex = foundTask.subtasksCurrent
             .findIndex(x => x === taskId);
@@ -439,7 +445,7 @@ class StatusBar extends React.Component {
         }
         foundTask = foundTask.taskList.current
           .subtaskObjects[taskIndex].current;
-        i ++;
+        i++;
       }
       preventSelect = false;
       selectTask(foundTask);
@@ -465,15 +471,16 @@ class StatusBar extends React.Component {
     this.searchBar = React.createRef();
     this.options = React.createRef();
     this.functions = React.createRef();
+    this.move = React.createRef();
     return (
       <div className='statusBar'>
         <span class='title'><span class='r'>River</span>
-            <span class='b'>Bank</span></span>
+          <span class='b'>Bank</span></span>
         <div style={{
           display: 'flex', flexDirection: 'column',
           position: 'relative'
         }}>
-          <input 
+          <input
             ref={this.searchBar}
             className='searchBar' onChange={(ev) => this.search(ev)}
             value={this.state.searchString}
@@ -490,9 +497,11 @@ class StatusBar extends React.Component {
             }}
             placeholder='search'></input>
           {this.state.searchString.length > 0 &&
-            <select ref={this.searchResults} onChange={() => {
-              this.goToSearch(this.searchResults.current.value)
-            }}>
+            <select ref={this.searchResults}
+              style={{ width: '5em' }}
+              onChange={() => {
+                this.goToSearch(this.searchResults.current.value)
+              }}>
               {Object.keys(this.state.foundTasks).map(x =>
                 <option key={x} value={x}>
                   {this.state.foundTasks[x].title}
@@ -502,12 +511,12 @@ class StatusBar extends React.Component {
         </div>
         <Timer />
         <div className='buttonBar nowrap'>
-          <select ref={this.functions} style={{width: '70px'}}
+          <select ref={this.functions} style={{ width: '35px' }}
             onChange={() => {
-            eval(this.functions.current.value);
-            this.functions.current.value = '';
-          }}>
-            <option value="" selected disabled hidden>functions</option>
+              eval(this.functions.current.value);
+              this.functions.current.value = '';
+            }}>
+            <option value="" selected disabled hidden>edit</option>
             <option value='newTask()'>
               new task (return)</option>
             <option value='cutTask()'>
@@ -518,22 +527,45 @@ class StatusBar extends React.Component {
               mirror (ctrl-shift-C)</option>
             <option value='pasteTask()'>
               paste (ctrl-v)</option>
+            <option value='pasteTask("list")'>
+              paste as subtask (ctrl-shift-V)</option>
             <option value="deleteTask()">
               delete (ctrl-delete)</option>
+          </select>
+          <select ref={this.move} style={{ width: '45px' }}
+            onChange={() => {
+              eval(this.move.current.value);
+              this.move.current.value = '';
+            }}>
+            <option value="" selected disabled hidden>move</option>
+            <option value="moveTask(1)">
+              move down (ctrl-s)</option>
+            <option value="deleteTask()">
+              move up (ctrl-w)</option>
+            <option value="switchView(1)">
+              following week/lists (ctrl-d)</option>
+            <option value="switchView(-1)">
+              previous week/lists (ctrl-a)</option>
+            <option value="listEdit('migrate')">
+              migrate date</option>
+            <option value="listEdit('clear')">
+              clear list</option>
           </select>
           <select ref={this.options} onChange={() => {
             eval(this.options.current.value);
             this.options.current.value = '';
           }}
-            style={{width: '60px'}}>
+            style={{ width: '60px' }}>
             <option value="" selected disabled hidden>settings</option>
-            <option value='focus()'>toggle focus (ctrl-f)</option>
+            <option value='focus()'>focus on list (ctrl-f)</option>
+            <option value='zoom()'>focus on view (ctrl-shift-F)</option>
             <option value='app.current.toggleComplete()'>
               show/hide complete (ctrl-h)</option>
+            <option value='undo()'>undo (ctrl-z)</option>
             <option value='backup()'>backup</option>
             <option value='restore()'>restore</option>
-            <option value='fixDates()'>fix dates</option>
             <option value='reset()'>reset</option>
+            <option value='toggleSounds()'>toggle sounds</option>
             <option value='toggleMode()'>toggle day/night</option>
             <option value='setTheme("space")'>theme: space</option>
             <option value='setTheme("sky")'>theme: sky</option>
@@ -561,7 +593,7 @@ class ListMenu extends React.Component {
       var list = this.bankLister;
       parent.changeIndex(Number(list.current.value), true);
     }
-    
+
     if (type === 'river') {
       this.riverLister.current.value = '';
     } else if (type === 'bank') {
@@ -574,12 +606,12 @@ class ListMenu extends React.Component {
     return (
       <>
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
-          style={{width: '35px'}}>
+          style={{ width: '35px' }}>
           <option value="" selected disabled hidden>lists</option>
           {data.tasks['bank'].subtasks.filter(
             x => data.tasks[x].title != '--')
             .map((x, index) =>
-            <option value={index}>{data.tasks[x].title}</option>)}
+              <option value={index}>{data.tasks[x].title}</option>)}
         </select>
         <select ref={this.riverLister} onChange={() => {
           if (this.riverLister.current.value == 'today') {
@@ -589,15 +621,15 @@ class ListMenu extends React.Component {
             this.goToList('river')
           }
         }}
-          style={{width: '45px'}}>
+          style={{ width: '45px' }}>
           <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
           {data.tasks['river'].subtasks.filter(x => new Date(
-            data.tasks[x].title).getTime() >= 
+            data.tasks[x].title).getTime() >=
             new Date().getTime())
             .map((x) =>
-            <option value={data.tasks[x].title}>
-            {data.tasks[x].title}</option>)}
+              <option value={data.tasks[x].title}>
+                {data.tasks[x].title}</option>)}
         </select>
       </>
     )
@@ -607,20 +639,20 @@ class ListMenu extends React.Component {
 class Timer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      seconds: 0, 
+    this.state = {
+      seconds: 0,
       audio: new Audio(timerSnd),
       start: new Audio(startSnd),
       startTime: undefined,
       ended: false,
     };
-      
+
   }
   startTimer(val) {
-    const endTime = 
+    const endTime =
       new Date(new Date().getTime() + val * 60 * 1000).getTime();
     this.setState({ endTime: endTime, seconds: val * 60 });
-    this.state.start.play();
+    playSound(this.state.start);
     this.play();
   }
   play(stopwatch, backwards) {
@@ -629,21 +661,25 @@ class Timer extends React.Component {
     clearInterval(this.interval);
     this.setState({ ended: false });
     if (stopwatch == 'stopwatch') {
-      var add = 1;
+      playSound(this.state.start);
+      this.interval = setInterval(() => {
+        this.setState({ seconds: this.state.seconds + 1 });
+      }, 1000);
     } else {
-      var add = -1;
+      this.interval = setInterval(() => {
+        this.setState({
+          seconds: Math.ceil((this.state.endTime -
+            new Date().getTime()) / 1000)
+        });
+        if (this.state.seconds <= 0 && this.state.ended === false) {
+          this.end();
+        }
+      }, 1000);
     }
-    this.interval = setInterval(() => {
-      this.setState({ seconds: Math.ceil((this.state.endTime - 
-        new Date().getTime()) / 1000) });
-      if (this.state.seconds <= 0 && this.state.ended === false ) {
-        this.end();
-      }
-    }, 1000);
   }
   end() {
     this.setState({ play: true, ended: true });
-    this.state.audio.play();
+    playSound(this.state.audio);
     this.options.current.value = '';
     var alert = new Notification('timer complete');
   }
@@ -682,15 +718,19 @@ class Timer extends React.Component {
         <input className='timerBar' readOnly={true}
           value={timeReadout}></input>
         <select ref={this.options} onChange={() => {
-          if (this.options.current.value == 'clear') {
+          if (this.options.current.value === 'clear') {
             this.playPause();
+            this.options.current.value = '';
+          } else if (this.options.current.value === 'stopwatch') {
+            this.setState({ seconds: 0 });
+            this.play('stopwatch');
             this.options.current.value = '';
           } else {
             this.startTimer(this.options.current.value);
             this.options.current.value = '';
           }
         }}
-          style={{width: '45px'}}>
+          style={{ width: '45px' }}>
           <option value="" selected disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
@@ -698,7 +738,7 @@ class Timer extends React.Component {
           <option value={15}>15:00</option>
           <option value={10}>10:00</option>
           <option value={5}>5:00</option>
-          <option value={0.1}>0:05</option>
+          <option value={'stopwatch'} title='stopwatch'>&infin;</option>
         </select>
       </>
     )
@@ -726,11 +766,15 @@ class Frame extends React.Component {
     } else {
       newIndex = this.state.info.index + val;
     }
-    if (newIndex > 0 && 
+    if (newIndex > 0 &&
       data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
       return;
     }
-    if (set !== undefined && newIndex > this.state.info.index) {
+    if (
+      set !== undefined && 
+      newIndex > this.state.info.index && 
+      this.props.id === 'bank'
+    ) {
       newIndex -= (this.state.width - 1);
     }
     if (newIndex < 0) newIndex = 0;
@@ -744,7 +788,7 @@ class Frame extends React.Component {
     let j = 0;
     let c = Math.floor(Math.random() * 1000);
     while (this.state.subtasks.length < this.state.info.index + 7) {
-      j ++;
+      j++;
       if (this.props.id === 'bank') {
         var title = '--';
       } else if (this.props.id === 'river') {
@@ -759,7 +803,7 @@ class Frame extends React.Component {
       while (data.tasks[String(id + i)] !== undefined) {
         i += 1;
       }
-      data.tasks[String(id + i)] = {title: title, subtasks: [], info: {}};
+      data.tasks[String(id + i)] = { title: title, subtasks: [], info: {} };
       this.state.subtasks.push(String(id + i));
     }
     function resizeCheck() {
@@ -776,8 +820,8 @@ class Frame extends React.Component {
       this.state.subtasks.slice(this.state.info.index, endIndex);
     return (
       <div id={this.props.id}
-        className={'frame ' + this.state.info.focused + ' ' + 
-        this.state.zoomed}>
+        className={'frame ' + this.state.info.focused + ' ' +
+          this.state.zoomed}>
         <button className='changeButton'
           onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
         </button>
@@ -824,6 +868,108 @@ class List extends React.Component {
   changeTitle(ev) {
     this.setState({ title: ev.target.value });
   }
+  sortList() {
+    // sort the given list by time
+    let ordered = true;
+    let currentTime = 0;
+    function getTime(timeList) {
+      let currentTime = timeList[0] * 60 + timeList[1];
+      if (currentTime <= 180) currentTime += 1440;
+      return currentTime;
+    }
+    for (let x of this.subtasksCurrent) {
+      const task = data.tasks[stripR(x)];
+      const thisTime = getTime(task.info.startDate);
+      if (
+        task.info.type == 'event' &&
+        thisTime < currentTime
+      ) {
+        ordered = false;
+        break;
+      }
+      currentTime = thisTime;
+    }
+    console.log(ordered);
+    if (ordered) return;
+    // sort the list
+    let sortedList = [];
+    let currentSort = ['start'];
+    for (let task of this.subtasksCurrent) {
+      const taskData = data.tasks[stripR(task)];
+      if (taskData.info.type === 'event' && 
+        !taskData.info.startDate.includes('--')) {
+        sortedList.push(currentSort);
+        currentSort = [];
+        currentSort.push(task);
+      } else {
+        currentSort.push(task);
+      }
+    }
+    sortedList.push(currentSort); // add last thing
+    sortedList = sortedList.sort((a, b) => {
+      if (a[0] === 'start' || a.length === 0) {
+        a = a.splice(0, 1);
+        return -1;
+      } else if (b[0] === 'start' || b.length === 0) {
+        b = b.splice(0, 1);
+        return 1;
+      } else {
+        return getTime(data.tasks[stripR(a[0])].info.startDate) - 
+          getTime(data.tasks[stripR(b[0])].info.startDate)
+      }
+    }).flat();
+    this.subtasksCurrent = sortedList;
+  }
+  updateHeights = () => {
+    function getTime(timeList) {
+      let currentTime = timeList[0] * 60 + timeList[1];
+      if (currentTime <= 180) currentTime += 1440;
+      return currentTime;
+    }
+    if (!this.taskList.current) return;
+    const objects = this.taskList.current.subtaskObjects.filter(
+      x => x.current.isComplete() !== 'complete'
+    );
+    for (
+      let i = 0; i < objects.length - 1; i++
+    ) {
+      const thisObject = objects[i].current;
+      const nextObject = objects[i + 1].current;
+      let minHeight = 1;
+      if (
+        thisObject.state.info.type === 'event'
+      ) {
+        const endDate = thisObject.state.info.endDate;
+        if (!endDate.includes('--')) {
+          // rounded to 30 minutes
+          minHeight = (endDate[0] * 60 + endDate[1]) / 60;
+        } else if (nextObject.state.info.type === 'event') {
+          console.log(nextObject.state.info.complete);
+          // no end date
+          const startDate = nextObject.state.info.startDate;
+          if (!startDate.includes('--')) {
+            const difference = 
+              getTime(startDate) - getTime(thisObject.state.info.startDate);
+            minHeight = difference / 60;
+          }
+        }
+      }
+      thisObject.setState({ minHeight: minHeight });
+    }
+    if (objects.length > 0) {
+      let minHeight = 1;
+      const lastObject = objects[objects.length - 1].current;
+      const endDate = lastObject.state.info.endDate;
+      if (lastObject.state.info.type === 'event' &&
+        !endDate.includes('--')) {
+        // rounded to 30 minutes
+        minHeight = (endDate[0] * 60 + endDate[1]) / 60;
+      }
+      console.log(lastObject.state.title);
+      console.log(minHeight);
+      lastObject.setState({ minHeight: minHeight });
+    }
+  }
   render() {
     function selectThis() {
       selectTask(this);
@@ -832,14 +978,19 @@ class List extends React.Component {
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
     this.subtasksCurrent = this.state.subtasks.filter(x =>
-      !(x.charAt(0) === 'R' && !this.props.repeats.includes(x)));
+      !(x.charAt(0) === 'R' && !this.props.repeats.includes(x)) &&
+      data.tasks[stripR(x)]);
     if (this.props.parent.props.id === 'river') {
       for (let task of this.props.repeats) {
-        if (!this.subtasksCurrent.includes(task) && 
-        !this.subtasksCurrent.includes(stripR(task))) {
+        if (!this.subtasksCurrent.includes(task) &&
+          !this.subtasksCurrent.includes(stripR(task))) {
           this.subtasksCurrent.push(task);
         }
       }
+    }
+    if (getFrame(this).props.id === 'river') {
+      this.sortList();
+      setTimeout(this.updateHeights, 100);
     }
     return (
       <div className={'list' + ' ' + this.state.zoomed} onClick={selectThis}>
@@ -849,12 +1000,12 @@ class List extends React.Component {
               onChange={this.changeTitle} ref={this.listInput}></input> :
             <>
               <div class='monthYear'>
-                <span>{this.state.title.slice(4,8)}</span>
+                <span>{this.state.title.slice(4, 8)}</span>
                 <span>{this.state.title.slice(11)}</span>
               </div>
               <input readOnly className='listInput listTitle'
                 value={dateFormat(this.state.title)} ref={this.listInput}>
-                </input>
+              </input>
             </>
           }
         </div>
@@ -875,8 +1026,8 @@ class List extends React.Component {
               {this.props.startdates.map(x => {
                 return <li
                   className='startdate' key={String(x)}
-                  onClick={() => searchDate(data.tasks[stripR(x)].title, 
-                  'start')}>
+                  onClick={() => searchDate(data.tasks[stripR(x)].title,
+                    'start')}>
                   {data.tasks[stripR(x)].title}</li>;
               })}
             </ul>}
@@ -894,21 +1045,21 @@ class TaskList extends React.Component {
     // subtasks are filtered for deleted tasks
     const tasksListed = this.props.subtasks.filter(x =>
       data.tasks[stripR(x)]).map((x, index) => {
-      this.subtaskObjects.push(React.createRef());
-      const task = (
-        <Task
-          key={x}
-          id={x}
-          info={data.tasks[stripR(x)].info}
-          title={data.tasks[stripR(x)].title}
-          subtasks={data.tasks[stripR(x)].subtasks}
-          parent={this.props.parent}
-          ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
-          index={index}
-        />
-      )
-      return task;
-    })
+        this.subtaskObjects.push(React.createRef());
+        const task = (
+          <Task
+            key={x}
+            id={x}
+            info={data.tasks[stripR(x)].info}
+            title={data.tasks[stripR(x)].title}
+            subtasks={data.tasks[stripR(x)].subtasks}
+            parent={this.props.parent}
+            ref={this.subtaskObjects[this.subtaskObjects.length - 1]}
+            index={index}
+          />
+        )
+        return task;
+      })
     let parent = this.props.parent;
     let id = [];
     while (parent) {
@@ -918,20 +1069,20 @@ class TaskList extends React.Component {
     id = id.reverse().join('-');
     return (
       this.props.parent instanceof Task ?
-      <ul className='listContent'>
-        {tasksListed}
-      </ul> :
-      <Droppable droppableId={id}>
-        {(provided) => {
-          return (
-            <ul className='listContent' {...provided.droppableProps}
-              ref={provided.innerRef}>
-              {tasksListed}
-              {provided.placeholder}
-            </ul>
-          )
-        }}
-      </Droppable>
+        <ul className='listContent'>
+          {tasksListed}
+        </ul> :
+        <Droppable droppableId={id}>
+          {(provided) => {
+            return (
+              <ul className='listContent' {...provided.droppableProps}
+                ref={provided.innerRef}>
+                {tasksListed}
+                {provided.placeholder}
+              </ul>
+            )
+          }}
+        </Droppable>
     )
   }
 }
@@ -939,6 +1090,15 @@ class TaskList extends React.Component {
 function getFrame(task) {
   let parent = task;
   while (parent.props.parent) {
+    parent = parent.props.parent;
+  }
+  return parent;
+}
+
+function getList(task) {
+  let parent = task;
+  while (parent instanceof Task) {
+    console.log(parent);
     parent = parent.props.parent;
   }
   return parent;
@@ -952,14 +1112,14 @@ class Task extends React.Component {
       subtasks: props.subtasks.filter(x =>
         data.tasks[stripR(x)]), parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false,
-      zoomed: ''
+      zoomed: '', minHeight: 1
     };
     // TODO
     if (!this.state.info.startDate) this.state.info.startDate = ['--', '--'];
     if (!this.state.info.endDate) this.state.info.endDate = ['--', '--'];
     if (!this.state.info.notes) this.state.info.notes = '';
     if (!this.state.info.type) {
-      if (props.parent instanceof List && 
+      if (props.parent instanceof List &&
         getFrame(props.parent).props.id === 'river') {
         this.state.info.type = 'event';
       } else {
@@ -984,6 +1144,13 @@ class Task extends React.Component {
     }
     if (showHide === 'hide' || this.state.displayOptions === 'show') {
       this.setState({ displayOptions: 'hide' });
+      if (
+        this.props.parent instanceof List && 
+        getFrame(this).props.id === 'river'
+      ) {
+        console.log('yes');
+        this.props.parent.forceUpdate();
+      }
     } else if (showHide == 'show' || this.state.displayOptions === 'hide') {
       this.setState({ displayOptions: 'show' });
     }
@@ -1019,29 +1186,32 @@ class Task extends React.Component {
     }
     var dateString = date.toDateString();
     if (action === 'add') {
-      if (!deadlineData[dateString]) { 
-        deadlineData[dateString] = [this.props.id] }
+      if (!deadlineData[dateString]) {
+        deadlineData[dateString] = [this.props.id]
+      }
       else { deadlineData[dateString].push(this.props.id) }
     } else if (action === 'remove') {
       if (!deadlineData[dateString]) return
-      else { deadlineData[dateString].splice(deadlineData[dateString].findIndex(
-        x => x === this.props.id), 1) };
+      else {
+        deadlineData[dateString].splice(deadlineData[dateString].findIndex(
+          x => x === this.props.id), 1)
+      };
     }
     // add to the things
     if (type === 'start') {
-      river.setState( { startdates: { ...deadlineData }});
+      river.setState({ startdates: { ...deadlineData } });
       saveSetting('startdates', deadlineData);
     } else if (type === 'end') {
-      river.setState( { deadlines: { ...deadlineData }});
+      river.setState({ deadlines: { ...deadlineData } });
       saveSetting('deadlines', deadlineData);
     }
   }
   toggleComplete(change) {
     let status = this.state.info.complete
     if (status === 'complete') { status = '' }
-    else { 
+    else {
       status = 'complete';
-      app.current.state.popSnd.play();
+      playSound(app.current.state.popSnd);
     }
     // excludes lets it put it in complete
     const repeats = app.current.state.river.current.state.repeats;
@@ -1065,7 +1235,7 @@ class Task extends React.Component {
       }
     }
     if (repeating === true) {
-      this.setState({info: {...this.state.info, excludes: excludes}})
+      this.setState({ info: { ...this.state.info, excludes: excludes } })
     } else {
       this.setState(prevState => ({
         info: { ...prevState.info, complete: status }
@@ -1106,7 +1276,24 @@ class Task extends React.Component {
     }));
     this.displayOptions('hide');
   }
+  hasRepeats = () => {
+    let repeating = false;
+    console.log(data.settings.repeats);
+    for (let repeat of Object.keys(data.settings.repeats)) {
+      if (data.settings.repeats[repeat].includes('R' +
+        stripR(this.props.id))) {
+        repeating = true;
+        break;
+      }
+    }
+    return repeating;
+  }
   deleteThis(removeData) {
+    if (this.hasRepeats()) {
+      const permission = window.confirm(
+        'This will delete all repeats.\n(Complete task to hide only this one)');
+      if (!permission) { return; }
+    }
     // TODO: remove deadline, repeat & startdate 
     // [[don't use global variable]]
     let parent = this.props.parent;
@@ -1126,6 +1313,7 @@ class Task extends React.Component {
       delete data.tasks[stripR(this.props.id)];
     }
     setTimeout(() => {
+      undoData = localStorage.getItem('data');
       preventSelect = false
       save(this.props.parent, 'list');
     }, 200);
@@ -1142,13 +1330,17 @@ class Task extends React.Component {
   }
   dateRender = (type) => {
     if (type === 'start') {
-      var info = this.state.info.startDate;
+      var info = this.state.info.startDate.concat();
     } else if (type === 'end') {
-      var info = this.state.info.endDate;
+      var info = this.state.info.endDate.concat();
     }
     if (this.state.info.type === 'event') {
       if (type === 'start') {
-        return info[0] + ':' + String(info[1]).padStart(2, 0);
+        let end;
+        if (info[0] >= 12) end = 'p';
+        else end = 'a';
+        if (info[0] > 12) { info[0] -= 12 }
+        return info[0] + ':' + String(info[1]).padStart(2, 0) + end;
       } else if (type === 'end') {
         let string = '';
         if (info[0] != 0) string += info[0] + 'h';
@@ -1171,7 +1363,7 @@ class Task extends React.Component {
     } else {
       var repeatId = 'R' + this.props.id;
     }
-    const repeats = {...app.current.state.river.current.state.repeats};
+    const repeats = { ...app.current.state.river.current.state.repeats };
     for (let day of days) {
       if (repeats[day].includes(repeatId) || del === true) {
         if (repeats[day].includes(repeatId)) {
@@ -1191,11 +1383,11 @@ class Task extends React.Component {
     var mouseup = () => {
       window.removeEventListener('mousemove', changeTime);
       app.current.setState({ disableSelect: '' });
-      if (unit === 's') {
+      if (unit === 'e' || this.state.info.type === 'event') {
+        this.displayOptions('hide');
+      } else if (unit === 's') {
         this.setState({ displayOptions: 'show' });
-      } else if (unit === 'e') {
-        this.setState({ displayOptions: 'hide' });
-      }
+      } 
       this.freeze = true;
       setTimeout(() => this.freeze = false, 200);
       window.removeEventListener('mouseup', mouseup);
@@ -1203,99 +1395,58 @@ class Task extends React.Component {
     window.addEventListener('mouseup', mouseup);
     var change = 10;
     var pageY = ev.screenY;
-    var updateTime = (value, unit) => {
+    var updateTime = (ev2, value, unit) => {
       let val;
       let date;
       let infoOrig;
       let orig2;
       if (this.state.info.type === 'event') {
         if (type === 'start') {
-          if (unit === 's') {
-            infoOrig = this.state.info.startDate[0];
-            orig2 = this.state.info.startDate[1];
-            if (infoOrig === '--') {
-              infoOrig = new Date().getHours();
-            }
-            if (orig2 === '--') {
-              orig2 = 0;
-            }
-            val = infoOrig + value;
-            if (val >= 24) {
-              val -= 24;
-            } else if (val < 0) {
-              val = '--';
-              orig2 = '--';
-            }
-            this.setState({ info: {...this.state.info, 
-              startDate: [val, orig2]} });
-          } else if (unit === 'e') {
-            infoOrig = this.state.info.startDate[1];
-            if (infoOrig === '--') {
-              infoOrig = 0;
-            }
-            val = infoOrig + (value * 15);
-            if (val >= 60) {
-              val = 0;
-              updateTime(1, 's');
-            } else if (val < 0) {
-              val = 45;
-              updateTime(-1, 's');
-            }
-            orig2 = this.state.info.startDate[0];
-            if (orig2 === '--') {
-              orig2 = new Date().getHours();
-            }
-            this.setState({ info: {...this.state.info, 
-              startDate: [orig2, val]} });
-          }
+          infoOrig = this.state.info.startDate[1];
+          orig2 = this.state.info.startDate[0];
         } else if (type === 'end') {
-          if (unit === 's') {
-            infoOrig = this.state.info.endDate[0];
-            orig2 = this.state.info.endDate[1];
-            if (orig2 === '--') {
-              orig2 = 0;
+          infoOrig = this.state.info.endDate[1];
+          orig2 = this.state.info.endDate[0];
+        }
+        if (infoOrig === '--') {
+          infoOrig = 0;
+        }
+        if (orig2 === '--') {
+          orig2 = new Date().getHours();
+        }
+        let change;
+        if (ev2.shiftKey) {
+          change = value * 5;
+        } else {
+          change = value * 30;
+        }
+        val = infoOrig + change;
+        if (val >= 60) {
+          val = 0;
+          orig2 += 1;
+        } else if (val < 0) {
+          val = 60 + change;
+          orig2 -= 1;
+        }
+        if (orig2 >= 24 || orig2 < 0) {
+          val = '--';
+          orig2 = '--';
+          window.removeEventListener('mousemove', changeTime);
+        }
+        if (type === 'start') {
+          this.setState({
+            info: {
+              ...this.state.info,
+              startDate: [orig2, val]
             }
-            if (infoOrig === '--') {
-              infoOrig = 0;
+          });
+        } else if (type === 'end') {
+          this.setState({
+            info: {
+              ...this.state.info,
+              endDate: [orig2, val]
             }
-            val = infoOrig + value;
-            if (val < 0) {
-              val = '--';
-              orig2 = '--';
-            }
-            this.setState({ info: {...this.state.info, 
-              endDate: [val, orig2]} });
-          } else if (unit === 'e') {
-            if ((['--'].includes(this.state.info.endDate[0]) && 
-              ['--'].includes(this.state.info.endDate[1]) && value == -1)) {
-              return;
-            }
-            infoOrig = this.state.info.endDate[1];
-            if (infoOrig === '--') {
-              infoOrig = 0;
-            }
-            val = infoOrig + (value * 15);
-            orig2 = this.state.info.endDate[0];
-            if (orig2 === '--') {
-              orig2 = 0;
-            }
-            if (val >= 60) {
-              val = 0;
-              updateTime(1, 's');
-              orig2 = this.state.info.endDate[0];
-            } else if (val < 0) {
-              if (this.state.info.endDate[0] === 0) {
-                val = '--';
-                orig2 = '--';
-              } else {
-                val = 45;
-                updateTime(-1, 's');
-                orig2 = this.state.info.endDate[0];
-              }
-            }
-            this.setState({ info: {...this.state.info, 
-              endDate: [orig2, val]} });
-          }
+          });
         }
       } else {
         // dates
@@ -1324,13 +1475,19 @@ class Task extends React.Component {
             val = date.getMonth() + 1;
           }
           if (type === 'start') {
-            this.setState({ info: {...this.state.info,
-              startDate: [val, orig2]
-            }});
+            this.setState({
+              info: {
+                ...this.state.info,
+                startDate: [val, orig2]
+              }
+            });
           } else if (type === 'end') {
-            this.setState({ info: {...this.state.info,
-              endDate: [val, orig2]
-            }});
+            this.setState({
+              info: {
+                ...this.state.info,
+                endDate: [val, orig2]
+              }
+            });
           }
         } else if (unit === 'e') {
           if (type === 'start') {
@@ -1353,24 +1510,36 @@ class Task extends React.Component {
           date.setFullYear(new Date().getFullYear());
           if (date.getTime() < new Date().getTime()) {
             if (type === 'start') {
-              this.setState({ info: {...this.state.info,
-                startDate: ['--', '--']
-              }});
+              this.setState({
+                info: {
+                  ...this.state.info,
+                  startDate: ['--', '--']
+                }
+              });
             } else if (type === 'end') {
-              this.setState({ info: {...this.state.info,
-                endDate: ['--', '--']
-              }});
+              this.setState({
+                info: {
+                  ...this.state.info,
+                  endDate: ['--', '--']
+                }
+              });
             }
             return;
           }
           if (type === 'start') {
-            this.setState({ info: {...this.state.info,
-              startDate: [date.getMonth() + 1, date.getDate()]
-            }});
+            this.setState({
+              info: {
+                ...this.state.info,
+                startDate: [date.getMonth() + 1, date.getDate()]
+              }
+            });
           } else if (type === 'end') {
-            this.setState({ info: {...this.state.info,
-              endDate: [date.getMonth() + 1, date.getDate()]
-            }});
+            this.setState({
+              info: {
+                ...this.state.info,
+                endDate: [date.getMonth() + 1, date.getDate()]
+              }
+            });
           }
         }
         if (type === 'start' && !this.state.info.startDate.includes('--')) {
@@ -1390,11 +1559,23 @@ class Task extends React.Component {
         changeTime = 1;
       }
       if (changeTime !== false) {
-        updateTime(changeTime, unit);
+        updateTime(ev, changeTime, unit);
       }
     }
     app.current.setState({ disableSelect: 'disable-select' });
     window.addEventListener('mousemove', changeTime);
+  }
+  isComplete = () => {
+    let completed = this.state.info.complete;
+    let parent = this.props.parent;
+    // hacking completed for repeats
+    while (!parent instanceof List) {
+      parent = parent.props.parent;
+    }
+    if (this.state.info.excludes.includes(parent.state.title)) {
+      completed = 'complete';
+    }
+    return completed;
   }
   render() {
     // fuck react
@@ -1408,6 +1589,7 @@ class Task extends React.Component {
     this.optionsButton = React.createRef();
     this.editBar = React.createRef();
     this.infoInput = React.createRef();
+    this.infoArea = React.createRef();
     const headingClass = this.state.subtasks.length > 0 ?
       'heading' : '';
     if (this.editBar.current) {
@@ -1433,18 +1615,59 @@ class Task extends React.Component {
         repeatsOn[day] = '';
       }
     }
-    let completed = this.state.info.complete;
-    parent = this.props.parent;
-    // hacking completed for repeats
-    while (!parent instanceof List) {
-      parent = parent.props.parent;
+    let completed = this.isComplete();
+    const amPmFormat = (hours) => {
+      if (hours === '--') return hours;
+      if (hours > 12) return hours - 12;
+      else return hours;
     }
-    if (this.state.info.excludes.includes(parent.state.title)) {
-      completed = 'complete';
+    let startExtra;
+    let endExtra;
+    if (this.state.info.type === 'event') {
+      // am/pm
+      if (!this.state.info.startDate.includes('--')) {
+        if (this.state.info.startDate[0] >= 12) startExtra = 'p';
+        else startExtra = 'a';
+      }
     }
+    else {
+      // date
+      const getWeekday = (list) => {
+        const weekdaysDict = {
+          1: 'M', 2: 'T', 3: 'W', 4: 'R', 5: 'F', 6: 'S', 0: 'U'
+        };
+        const date = new Date();
+        date.setMonth(list[[0]] - 1);
+        date.setDate(list[1]);
+        return weekdaysDict[date.getDay()];
+      }
+      if (!this.state.info.startDate.includes('--')) {
+        startExtra = getWeekday(this.state.info.startDate);
+      }
+      if (!this.state.info.endDate.includes('--')) {
+        endExtra = getWeekday(this.state.info.endDate);
+      }
+    } 
     const listRender = (provided) => (<>
+      <textarea className='infoArea' 
+        ref={this.infoArea}
+        onKeyDown={(ev) => {
+          if (ev.key === 'Escape') {
+            $(this.infoArea.current).hide();
+            preventReturn = false;
+          }
+        }}
+        onChange={() => {
+          this.setState({
+            info: {
+              ...this.state.info,
+              notes: this.infoArea.current.value
+            }
+          })
+        }}
+        value={this.state.info.notes}></textarea>
       <div className='taskContent'>
-        <div className={'options ' + this.state.displayOptions}>
+      <div className={'options ' + this.state.displayOptions}>
           <div className='buttonBar' style={{
             width: '100%',
             justifyContent: 'space-around',
@@ -1481,31 +1704,31 @@ class Task extends React.Component {
             </div>
             <div className='buttonBar'>
               <button className={'button ' + repeatsOn['Mon']}
-                onClick={() => {this.toggleRepeat('Mon');}}>M</button>
-              <button className={'button ' + repeatsOn['Tue']} 
+                onClick={() => { this.toggleRepeat('Mon'); }}>M</button>
+              <button className={'button ' + repeatsOn['Tue']}
                 onClick={() => {
-                this.toggleRepeat('Tue');
-              }}>T</button>
-              <button className={'button ' + repeatsOn['Wed']} 
+                  this.toggleRepeat('Tue');
+                }}>T</button>
+              <button className={'button ' + repeatsOn['Wed']}
                 onClick={() => {
-                this.toggleRepeat('Wed');
-              }}>W</button>
-              <button className={'button ' + repeatsOn['Thu']} 
+                  this.toggleRepeat('Wed');
+                }}>W</button>
+              <button className={'button ' + repeatsOn['Thu']}
                 onClick={() => {
-                this.toggleRepeat('Thu');
-              }}>R</button>
-              <button className={'button ' + repeatsOn['Fri']} 
+                  this.toggleRepeat('Thu');
+                }}>R</button>
+              <button className={'button ' + repeatsOn['Fri']}
                 onClick={() => {
-                this.toggleRepeat('Fri');
-              }}>F</button>
-              <button className={'button ' + repeatsOn['Sat']} 
+                  this.toggleRepeat('Fri');
+                }}>F</button>
+              <button className={'button ' + repeatsOn['Sat']}
                 onClick={() => {
-                this.toggleRepeat('Sat');
-              }}>S</button>
-              <button className={'button ' + repeatsOn['Sun']} 
+                  this.toggleRepeat('Sat');
+                }}>S</button>
+              <button className={'button ' + repeatsOn['Sun']}
                 onClick={() => {
-                this.toggleRepeat('Sun');
-              }}>U</button>
+                  this.toggleRepeat('Sun');
+                }}>U</button>
             </div>
           </div>
           <div className='timeDiv buttonBar' style={{
@@ -1513,30 +1736,45 @@ class Task extends React.Component {
           }}>
             <button className='button timeSwitch'
               onClick={() => {
-                var changeValue = this.state.info.type === 'event' ? 
+                var changeValue = this.state.info.type === 'event' ?
                   'date' : 'event';
-                this.setState({info: {...this.state.info, 
-                  type: changeValue,
-                  startDate: ['--', '--'],
-                  endDate: ['--', '--'],
-                }})
+                this.setState({
+                  info: {
+                    ...this.state.info,
+                    type: changeValue,
+                    startDate: ['--', '--'],
+                    endDate: ['--', '--'],
+                  }
+                })
               }}>
               {this.state.info.type}
             </button>
             <span className='startSpan start'>
               <span className='s' onMouseDown={(ev) => {
                 this.timeDrag(ev, 's', 'start');
-              }}>{this.state.info.startDate[0]}</span>
+              }}>{
+                this.state.info.type === 'event' ?
+                  amPmFormat(this.state.info.startDate[0]) :
+                  this.state.info.startDate[0]
+              }</span>
               <span className='m'>{
                 this.state.info.type === 'event' ? ':' : '/'
               }</span>
-              <span className='e' onMouseDown={(ev) => {
-                this.timeDrag(ev, 'e', 'start');
-              }}
-              >{this.state.info.type === 'event' ?
-                String(this.state.info.startDate[1]).padStart(2, 0) :
-                this.state.info.startDate[1]
-              }</span>
+              <span 
+                className='e' 
+                onMouseDown={(ev) => {
+                  this.timeDrag(ev, 'e', 'start');
+                }}
+              >
+                {this.state.info.type === 'event' ?
+                  String(this.state.info.startDate[1]).padStart(2, 0) :
+                  this.state.info.startDate[1]
+                }
+              </span>
+              {startExtra && 
+              <span className='startSpan extraInfo'>
+                {startExtra}
+              </span>}
             </span>
             <span className='startSpan end'>
               <span className='s' onMouseDown={(ev) => {
@@ -1550,23 +1788,35 @@ class Task extends React.Component {
               }}>{this.state.info.endDate[1]}</span>
               <span>{this.state.info.type === 'event' ?
                 'm' : ''}</span>
+              {endExtra && 
+              <span className='startSpan extraInfo'>
+                {endExtra}
+              </span>}
             </span>
             <input ref={this.infoInput} className='infoSpan' placeholder='notes'
-              style={{marginLeft: '5px'}} 
+              style={{ marginLeft: '5px' }}
               value={this.state.info.notes}
               onChange={() => {
-                this.setState({info: {...this.state.info,
-                notes: this.infoInput.current.value}})
+                this.setState({
+                  info: {
+                    ...this.state.info,
+                    notes: this.infoInput.current.value
+                  }
+                })
               }}></input>
+            <button className='button' onClick={() => {
+              $(this.infoArea.current).show();
+              preventReturn = true;
+            }} title='expand notes to paragraph'>+</button>
           </div>
         </div>
         {provided ?
           !hasTimes ?
-            <span className='info' 
+            <span className='info'
               onClick={(ev) => this.displayOptions(ev)}
               ref={this.optionsButton}
               {...provided.dragHandleProps}></span> :
-            <span className='startDate' 
+            <span className='startDate'
               onClick={(ev) => this.displayOptions(ev)}
               ref={this.optionsButton}
               {...provided.dragHandleProps}>
@@ -1574,10 +1824,10 @@ class Task extends React.Component {
             </span>
           :
           !hasTimes ?
-            <span className='info' 
+            <span className='info'
               onClick={(ev) => this.displayOptions(ev)}
               ref={this.optionsButton}></span> :
-            <span className='startDate' 
+            <span className='startDate'
               onClick={(ev) => this.displayOptions(ev)}
               ref={this.optionsButton}>
               {this.dateRender('start')}
@@ -1585,19 +1835,21 @@ class Task extends React.Component {
         }
         <textarea className='editBar' value={this.state.title}
           onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
-          spellCheck='false'></textarea>
+          spellCheck='false' onClick={(ev) => this.displayOptions(ev, 'hide')}></textarea>
         {this.state.info.notes.length == 0 &&
-          <div style={{display: 'flex', flexDirection: 'column',
-          marginRight: '5px'}}>
+          <div style={{
+            display: 'flex', flexDirection: 'column',
+            marginRight: '5px'
+          }}>
             {!hasTimes &&
               !this.state.info.startDate.includes('--') &&
               <span className='startDate'>
-              {this.dateRender('start')}
-            </span>}
+                {this.dateRender('start')}
+              </span>}
             {!this.state.info.endDate.includes('--') &&
-            <span className='endDate'>
-              {this.dateRender('end')}
-            </span>}
+              <span className='endDate'>
+                {this.dateRender('end')}
+              </span>}
           </div>
         }
       </div>
@@ -1605,17 +1857,19 @@ class Task extends React.Component {
         <div className='taskInfo'>
           {this.state.info.notes.length > 0 &&
             <span className='notesSpan'>
-              {this.state.info.notes}
+              {this.state.info.notes.length > 50 ?
+                this.state.info.notes.slice(0, 50) + '...' :
+                this.state.info.notes}
             </span>}
           {!hasTimes &&
             !this.state.info.startDate.includes('--') &&
             <span className='startDate'>
-            {this.dateRender('start')}
-          </span>}
+              {this.dateRender('start')}
+            </span>}
           {!this.state.info.endDate.includes('--') &&
-          <span className='endDate'>
-            {this.dateRender('end')}
-          </span>}
+            <span className='endDate'>
+              {this.dateRender('end')}
+            </span>}
         </div>
       }
       <TaskList ref={this.taskList} subtasks={this.state.subtasks}
@@ -1626,18 +1880,20 @@ class Task extends React.Component {
         <Draggable draggableId={id} index={this.props.index}>
           {(provided) => {
             return (<li className={'task ' + this.state.info.important +
-            ' ' + completed +
-            ' ' + this.state.info.maybe +
-            ' ' + headingClass +
-            ' ' + this.state.info.type +
-            ' ' + this.state.info.collapsed +
-            ' ' + this.state.zoomed}
-            onClick={() => { selectTask(this) }}
-            {...provided.draggableProps}
-            ref={provided.innerRef}>
-            {listRender(provided)}
-          </li>
-          )}}
+              ' ' + completed +
+              ' ' + this.state.info.maybe +
+              ' ' + headingClass +
+              ' ' + this.state.info.type +
+              ' ' + this.state.info.collapsed +
+              ' ' + this.state.zoomed}
+              onClick={() => { selectTask(this) }}
+              {...provided.draggableProps}
+              ref={provided.innerRef}
+              style={{minHeight: this.state.minHeight * 1.15 * 30}}>
+              {listRender(provided)}
+            </li>
+            )
+          }}
         </Draggable> :
         <li className={'task ' + this.state.info.important +
           ' ' + completed +
@@ -1646,7 +1902,8 @@ class Task extends React.Component {
           ' ' + this.state.info.type +
           ' ' + this.state.info.collapsed +
           ' ' + this.state.zoomed}
-          onClick={() => { selectTask(this) }}>
+          onClick={() => { selectTask(this) }}
+          style={{minHeight: this.state.minHeight + 'em'}}>
           {listRender()}
         </li>
     )
@@ -1663,13 +1920,14 @@ function stripR(x) {
 
 function deleteTask() {
   if (selected && selected instanceof Task) {
+    undoData = localStorage.getItem('data');
     selected.deleteThis();
   }
 }
 
 function newTask(type) {
   // create new task after selected
-  if (!selected) return;
+  if (!selected || preventReturn) return;
   let el;
   if (type == 'task' || !selected.state.parent) {
     el = selected;
@@ -1702,7 +1960,7 @@ function selectTask(el, force) {
   if (selected == el && !force) {
     return;
   }
-  if (selected instanceof Task && el != selected) {
+  if (selected instanceof Task && selected != el) {
     selected.displayOptions({ target: undefined }, 'hide');
   }
   selected = el;
@@ -1722,9 +1980,16 @@ function save(task, saveType) {
   }
   if (saveObject.subtasksCurrent) var subtasks = saveObject.subtasksCurrent;
   else var subtasks = saveObject.state.subtasks;
-  data.tasks[stripR(saveObject.props.id)] = {title: saveObject.state.title,
-    info: saveObject.state.info, subtasks: subtasks};
+  data.tasks[stripR(saveObject.props.id)] = {
+    title: saveObject.state.title,
+    info: saveObject.state.info, subtasks: subtasks
+  };
   localStorage.setItem('data', JSON.stringify(data));
+}
+
+function undo() {
+  localStorage.setItem('data', undoData);
+  setTimeout(() => window.location.reload(), 500);
 }
 
 function saveSetting(setting, value) {
@@ -1736,6 +2001,7 @@ function cutTask() {
   if (!selected || selected instanceof List) return;
   copyTask();
   selected.deleteThis(false);
+  undoData = localStorage.getItem('data');
 }
 
 function copyTask(mirror) {
@@ -1748,13 +2014,14 @@ function copyTask(mirror) {
     const today = new Date();
     const now = today.getTime();
     const newTask = String(now);
-    data.tasks[newTask] = {...data.tasks[stripR(selected.props.id)]};
+    data.tasks[newTask] = { ...data.tasks[stripR(selected.props.id)] };
     copiedTask = newTask;
   }
 }
 
 function pasteTask(type) {
   if (!selected) return;
+  undoData = localStorage.getItem('data');
   if (selected instanceof List || type === 'task') {
     const subtasks = selected.state.subtasks;
     subtasks.splice(0, 0, copiedTask);
@@ -1771,7 +2038,7 @@ function pasteTask(type) {
 
 function backup() {
   alert('open console to copy data (file download option will be added soon)');
-  consoleLog(data);
+  consoleLog(JSON.stringify(data));
 }
 
 function consoleLog(x) {
@@ -1793,7 +2060,7 @@ function keyComms(ev) {
       document.activeElement.blur();
       if (selected) {
         save(selected, 'task');
-        if (selected instanceof Task && 
+        if (selected instanceof Task &&
           selected.state.displayOptions === 'show') {
           selected.displayOptions('hide');
         } else {
@@ -1810,6 +2077,10 @@ function keyComms(ev) {
         break;
       case 'N':
         newTask('task');
+        break;
+      case 'F':
+        ev.preventDefault();
+        zoom();
         break;
       case 'C':
         // mirror task
@@ -1838,21 +2109,30 @@ function keyComms(ev) {
         break;
       case 'f':
         ev.preventDefault();
-        if (app.current.state.zoomed === 'zoomed') return;
         focus();
-        break
-      case 'r':
-        ev.preventDefault();
-        updateAllSizes();
         break;
       case 'z':
         ev.preventDefault();
-        zoom();
+        undo();
+        break;
+      case 'r':
+        ev.preventDefault();
+        updateAllSizes();
         break;
       case 'Backspace':
         ev.preventDefault();
         if (selected && selected instanceof Task) {
           selected.deleteThis();
+        } else if (selected && selected instanceof List &&
+          selected.props.parent.props.id === 'bank') {
+          const confirm = window.confirm('delete this list?');
+          if (confirm) {
+            const subtasks = selected.props.parent.state.subtasks;
+            undoData = localStorage.getItem('data');
+            subtasks.splice(
+              subtasks.findIndex(x => x === selected.props.id), 1);
+            selected.props.parent.setState({ subtasks: subtasks });
+          }
         }
         break;
       case 'w':
@@ -1869,12 +2149,10 @@ function keyComms(ev) {
         break;
       case 'a':
         ev.preventDefault();
-        if (app.current.state.zoomed === 'zoomed') return;
         switchView(-1);
         break;
       case 'd':
         ev.preventDefault();
-        if (app.current.state.zoomed === 'zoomed') return;
         switchView(1);
         break;
       case 'h':
@@ -1921,7 +2199,7 @@ function keyComms(ev) {
 
 function dateFormat(title) {
   // reformat dateString (Day Mon -- ----) to usable title
-  return title.slice(0, 4) + 
+  return title.slice(0, 4) +
     title.slice(8, 10);
 }
 
@@ -1958,7 +2236,7 @@ function moveTask(direction) {
     var subtasksChopped = subtasks.slice(selectedPlace + 1);
   }
   if (data.settings.hideComplete == 'hideComplete') {
-    var insertPlace = (subtasksChopped.findIndex(x => 
+    var insertPlace = (subtasksChopped.findIndex(x =>
       data.tasks[stripR(x)].info.complete != 'complete') + 1) * direction;
   } else {
     var insertPlace = 1 * direction;
@@ -1981,7 +2259,7 @@ function reset() {
 function fixDates() {
   let today = new Date();
   var dates = [];
-  for (let i = 0; i < 30; i ++) {
+  for (let i = 0; i < 30; i++) {
     const dateString = today.toDateString();
     var found = false;
     for (let x of Object.keys(data.tasks)) {
@@ -1997,7 +2275,7 @@ function fixDates() {
         now += 1;
       }
       now = String(now);
-      data.tasks[now] = {title: dateString, info: {}, subtasks: []};
+      data.tasks[now] = { title: dateString, info: {}, subtasks: [] };
       dates.push(now);
     }
     today.setDate(today.getDate() + 1);
@@ -2100,6 +2378,22 @@ function toggleMode() {
   localStorage.setItem('data', JSON.stringify(data));
 }
 
+function toggleSounds() {
+  if (data.settings.sounds == 'false') {
+    data.settings.sounds = 'true';
+    alert('sounds on');
+  } else {
+    data.settings.sounds = 'false';
+    alert('sounds off');
+  }
+}
+
+function playSound(sound) {
+  if (data.settings.sounds === 'true') {
+    sound.play();
+  }
+}
+
 function processWidth(focused) {
   if (focused != 'focused') {
     var width = Math.floor(window.innerWidth / 250);
@@ -2132,25 +2426,19 @@ function zoom() {
     var zoomedSetting = 'zoomed';
     if (!selected) { return }; // no zoomie
   }
-  if (selected instanceof Task) {
-    var zoomTask = selected.props.parent;
-  } else {
-    var zoomTask = selected;
-  }
-  zoomTask.setState({zoomed: zoomedSetting});
-  let parent = zoomTask.props.parent;
-  while (parent) {
-    parent.setState({zoomed: zoomedSetting});
-    parent = parent.props.parent;
-  }
-  app.current.setState({zoomed: zoomedSetting})
+  console.log(getFrame(selected));
+  var zoomFrame = getFrame(selected);
+  zoomFrame.setState({ zoomed: zoomedSetting });
+  app.current.setState({ zoomed: zoomedSetting });
   if (!zoomed) {
     // unzoom
     zoomed = selected;
   } else {
     zoomed = undefined;
   }
-  updateAllSizes();
+  setTimeout(
+    updateAllSizes, 200
+  )
 }
 
 function clean() {
@@ -2159,17 +2447,17 @@ function clean() {
       // switch it out of things
       let deadlineList = list[x];
       if (deadlineList.includes(id)) {
-        deadlineList = 
+        deadlineList =
           deadlineList.splice(deadlineList.findIndex(x => x === id), 1);
       }
     }
   }
   // clean out tasks which aren't in lists
-  for (let id of Object.keys(data.tasks).filter(x => 
+  for (let id of Object.keys(data.tasks).filter(x =>
     !['river', 'bank'].includes(x))) {
     let found = false;
     for (let containerId of Object.keys(data.tasks)) {
-      if (data.tasks[containerId].subtasks.map(x => 
+      if (data.tasks[containerId].subtasks.map(x =>
         stripR(x)).includes(id)) {
         found = true;
         break;
@@ -2180,6 +2468,53 @@ function clean() {
       removeDeadline(data.settings.deadlines, id);
       removeDeadline(data.settings.startdates, id);
     }
+  }
+}
+
+function listEdit(type) {
+  if (!selected) {
+    alert('select a list');
+    return;
+  }
+  if (type === 'migrate' && getFrame(selected).props.id === 'bank') {
+    alert('select a date');
+    return;
+  }
+  var incompleteTasks = [];
+  var subtasksCurrent = getList(selected).subtasksCurrent;
+  function addIncomplete(task) {
+    for (let x of task.taskList.current.subtaskObjects) {
+      addIncomplete(x.current);
+      if (x.current.state.info.complete !== 'complete') {
+        if (type === 'clear') {
+          x.current.toggleComplete();
+          x.current.displayOptions({target: undefined}, 'hide');
+          save(x.current);
+        } else if (type === 'migrate' && 
+          x.current.props.id.charAt(0) != 'R') {
+          incompleteTasks.push(x.current.props.id);
+          subtasksCurrent.splice(subtasksCurrent
+            .findIndex(y => y === x.current.props.id), 1);
+        }
+      }
+    }
+  }
+  addIncomplete(getList(selected));
+  if (type === 'migrate') {
+    console.log('migrate');
+    const tomorrow = new Date(getList(selected).state.title);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    getList(selected).setState({
+      subtasks: subtasksCurrent
+    });
+    console.log(subtasksCurrent);
+    save(getList(selected));
+    searchDate(tomorrow.toDateString());
+    setTimeout(() => {
+      selected.setState(
+        { subtasks: selected.subtasksCurrent.concat(incompleteTasks) });
+      save(selected);
+    }, 500);
   }
 }
 
@@ -2211,8 +2546,10 @@ if (!data.settings.migrated.includes('12/1')) {
   var tasksMigrated = {};
   var newData = JSON.parse(JSON.stringify(data));
   function treeSearch(task) {
-    tasksMigrated[task.id] = {info: task.info, title: task.title, 
-      subtasks: task.subtasks.map(x => x.id)};
+    tasksMigrated[task.id] = {
+      info: task.info, title: task.title,
+      subtasks: task.subtasks.map(x => x.id)
+    };
     for (let subtask of task.subtasks) {
       treeSearch(subtask, task);
     }
@@ -2241,6 +2578,11 @@ if (!data.settings.migrated.includes('12/3')) {
   data.settings.migrated.push('12/3');
   data.settings.startdates = {};
   data.settings.deadlines = {};
+}
+
+if (!data.settings.migrated.includes('12/24')) {
+  data.settings.migrated.push('12/24');
+  data.settings.sounds = 'true';
 }
 
 clean();

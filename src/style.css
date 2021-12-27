@@ -2,7 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,500;0,700;1,300;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,400;0,600;1,100;1,400;1,600&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400&family=Dosis:wght@200;300;400&family=EB+Garamond:wght@400;500&family=Exo+2:wght@100;200;300&family=Exo:wght@100;200;300&family=Josefin+Sans:wght@100;200;300&family=Kanit:wght@100;200;300&family=Lato:wght@100;300&family=Montserrat:wght@100;300&family=Nunito:wght@200;300&family=Quicksand:wght@300;400&family=Raleway:wght@100;200;300&family=Roboto:wght@100;300&family=Work+Sans:wght@100;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400&family=Dosis:wght@200;300;400&family=EB+Garamond:wght@400;500&family=Exo+2:wght@100;200;300&family=Exo:wght@100;200;300&family=Josefin+Sans:wght@100;200;300&family=Kanit:wght@100;200;300&family=Lato:wght@100;300&family=Montserrat:wght@100;300&family=Nunito:wght@200;300&family=Quicksand:wght@300;400&family=Raleway:wght@100;200;300&family=Roboto:wght@100;300&family=Halant:wght@300;400&family=Work+Sans:wght@100;300&display=swap');
 
 * {
   box-sizing: border-box;
@@ -15,23 +15,17 @@ body {
   overflow: hidden;
 }
 
-.container.zoomed .frame:not(.zoomed),
-.container.zoomed .list:not(.zoomed) {
+.container.zoomed .frame:not(.zoomed) {
   display: none !important;
 }
 
-.container.zoomed .frame.zoomed, 
-.container.zoomed .list.zoomed {
+.container.zoomed .frame.zoomed {
   width: 100% !important;
   height: 100% !important;
 }
 
 .container.zoomed .list.zoomed {
   max-width: 750px;
-}
-
-.container.zoomed .changeButton {
-  display: none;
 }
 
 .buttonBar {
@@ -212,6 +206,19 @@ span {
   border-top: none !important;
 }
 
+.infoArea {
+  position: fixed;
+  z-index: 4 !important;
+  top: 10vh;
+  left: 10vw;
+  height: 80vh;
+  width: 80vw;
+  display: none;
+  background: #000;
+  font: var(--font);
+  font-size: var(--fontSize);
+}
+
 h1 {
   font-size: 1.5em;
   margin: 0;
@@ -328,18 +335,25 @@ ul {
   text-decoration: line-through;
 }
 
-.button.important, .task.important {
+.button.important {
   border: 1px solid var(--important);
   font-weight: bold;
 }
 
-.button.maybe, .task.maybe {
-  border: 1px solid var(--maybe);
+.task.event.important {
+  background: var(--importantE) !important;
+}
+
+.task.important {
+  background: var(--important) !important;
+}
+
+.task.maybe {
   opacity: 0.75;
 }
 
-.task.maybe textarea {
-  opacity: 0.75 !important;
+.task.important {
+  border: 1px solid var(--border);
 }
 
 .info {
@@ -351,6 +365,7 @@ ul {
   border-radius: 100%;
   vertical-align: text-top;
   cursor: pointer;
+  /* top: calc(var(--fontSize) * 0.6 - 5px); */
 }
 
 .taskInfo {
@@ -397,6 +412,10 @@ ul {
   border-radius: 5px;
 }
 
+.border {
+  border: 1px solid var(--border);
+}
+
 .options * {
   z-index: 2;
 }
@@ -407,8 +426,8 @@ ul {
 }
 
 .options button {
-  font-size: 10px !important;
-  margin: 0;
+  font-size: 14px !important;
+  margin: 0 1px;
   padding: 0px 3.5px;
 }
 
@@ -448,7 +467,7 @@ span.startDate, span.endDate {
 }
 
 .event > .taskContent > span.startDate {
-  font-size: 16px;
+  font-size: 14px;
   border: 1px solid var(--select);
   border-radius: 5px;
   padding: 0px 2px;
@@ -456,6 +475,8 @@ span.startDate, span.endDate {
   background-color: var(--select);
   color: var(--background);
   width: 3em;
+  height: 1.5em;
+  /* top: calc(var(--fontSize) * 0.6 - 7px); */
 }
 
 .event > .taskContent .startEndSpans {
@@ -467,7 +488,6 @@ span.startDate, span.endDate {
 }
 
 .taskContent {
-  display: none;
   display: flex;
   width: 100%;
   flex-direction: row;
@@ -499,6 +519,7 @@ span.startDate, span.endDate {
   width: 100%;
   border: none;
   border-radius: 5px;
+  position: static;
   background-color: var(--bank);
 }
 
@@ -586,7 +607,7 @@ span.startDate, span.endDate {
 .timeDiv span {
   margin: 0px 0px 0px 1.5px;
   font: var(--menufont);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .e, .s {
@@ -615,16 +636,16 @@ span.startDate, span.endDate {
 }
 
 .disable-select * {
-  -webkit-user-select: none;  
-  -moz-user-select: none;    
-  -ms-user-select: none;      
-  user-select: none;
+  -webkit-user-select: none !important;  
+  -moz-user-select: none !important;    
+  -ms-user-select: none !important;      
+  user-select: none !important;
 }
 
 .infoSpan {
   font: var(--menufont);
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   border: 1px solid var(--border);
   border-radius: 5px;
   flex-grow: 1;
