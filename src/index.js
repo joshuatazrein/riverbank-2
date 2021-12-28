@@ -32,7 +32,7 @@ var themes = {
     "--startDate": "rgba(14, 41, 48, 0.8)",
     "--endDate": "rgb(14, 41, 48)",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(59, 60, 54, 0.1)",
     "--river": "rgba(85, 107, 47, 0.1)",
@@ -55,7 +55,7 @@ var themes = {
     "--startDate": "rgba(85, 107, 47, 0.8)",
     "--endDate": "rgb(85, 107, 47)",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(218, 222, 200, 0.1)",
     "--river": "rgba(186, 208, 149, 0.1)",
@@ -78,7 +78,7 @@ var themes = {
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "120%",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "10px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(53, 3, 58, 0.1)",
     "--river": "rgba(242, 172, 229, 0.1)",
@@ -101,13 +101,13 @@ var themes = {
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
     "--headingSize": "125%",
-    "--lineSpacing": "0px",
+    "--lineSpacing": "10px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(248, 197, 252, 0.1)",
     "--river": "rgba(183, 104, 162, 0.1)",
   },
   'sky-day': {
-    "--font": "var(--fontSize) 'Roboto', sans-serif",
+    "--font": "var(--fontSize) 'Pilo Thin', sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "100",
     "--bold": "300",
@@ -124,13 +124,13 @@ var themes = {
     "--startDate": "rgba(29, 41, 81, 0.8)",
     "--endDate": "rgb(29, 41, 81)",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "3em",
     "--bank": "rgba(52, 64, 85, 0.1)",
     "--river": "rgba(119, 152, 171, 0.1)",
   },
   'sky-night': {
-    "--font": "var(--fontSize) 'Roboto', sans-serif",
+    "--font": "var(--fontSize) 'Pilo Thin', sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "100",
     "--bold": "300",
@@ -147,13 +147,13 @@ var themes = {
     "--startDate": "rgba(173, 185, 225, 0.8)",
     "--endDate": "rgb(173, 185, 225)",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "3em",
     "--bank": "rgba(170, 182, 203, 0.1)",
     "--river": "rgba(83, 117, 136, 0.1)",
   },
   'space-day': {
-    "--font": "var(--fontSize) 'Halant', Cochin, serif",
+    "--font": "var(--fontSize) 'Adam', Cochin, sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "300",
     "--background": "rgb(201, 192, 187)",
@@ -170,13 +170,13 @@ var themes = {
     "--endDate": "rgb(161, 122, 116)",
     "--bold": "400",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(59, 47, 47, 0.1)",
     "--river": "rgba(165, 113, 100, 0.1)",
   },
   'space-night': {
-    "--font": "var(--fontSize) 'Halant', serif",
+    "--font": "var(--fontSize) 'Adam', sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "300",
     "--background": "rgb(0, 0, 0)",
@@ -193,13 +193,13 @@ var themes = {
     "--endDate": "rgb(135,206,235)",
     "--bold": "400",
     "--headingSize": "125%",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "5px",
     "--frontWidth": "2.5em",
     "--bank": "rgba(191, 193, 194, 0.1)",
     "--river": "rgba(101, 138, 149, 0.1)",
   },
   'water-day': {
-    "--font": "var(--fontSize) 'Exo', sans-serif",
+    "--font": "var(--fontSize) 'Kirvy', sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "100",
     "--background": "rgb(188, 212, 230)",
@@ -216,13 +216,13 @@ var themes = {
     "--endDate": "rgb(41, 74, 112)",
     "--bold": "300",
     "--headingSize": "1.15em",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "7px",
     "--frontWidth": "3.5em",
     "--bank": "rgba(10, 10, 10, 0.1)",
     "--river": "rgba(64, 71, 77, 0.1)",
   },
   'water-night': {
-    "--font": "var(--fontSize) 'Exo', sans-serif",
+    "--font": "var(--fontSize) 'Kirvy', sans-serif",
     "--fontSize": "30px",
     "--fontWeight": "100",
     "--background": "rgb(31, 40, 52)",
@@ -239,7 +239,7 @@ var themes = {
     "--endDate": "rgb(143, 176, 214)",
     "--bold": "300",
     "--headingSize": "1.15em",
-    "--lineSpacing": "-5px",
+    "--lineSpacing": "7px",
     "--frontWidth": "3.5em",
     "--bank": "rgba(245, 245, 245, 0.1)",
     "--river": "rgba(145, 163, 176, 0.1)",
@@ -309,6 +309,9 @@ class App extends React.Component {
       popSnd: new Audio(popSnd),
       zoomed: '',
       disableSelect: '',
+      contextMenu: React.createRef(),
+      deadlines: data.settings.deadlines,
+      startdates: data.settings.startdates,
     };
   }
   toggleComplete() {
@@ -369,7 +372,9 @@ class App extends React.Component {
     this.statusBar = React.createRef();
     return (
       <>
-        <StatusBar parent={this} ref={this.statusBar} />
+        <StatusBar parent={this} ref={this.statusBar} 
+          deadlines={this.state.deadlines} 
+          startdates={this.state.startdates} />
         <DragDropContext onDragEnd={this.onDragEnd}>
           <div className={'container ' + this.state.hideComplete + ' ' +
             this.state.zoomed + ' ' + this.state.disableSelect}>
@@ -380,11 +385,14 @@ class App extends React.Component {
               subtasks={data.tasks['bank'].subtasks} ref={this.state.bank} />
             <Frame id='river' info={{
               ...data.tasks['river'].info,
-              focused: data.settings.focused
+              focused: data.settings.focused,
             }}
+              deadlines={this.state.deadlines}
+              startdates={this.state.startdates}
               subtasks={data.tasks['river'].subtasks} ref={this.state.river} />
           </div>
         </DragDropContext>
+        <SelectMenu ref={this.state.contextMenu}/>
       </>
     )
   }
@@ -472,6 +480,16 @@ class StatusBar extends React.Component {
     this.options = React.createRef();
     this.functions = React.createRef();
     this.move = React.createRef();
+    this.upcoming = React.createRef();
+    console.log(Object.keys(this.props.deadlines));
+    let deadlineItems = Object.keys(this.props.deadlines).filter(
+      x => new Date(x).getTime() >= new Date().getTime()
+    )
+    console.log(deadlineItems);
+    deadlineItems = deadlineItems.map(x => (
+      this.props.deadlines[x].map(y => [x, y])
+    )).flat().filter(x => x.length > 0);
+    console.log(deadlineItems);
     return (
       <div className='statusBar'>
         <span class='title'><span class='r'>River</span>
@@ -540,7 +558,7 @@ class StatusBar extends React.Component {
             <option value="" selected disabled hidden>move</option>
             <option value="moveTask(1)">
               move down (ctrl-s)</option>
-            <option value="deleteTask()">
+            <option value="moveTask(-1)">
               move up (ctrl-w)</option>
             <option value="switchView(1)">
               following week/lists (ctrl-d)</option>
@@ -574,6 +592,18 @@ class StatusBar extends React.Component {
             <option value='setTheme("fire")'>theme: fire</option>
           </select>
           <ListMenu />
+          <select ref={this.upcoming} onChange={() => {
+            this.goToSearch(this.upcoming.current.value);
+            this.upcoming.current.value = '';
+          }} style={{width: '75px'}}>
+            <option value="" selected disabled hidden>upcoming</option>
+            {deadlineItems.map(x => (
+              <option value={stripR(x[1])}>
+                {x[0].slice(0, x[0].length - 5)}: {
+                data.tasks[stripR(x[1])].title}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     )
@@ -745,6 +775,47 @@ class Timer extends React.Component {
   }
 }
 
+class SelectMenu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { display: 'none', top: '0', left: '0' };
+  }
+  render() {
+    this.self = React.createRef();
+    return (
+      <div className='selectMenu' ref={this.self} style={{ display: this.state.display,
+        top: this.state.top, left: this.state.left }}>
+        <p onClick={() => newTask()}>
+        new task (return)</p>
+        <p onClick={() => cutTask()}>
+          cut (ctrl-x)</p>
+        <p onClick={() => copyTask()}>
+          copy (ctrl-c)</p>
+        <p onClick={() => copyTask(true)}>
+          mirror (ctrl-shift-C)</p>
+        <p onClick={() => pasteTask()}>
+          paste (ctrl-v)</p>
+        <p onClick={() => pasteTask("list")}>
+          paste as subtask (ctrl-shift-V)</p>
+        <p onClick={() => deleteTask()}>
+          delete (ctrl-delete)</p>
+        <p onClick={() => moveTask(1)}>
+          move down (ctrl-s)</p>
+        <p onClick={() => moveTask(-1)}>
+          move up (ctrl-w)</p>
+        <p onClick={() => switchView(1)}>
+          following week/lists (ctrl-d)</p>
+        <p onClick={() => switchView(-1)}>
+          previous week/lists (ctrl-a)</p>
+        <p onClick={() => listEdit('migrate')}>
+          migrate date</p>
+        <p onClick={() => listEdit('clear')}>
+          clear list</p>
+      </div>
+    )
+  } 
+}
+
 class Frame extends React.Component {
   constructor(props) {
     super(props);
@@ -754,8 +825,6 @@ class Frame extends React.Component {
       zoomed: '',
     };
     if (props.id === 'river') {
-      this.state.deadlines = data.settings.deadlines;
-      this.state.startdates = data.settings.startdates;
       this.state.repeats = data.settings.repeats;
     }
   }
@@ -833,8 +902,8 @@ class Frame extends React.Component {
             return (
               <List key={x} id={x} title={task.title}
                 subtasks={task.subtasks} parent={this}
-                deadlines={this.state.deadlines[task.title]}
-                startdates={this.state.startdates[task.title]}
+                deadlines={this.props.deadlines[task.title]}
+                startdates={this.props.startdates[task.title]}
                 repeats={this.state.repeats[dateFormat(task.title)
                   .slice(0, 3)]}
                 ref={this.frames[this.frames.length - 1]} />
@@ -872,11 +941,6 @@ class List extends React.Component {
     // sort the given list by time
     let ordered = true;
     let currentTime = 0;
-    function getTime(timeList) {
-      let currentTime = timeList[0] * 60 + timeList[1];
-      if (currentTime <= 180) currentTime += 1440;
-      return currentTime;
-    }
     for (let x of this.subtasksCurrent) {
       const task = data.tasks[stripR(x)];
       const thisTime = getTime(task.info.startDate);
@@ -889,7 +953,6 @@ class List extends React.Component {
       }
       currentTime = thisTime;
     }
-    console.log(ordered);
     if (ordered) return;
     // sort the list
     let sortedList = [];
@@ -921,11 +984,6 @@ class List extends React.Component {
     this.subtasksCurrent = sortedList;
   }
   updateHeights = () => {
-    function getTime(timeList) {
-      let currentTime = timeList[0] * 60 + timeList[1];
-      if (currentTime <= 180) currentTime += 1440;
-      return currentTime;
-    }
     if (!this.taskList.current) return;
     const objects = this.taskList.current.subtaskObjects.filter(
       x => x.current.isComplete() !== 'complete'
@@ -944,7 +1002,6 @@ class List extends React.Component {
           // rounded to 30 minutes
           minHeight = (endDate[0] * 60 + endDate[1]) / 60;
         } else if (nextObject.state.info.type === 'event') {
-          console.log(nextObject.state.info.complete);
           // no end date
           const startDate = nextObject.state.info.startDate;
           if (!startDate.includes('--')) {
@@ -965,8 +1022,6 @@ class List extends React.Component {
         // rounded to 30 minutes
         minHeight = (endDate[0] * 60 + endDate[1]) / 60;
       }
-      console.log(lastObject.state.title);
-      console.log(minHeight);
       lastObject.setState({ minHeight: minHeight });
     }
   }
@@ -1087,6 +1142,42 @@ class TaskList extends React.Component {
   }
 }
 
+function checkTimes() {
+  const today = new Date();
+  const now = [today.getHours(), today.getMinutes()];
+  const dateString = today.toDateString();
+  const todayList = data.tasks[Object.keys(data.tasks)
+    .find(x => data.tasks[x].title === dateString)].subtasks;
+  for (let task of todayList) {
+    const taskEntry = data.tasks[stripR(task)];
+    if (taskEntry.info.type === 'event' &&
+      taskEntry.info.complete !== 'complete' &&
+      !taskEntry.info.startDate.includes('--')) {
+      if (
+        taskEntry.info.startDate[0] === now[0] &&
+        taskEntry.info.startDate[1] === now[1]
+      ) {
+        var permission = Notification.requestPermission();
+        const notification = new Notification('Event: ' + taskEntry.title);
+        break;
+      } else {
+        const newDate = new Date();
+        newDate.setHours(taskEntry.info.startDate[0]);
+        newDate.setMinutes(taskEntry.info.startDate[1]);
+        newDate.setMinutes(newDate.getMinutes() - 15);
+        if (
+          taskEntry.info.type === 'event' && 
+          newDate.getHours() === now[0] &&
+          newDate.getMinutes() === now[1]
+        ) {
+          var permission = Notification.requestPermission();
+          const notification = new Notification('in 15: ' + taskEntry.title);
+        }
+      }
+    }
+  }
+}
+
 function getFrame(task) {
   let parent = task;
   while (parent.props.parent) {
@@ -1098,7 +1189,6 @@ function getFrame(task) {
 function getList(task) {
   let parent = task;
   while (parent instanceof Task) {
-    console.log(parent);
     parent = parent.props.parent;
   }
   return parent;
@@ -1148,7 +1238,6 @@ class Task extends React.Component {
         this.props.parent instanceof List && 
         getFrame(this).props.id === 'river'
       ) {
-        console.log('yes');
         this.props.parent.forceUpdate();
       }
     } else if (showHide == 'show' || this.state.displayOptions === 'hide') {
@@ -1175,12 +1264,12 @@ class Task extends React.Component {
     var deadlineData;
     if (type === 'start') {
       if (this.state.info.startDate.includes('--')) return;
-      deadlineData = river.state.startdates;
+      deadlineData = app.current.state.startdates;
       date.setMonth(this.state.info.startDate[0] - 1);
       date.setDate(this.state.info.startDate[1]);
     } else if (type === 'end') {
       if (this.state.info.endDate.includes('--')) return;
-      deadlineData = river.state.deadlines;
+      deadlineData = app.current.state.deadlines;
       date.setMonth(this.state.info.endDate[0] - 1);
       date.setDate(this.state.info.endDate[1]);
     }
@@ -1199,10 +1288,10 @@ class Task extends React.Component {
     }
     // add to the things
     if (type === 'start') {
-      river.setState({ startdates: { ...deadlineData } });
+      app.current.setState({ startdates: { ...deadlineData } });
       saveSetting('startdates', deadlineData);
     } else if (type === 'end') {
-      river.setState({ deadlines: { ...deadlineData } });
+      app.current.setState({ deadlines: { ...deadlineData } });
       saveSetting('deadlines', deadlineData);
     }
   }
@@ -1278,7 +1367,6 @@ class Task extends React.Component {
   }
   hasRepeats = () => {
     let repeating = false;
-    console.log(data.settings.repeats);
     for (let repeat of Object.keys(data.settings.repeats)) {
       if (data.settings.repeats[repeat].includes('R' +
         stripR(this.props.id))) {
@@ -1391,6 +1479,7 @@ class Task extends React.Component {
       this.freeze = true;
       setTimeout(() => this.freeze = false, 200);
       window.removeEventListener('mouseup', mouseup);
+      this.props.parent.forceUpdate();
     }
     window.addEventListener('mouseup', mouseup);
     var change = 10;
@@ -1428,7 +1517,8 @@ class Task extends React.Component {
           val = 60 + change;
           orig2 -= 1;
         }
-        if (orig2 >= 24 || orig2 < 0) {
+        if (orig2 >= 24) orig2 -= 24;
+        if (orig2 == 3) {
           val = '--';
           orig2 = '--';
           window.removeEventListener('mousemove', changeTime);
@@ -1466,7 +1556,7 @@ class Task extends React.Component {
             orig2 = 1;
           }
           val = infoOrig + value;
-          if (val < new Date().getMonth() + 1 && value < 0) {
+          if (val === new Date().getMonth() && value < 0) {
             val = '--';
             orig2 = '--';
           } else {
@@ -1507,8 +1597,11 @@ class Task extends React.Component {
           date = new Date();
           date.setMonth(orig2 - 1);
           date.setDate(val);
-          date.setFullYear(new Date().getFullYear());
-          if (date.getTime() < new Date().getTime()) {
+          date.setHours(0); date.setSeconds(0); date.setMilliseconds(0);
+          const today = new Date();
+          today.setDate(today.getDate() - 1);
+          today.setHours(0); today.setSeconds(0); today.setMilliseconds(0);
+          if (date.getTime() === today.getTime() && value < 0) {
             if (type === 'start') {
               this.setState({
                 info: {
@@ -1648,7 +1741,7 @@ class Task extends React.Component {
         endExtra = getWeekday(this.state.info.endDate);
       }
     } 
-    const listRender = (provided) => (<>
+    const listRender = <>
       <textarea className='infoArea' 
         ref={this.infoArea}
         onKeyDown={(ev) => {
@@ -1810,29 +1903,23 @@ class Task extends React.Component {
             }} title='expand notes to paragraph'>+</button>
           </div>
         </div>
-        {provided ?
-          !hasTimes ?
-            <span className='info'
-              onClick={(ev) => this.displayOptions(ev)}
-              ref={this.optionsButton}
-              {...provided.dragHandleProps}></span> :
-            <span className='startDate'
-              onClick={(ev) => this.displayOptions(ev)}
-              ref={this.optionsButton}
-              {...provided.dragHandleProps}>
-              {this.dateRender('start')}
-            </span>
-          :
-          !hasTimes ?
-            <span className='info'
-              onClick={(ev) => this.displayOptions(ev)}
-              ref={this.optionsButton}></span> :
-            <span className='startDate'
-              onClick={(ev) => this.displayOptions(ev)}
-              ref={this.optionsButton}>
-              {this.dateRender('start')}
-            </span>
-        }
+        {!hasTimes ? 
+          <span className='info'
+            onClick={(ev) => this.displayOptions(ev)}
+            ref={this.optionsButton}>
+          </span> :
+          <span className='startDate'
+            onMouseUp={(ev) => {
+              if (!this.freeze) this.displayOptions(ev);
+              else this.freeze = false;
+            }}
+            onMouseDown={(ev) => {
+              this.freeze = true;
+              this.timeDrag(ev, 'e', 'start');
+            }}
+            ref={this.optionsButton}>
+            {this.dateRender('start')}
+          </span>}
         <textarea className='editBar' value={this.state.title}
           onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
           spellCheck='false' onClick={(ev) => this.displayOptions(ev, 'hide')}></textarea>
@@ -1874,38 +1961,19 @@ class Task extends React.Component {
       }
       <TaskList ref={this.taskList} subtasks={this.state.subtasks}
         parent={this} />
-    </>)
+    </>
     return (
-      this.props.parent instanceof List ?
-        <Draggable draggableId={id} index={this.props.index}>
-          {(provided) => {
-            return (<li className={'task ' + this.state.info.important +
-              ' ' + completed +
-              ' ' + this.state.info.maybe +
-              ' ' + headingClass +
-              ' ' + this.state.info.type +
-              ' ' + this.state.info.collapsed +
-              ' ' + this.state.zoomed}
-              onClick={() => { selectTask(this) }}
-              {...provided.draggableProps}
-              ref={provided.innerRef}
-              style={{minHeight: this.state.minHeight * 1.15 * 30}}>
-              {listRender(provided)}
-            </li>
-            )
-          }}
-        </Draggable> :
-        <li className={'task ' + this.state.info.important +
-          ' ' + completed +
-          ' ' + this.state.info.maybe +
-          ' ' + headingClass +
-          ' ' + this.state.info.type +
-          ' ' + this.state.info.collapsed +
-          ' ' + this.state.zoomed}
-          onClick={() => { selectTask(this) }}
-          style={{minHeight: this.state.minHeight + 'em'}}>
-          {listRender()}
-        </li>
+      <li className={'task ' + this.state.info.important +
+        ' ' + completed +
+        ' ' + this.state.info.maybe +
+        ' ' + headingClass +
+        ' ' + this.state.info.type +
+        ' ' + this.state.info.collapsed +
+        ' ' + this.state.zoomed}
+        onClick={() => { selectTask(this) }} 
+        style={{minHeight: this.state.minHeight * 1.15 * 30}}>
+        {listRender}
+      </li>
     )
   }
 }
@@ -2020,7 +2088,8 @@ function copyTask(mirror) {
 }
 
 function pasteTask(type) {
-  if (!selected) return;
+  console.log(selected);
+  if (!selected || !copiedTask) return;
   undoData = localStorage.getItem('data');
   if (selected instanceof List || type === 'task') {
     const subtasks = selected.state.subtasks;
@@ -2426,7 +2495,6 @@ function zoom() {
     var zoomedSetting = 'zoomed';
     if (!selected) { return }; // no zoomie
   }
-  console.log(getFrame(selected));
   var zoomFrame = getFrame(selected);
   zoomFrame.setState({ zoomed: zoomedSetting });
   app.current.setState({ zoomed: zoomedSetting });
@@ -2471,6 +2539,12 @@ function clean() {
   }
 }
 
+function getTime(timeList) {
+  let currentTime = timeList[0] * 60 + timeList[1];
+  if (currentTime <= 180) currentTime += 1440;
+  return currentTime;
+}
+
 function listEdit(type) {
   if (!selected) {
     alert('select a list');
@@ -2501,13 +2575,11 @@ function listEdit(type) {
   }
   addIncomplete(getList(selected));
   if (type === 'migrate') {
-    console.log('migrate');
     const tomorrow = new Date(getList(selected).state.title);
     tomorrow.setDate(tomorrow.getDate() + 1);
     getList(selected).setState({
       subtasks: subtasksCurrent
     });
-    console.log(subtasksCurrent);
     save(getList(selected));
     searchDate(tomorrow.toDateString());
     setTimeout(() => {
@@ -2532,6 +2604,21 @@ function init() {
     if (window.innerWidth / 10 != Math.floor(window.innerWidth / 10)) return;
     updateAllSizes();
   });
+  checkTimes();
+  window.setInterval(checkTimes, 60000);
+  window.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault();
+    const contextMenu = app.current.state.contextMenu.current.self.current;
+    console.log(window.innerHeight, $(contextMenu).height(), window.innerHeight - $(contextMenu).height());
+    app.current.state.contextMenu.current.setState({ 
+      top: Math.min(ev.pageY, 
+        window.innerHeight - $(contextMenu).height()), 
+      left: Math.min(ev.pageX, 
+        window.innerWidth - $(contextMenu).width()),
+      display: 'block' });
+  })
+  window.addEventListener('click', () => 
+    app.current.state.contextMenu.current.setState({ display: 'none' }))
   document.addEventListener('fullscreenchange', updateAllSizes);
 }
 
