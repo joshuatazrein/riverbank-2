@@ -49,8 +49,8 @@ var themes = {
     "--foreground": "rgb(218, 222, 200)",
     "--midground": "rgba(59, 60, 54, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(85, 107, 47)",
-    "--maybe": "rgba(85, 107, 47, 0.5)",
+    "--importantE": "rgba(186, 208, 149, 0.5)",
+    "--important": "rgba(218, 222, 200, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(85, 107, 47, 0.8)",
     "--endDate": "rgb(85, 107, 47)",
@@ -72,8 +72,8 @@ var themes = {
     "--foreground": "rgb(53, 3, 58)",
     "--midground": "rgba(200, 200, 230, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(226, 156, 210)",
-    "--maybe": "rgba(212, 93, 194, 0.5)",
+    "--importantE": "rgba(242, 172, 229, 0.5)",
+    "--important": "rgba(53, 3, 58, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
@@ -95,8 +95,8 @@ var themes = {
     "--foreground": "rgb(248, 197, 252)",
     "--midground": "rgba(40, 6, 34, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(226, 156, 210)",
-    "--maybe": "rgba(212, 93, 194, 0.5)",
+    "--importantE": "rgba(183, 104, 162, 0.5)",
+    "--important": "rgba(248, 197, 252, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(226, 156, 210, 0.8)",
     "--endDate": "rgb(226, 156, 210)",
@@ -118,7 +118,8 @@ var themes = {
     "--foreground": "rgb(52, 64, 85)",
     "--midground": "rgba(128, 128, 128, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(29, 41, 81)",
+    "--importantE": "rgba(119, 152, 171, 0.5)",
+    "--important": "rgba(52, 64, 85, 0.2)",
     "--maybe": "rgba(29, 41, 81, 0.5)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(29, 41, 81, 0.8)",
@@ -141,8 +142,8 @@ var themes = {
     "--foreground": "rgb(170, 182, 203)",
     "--midground": "rgba(128, 128, 128, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(173, 185, 225)",
-    "--maybe": "rgba(173, 185, 225, 0.5)",
+    "--importantE": "rgba(83, 117, 136, 0.5)",
+    "--important": "rgba(170, 182, 203, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(173, 185, 225, 0.8)",
     "--endDate": "rgb(173, 185, 225)",
@@ -163,8 +164,8 @@ var themes = {
     "--foreground": "rgba(59, 47, 47)",
     "--midground": "rgba(165, 113, 100, 0.5)",
     "--padding": "14px",
-    "--important": "rgb(161, 122, 116)",
-    "--maybe": "rgba(161, 122, 116, 0.5)",
+    "--importantE": "rgba(165, 113, 100, 0.5)",
+    "--important": "rgba(59, 47, 47, 0.2)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(161, 122, 116, 0.8)",
     "--endDate": "rgb(161, 122, 116)",
@@ -186,7 +187,8 @@ var themes = {
     "--foreground": "rgb(191, 193, 194)",
     "--midground": "rgba(101, 138, 149, 0.1)",
     "--padding": "14px",
-    "--important": "skyblue",
+    "--importantE": "rgba(101, 138, 149, 0.5)",
+    "--important": "rgba(191, 193, 194, 0.2)",
     "--maybe": "darkblue",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(135,206,235, 0.8)",
@@ -209,7 +211,8 @@ var themes = {
     "--foreground": "rgb(10, 10, 10)",
     "--midground": "rgba(64, 71, 77, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(41, 74, 112)",
+    "--importantE": "rgba(64, 71, 77, 0.5)",
+    "--important": "rgba(10, 10, 10, 0.2)",
     "--maybe": "rgba(41, 74, 112, 0.5)",
     "--menufont": "24px Dosis",
     "--startDate": "rgb(41, 74, 112, 0.8)",
@@ -232,7 +235,8 @@ var themes = {
     "--foreground": "whitesmoke",
     "--midground": "rgba(145, 163, 176, 0.1)",
     "--padding": "14px",
-    "--important": "rgb(143, 176, 214)",
+    "--importantE": "rgba(145, 163, 176, 0.5)",
+    "--important": "rgba(245, 245, 245, 0.1)",
     "--maybe": "rgba(143, 176, 214, 0.5)",
     "--menufont": "24px Dosis",
     "--startDate": "rgba(143, 176, 214, 0.8)",
@@ -312,6 +316,7 @@ class App extends React.Component {
       contextMenu: React.createRef(),
       deadlines: data.settings.deadlines,
       startdates: data.settings.startdates,
+      displayTable: 'none',
     };
   }
   toggleComplete() {
@@ -393,6 +398,8 @@ class App extends React.Component {
           </div>
         </DragDropContext>
         <SelectMenu ref={this.state.contextMenu}/>
+        {selected && this.state.displayTable !== 'none' &&
+          <TableDisplay />}
       </>
     )
   }
@@ -545,7 +552,7 @@ class StatusBar extends React.Component {
               mirror (ctrl-shift-C)</option>
             <option value='pasteTask()'>
               paste (ctrl-v)</option>
-            <option value='pasteTask("list")'>
+            <option value='pasteTask("task")'>
               paste as subtask (ctrl-shift-V)</option>
             <option value="deleteTask()">
               delete (ctrl-delete)</option>
@@ -568,6 +575,8 @@ class StatusBar extends React.Component {
               migrate date</option>
             <option value="listEdit('clear')">
               clear list</option>
+            <option value="displayTable()">
+              display as table</option>
           </select>
           <select ref={this.options} onChange={() => {
             eval(this.options.current.value);
@@ -795,7 +804,7 @@ class SelectMenu extends React.Component {
           mirror (ctrl-shift-C)</p>
         <p onClick={() => pasteTask()}>
           paste (ctrl-v)</p>
-        <p onClick={() => pasteTask("list")}>
+        <p onClick={() => pasteTask("task")}>
           paste as subtask (ctrl-shift-V)</p>
         <p onClick={() => deleteTask()}>
           delete (ctrl-delete)</p>
@@ -811,6 +820,8 @@ class SelectMenu extends React.Component {
           migrate date</p>
         <p onClick={() => listEdit('clear')}>
           clear list</p>
+        <p onClick={() => displayTable()}>
+          display as table</p>
       </div>
     )
   } 
@@ -1079,11 +1090,11 @@ class List extends React.Component {
             this.props.startdates &&
             <ul>
               {this.props.startdates.map(x => {
-                return <li
+                return (<li
                   className='startdate' key={String(x)}
                   onClick={() => searchDate(data.tasks[stripR(x)].title,
                     'start')}>
-                  {data.tasks[stripR(x)].title}</li>;
+                  {data.tasks[stripR(x)].title}</li>);
               })}
             </ul>}
           {<TaskList ref={this.taskList} subtasks={this.subtasksCurrent}
@@ -1146,8 +1157,12 @@ function checkTimes() {
   const today = new Date();
   const now = [today.getHours(), today.getMinutes()];
   const dateString = today.toDateString();
-  const todayList = data.tasks[Object.keys(data.tasks)
-    .find(x => data.tasks[x].title === dateString)].subtasks;
+  try {
+    const todayList = data.tasks[Object.keys(data.tasks)
+      .find(x => data.tasks[x].title === dateString)].subtasks;
+  } catch {
+    return
+  }
   for (let task of todayList) {
     const taskEntry = data.tasks[stripR(task)];
     if (taskEntry.info.type === 'event' &&
@@ -1747,7 +1762,7 @@ class Task extends React.Component {
         onKeyDown={(ev) => {
           if (ev.key === 'Escape') {
             $(this.infoArea.current).hide();
-            preventReturn = false;
+            setTimeout(() => preventReturn = false, 100);
           }
         }}
         onChange={() => {
@@ -1971,6 +1986,7 @@ class Task extends React.Component {
         ' ' + this.state.info.collapsed +
         ' ' + this.state.zoomed}
         onClick={() => { selectTask(this) }} 
+        onContextMenu={() => selectTask(this) }
         style={{minHeight: this.state.minHeight * 1.15 * 30}}>
         {listRender}
       </li>
@@ -2114,6 +2130,56 @@ function consoleLog(x) {
   console.log(x);
 }
 
+function getSubtasks(object) {
+  if (object.subtasksCurrent) return object.subtasksCurrent;
+  else return object.state.subtasks;
+}
+
+function indentTask(unindent) {
+  // umm fix sometime
+  if (!selected) return;
+  const lastSelected = selected;
+  save(selected);
+  const subtasks = selected.props.parent.taskList.current.subtaskObjects;
+  const here = subtasks
+    .findIndex(x => 
+    stripR(x.current.props.id) === stripR(selected.props.id));
+  console.log(subtasks, here);
+  if (unindent != true) {
+    if (here === 0) return;
+    const taskAbove = subtasks[here - 1].current;
+    const theseSubtasks = getSubtasks(taskAbove);
+    theseSubtasks.push(selected.props.id);
+    const previousSubtasks = getSubtasks(selected.props.parent);
+    previousSubtasks.splice(here, 1);
+    console.log(previousSubtasks.map(x => data.tasks[stripR(x)].title));
+    taskAbove.setState( { subtasks: theseSubtasks });
+    console.log(data.tasks[stripR(selected.props.id)]);
+    lastSelected.props.parent.setState({ subtasks: previousSubtasks });
+    console.log(data.tasks[stripR(selected.props.id)]);
+    save(taskAbove);
+    console.log(data.tasks[stripR(selected.props.id)]);
+    save(lastSelected.props.parent);
+    console.log(data.tasks[stripR(selected.props.id)]);
+  } else {
+    if (selected.props.parent.props.parent instanceof Frame) return;
+    const subtasks = selected.props.parent.props.parent
+      .taskList.current.subtaskObjects;
+    const here = subtasks.findIndex(
+      x => x.current.props.id === selected.props.parent.props.id);
+    const theseSubtasks = selected.props.parent.props.parent.state.subtasks;
+    theseSubtasks.splice(here + 1, 0, selected.props.id);
+    console.log(theseSubtasks);
+    selected.props.parent.props.parent.setState({ subtasks: theseSubtasks });
+    save(selected.props.parent.props.parent);
+    const parentSubtasks = getSubtasks(lastSelected.props.parent);
+    parentSubtasks.splice(parentSubtasks.findIndex(x => 
+      x === lastSelected.props.id), 1);
+    lastSelected.props.parent.setState({ subtasks: parentSubtasks });
+    save(lastSelected.props.parent);
+  }
+}
+
 function keyComms(ev) {
   if (!ev.ctrlKey) {
     if (ev.key === 'Enter' && !preventReturn) {
@@ -2124,8 +2190,9 @@ function keyComms(ev) {
         newTask();
       }
       return;
-    } else if (ev.key === 'Escape') {
+    } else if (ev.key === 'Escape' && !preventReturn) {
       ev.preventDefault();
+      if (app.current.state.displayTable !== 'none') displayTable();
       document.activeElement.blur();
       if (selected) {
         save(selected, 'task');
@@ -2175,6 +2242,14 @@ function keyComms(ev) {
       case 'n':
         ev.preventDefault();
         newTask();
+        break;
+      case ']':
+        ev.preventDefault();
+        indentTask();
+        break;
+      case '[':
+        ev.preventDefault();
+        indentTask(true);
         break;
       case 'f':
         ev.preventDefault();
@@ -2435,6 +2510,48 @@ function setTheme(theme) {
   data.settings.theme = theme;
   localStorage.setItem('data', JSON.stringify(data));
   setTimeout(updateAllSizes, 100);
+}
+
+class TableDisplay extends React.Component {
+  render() {
+    console.log(selected.props.id, data.tasks[stripR(selected.props.id)].subtasks);
+    return (
+      <table className='table'>
+        <thead></thead>
+        <tbody>
+          {data.tasks[stripR(selected.props.id)].subtasks.map(x => (
+            <tr key={x}>
+              <td>{
+                data.tasks[stripR(x)].title
+              }</td>
+              {data.tasks[x].subtasks.map(y => (
+                <td key={y}>
+                  {/* {<Task 
+                    id={y}
+                    info={data.tasks[stripR(y)].info}
+                    title={data.tasks[stripR(y)].title}
+                    subtasks={data.tasks[stripR(y)].subtasks}
+                    parent={selected}
+                  /> */
+                  data.tasks[stripR(y)].title
+                  }
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+}
+
+function displayTable() {
+  if (app.current.state.displayTable === 'none' && selected) {
+    app.current.setState({displayTable: 'true'});
+  } else {
+    app.current.setState({displayTable: 'none'});
+  }
+  console.log(app.current.state.displayTable);
 }
 
 function toggleMode() {
