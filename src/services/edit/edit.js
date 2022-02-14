@@ -1,22 +1,21 @@
-import * as display from '@services/display/display';
-import * as util from '@services/util/util';
+import * as display from '../display/display';
+import * as util from '../util/util';
+import Task from '../../components/Task/Task';
+import List from '../../components/List/List';
+import TaskList from '../../components/TaskList/TaskList';
+import Frame from '../../components/Frame/Frame';
 
 export function deleteTask() {
-  if (selected && selected instanceof Task) {
+  if (window.selected && window.selected instanceof Task) {
     window.undoData = localStorage.getItem('data');
-    selected.deleteThis();
+    window.selected.deleteThis();
   }
 }
 
 export function newTask(type) {
-  // create new task after selected
-  if (!selected || window.preventReturn) return;
-  let el;
-  if (type == 'task' || !selected.state.parent) {
-    el = selected;
-  } else if (type == 'list' || selected.state.parent) {
-    el = selected.state.parent;
-  }
+  // create new task after window.selected
+  if (!window.selected || window.preventReturn) return;
+
   const today = new Date();
   const now = today.getTime();
   const newTask = String(now);
@@ -30,23 +29,23 @@ export function newTask(type) {
 }
 
 export function selectTask(el, force) {
-  // make this task selected
+  // make this task window.selected
   if (window.preventSelect) return
   if (el instanceof TaskList) {
     return
   }
   window.preventSelect = true;
   setTimeout(function () { window.preventSelect = false }, 100);
-  if (selected) {
-    save(selected, 'task');
+  if (window.selected) {
+    save(window.selected, 'task');
   }
-  if (selected == el && !force) {
+  if (window.selected === el && !force) {
     return;
   }
-  if (selected instanceof Task && selected != el) {
-    selected.displayOptions({ target: undefined }, 'hide');
+  if (window.selected instanceof Task && window.selected !== el) {
+    window.selected.displayOptions({ target: undefined }, 'hide');
   }
-  selected = el;
+  window.selected = el;
   if (el instanceof Task) {
     el.editBar.current.focus();
   } else if (el instanceof List) {
@@ -56,13 +55,15 @@ export function selectTask(el, force) {
 
 export function save(task, saveType) {
   // save the new window.data
+  var saveObject;
   if (saveType === 'list') {
-    var saveObject = task.props.parent;
+    saveObject = task.props.parent;
   } else {
-    var saveObject = task;
+    saveObject = task;
   }
-  if (saveObject.subtasksCurrent) var subtasks = saveObject.subtasksCurrent;
-  else var subtasks = saveObject.state.subtasks;
+  var subtasks;
+  if (saveObject.subtasksCurrent) subtasks = saveObject.subtasksCurrent;
+  else subtasks = saveObject.state.subtasks;
   window.data.tasks[util.stripR(saveObject.props.id)] = {
     title: saveObject.state.title,
     info: saveObject.state.info, subtasks: subtasks
@@ -81,82 +82,76 @@ export function saveSetting(setting, value) {
 }
 
 export function cutTask() {
-  if (!selected || selected instanceof List) return;
+  if (!window.selected || window.selected instanceof List) return;
   copyTask();
-  selected.deleteThis(false);
+  window.selected.deleteThis(false);
   window.undoData = localStorage.getItem('data');
 }
 
 export function copyTask(mirror) {
-  if (!selected || selected instanceof List) return;
-  save(selected);
+  if (!window.selected || window.selected instanceof List) return;
+  save(window.selected);
   if (mirror) {
-    window.copiedTask = selected.props.id;
+    window.copiedTask = window.selected.props.id;
   } else {
     // only copy window.data
     const today = new Date();
     const now = today.getTime();
     const newTask = String(now);
-    window.data.tasks[newTask] = { ...window.data.tasks[util.stripR(selected.props.id)] };
+    window.data.tasks[newTask] = { ...window.data.tasks[util.stripR(window.selected.props.id)] };
     window.copiedTask = newTask;
   }
 }
 
 export function pasteTask(type) {
-  console.log(selected);
-  if (!selected || !window.copiedTask) return;
+  if (!window.selected || !window.copiedTask) return;
   window.undoData = localStorage.getItem('data');
-  if (selected instanceof List || type === 'task') {
-    const subtasks = selected.state.subtasks;
+  if (window.selected instanceof List || type === 'task') {
+    const subtasks = window.selected.state.subtasks;
     subtasks.splice(0, 0, window.copiedTask);
-    selected.setState({ subtasks: subtasks });
-    save(selected, 'task');
-  } else if (selected instanceof Task || type === 'list') {
-    const subtasks = selected.state.parent.state.subtasks;
-    const insertIndex = subtasks.findIndex(x => x == selected.props.id) + 1;
+    window.selected.setState({ subtasks: subtasks });
+    save(window.selected, 'task');
+  } else if (window.selected instanceof Task || type === 'list') {
+    const subtasks = window.selected.state.parent.state.subtasks;
+    const insertIndex = subtasks.findIndex(x => x === window.selected.props.id) + 1;
     subtasks.splice(insertIndex, 0, window.copiedTask);
-    selected.state.parent.setState({ subtasks: subtasks });
-    save(selected, 'list');
+    window.selected.state.parent.setState({ subtasks: subtasks });
+    save(window.selected, 'list');
   }
 }
 
 export function indentTask(unindent) {
   // umm fix sometime
-  if (!selected) return;
-  const lastSelected = selected;
-  save(selected);
-  const subtasks = selected.props.parent.taskList.current.subtaskObjects;
+  if (!window.selected) return;
+  const lastSelected = window.selected;
+  save(window.selected);
+  console.log(window.selected.props.parent);
+  const subtasks =
+    window.selected.props.parent.taskList.current.subtaskObjects;
   const here = subtasks
     .findIndex(x => 
-    util.stripR(x.current.props.id) === util.stripR(selected.props.id));
-  console.log(subtasks, here);
-  if (unindent != true) {
+    util.stripR(x.current.props.id) === util.stripR(window.selected.props.id));
+    if (unindent !== true) {
     if (here === 0) return;
     const taskAbove = subtasks[here - 1].current;
     const theseSubtasks = util.getSubtasks(taskAbove);
-    theseSubtasks.push(selected.props.id);
-    const previousSubtasks = util.getSubtasks(selected.props.parent);
+    theseSubtasks.push(window.selected.props.id);
+    const previousSubtasks = util.getSubtasks(window.selected.props.parent);
     previousSubtasks.splice(here, 1);
-    console.log(previousSubtasks.map(x => window.data.tasks[util.stripR(x)].title));
-    taskAbove.setState( { subtasks: theseSubtasks });
-    console.log(window.data.tasks[util.stripR(selected.props.id)]);
-    lastSelected.props.parent.setState({ subtasks: previousSubtasks });
-    console.log(window.data.tasks[util.stripR(selected.props.id)]);
-    save(taskAbove);
-    console.log(window.data.tasks[util.stripR(selected.props.id)]);
-    save(lastSelected.props.parent);
-    console.log(window.data.tasks[util.stripR(selected.props.id)]);
-  } else {
-    if (selected.props.parent.props.parent instanceof Frame) return;
-    const subtasks = selected.props.parent.props.parent
+        taskAbove.setState( { subtasks: theseSubtasks });
+        lastSelected.props.parent.setState({ subtasks: previousSubtasks });
+        save(taskAbove);
+        save(lastSelected.props.parent);
+      } else {
+    if (window.selected.props.parent.props.parent instanceof Frame) return;
+    const subtasks = window.selected.props.parent.props.parent
       .taskList.current.subtaskObjects;
     const here = subtasks.findIndex(
-      x => x.current.props.id === selected.props.parent.props.id);
-    const theseSubtasks = selected.props.parent.props.parent.state.subtasks;
-    theseSubtasks.splice(here + 1, 0, selected.props.id);
-    console.log(theseSubtasks);
-    selected.props.parent.props.parent.setState({ subtasks: theseSubtasks });
-    save(selected.props.parent.props.parent);
+      x => x.current.props.id === window.selected.props.parent.props.id);
+    const theseSubtasks = window.selected.props.parent.props.parent.state.subtasks;
+    theseSubtasks.splice(here + 1, 0, window.selected.props.id);
+        window.selected.props.parent.props.parent.setState({ subtasks: theseSubtasks });
+    save(window.selected.props.parent.props.parent);
     const parentSubtasks = util.getSubtasks(lastSelected.props.parent);
     parentSubtasks.splice(parentSubtasks.findIndex(x => 
       x === lastSelected.props.id), 1);
@@ -166,46 +161,48 @@ export function indentTask(unindent) {
 }
 
 export function moveTask(direction) {
-  if (!selected) return;
-  if (selected.props.parent.subtasksCurrent) {
-    var subtasks = selected.props.parent.subtasksCurrent.concat();
+  if (!window.selected) return;
+  var subtasks;
+  if (window.selected.props.parent.subtasksCurrent) {
+    subtasks = window.selected.props.parent.subtasksCurrent.concat();
   } else {
-    var subtasks = selected.props.parent.state.subtasks;
+    subtasks = window.selected.props.parent.state.subtasks;
   }
   let selectedPlace =
-    subtasks.findIndex(x => x === selected.props.id);
-  const length = subtasks.length;
-  if (selectedPlace == 0 && direction == -1) return;
-  else if (selectedPlace == subtasks.length
-    && direction == 1) return;
-  if (direction == -1) {
-    var subtasksChopped = subtasks.slice(0, selectedPlace).reverse();
+    subtasks.findIndex(x => x === window.selected.props.id);
+  if (selectedPlace === 0 && direction === -1) return;
+  else if (selectedPlace === subtasks.length
+    && direction === 1) return;
+  var subtasksChopped;
+  if (direction === -1) {
+    subtasksChopped = subtasks.slice(0, selectedPlace).reverse();
   } else {
-    var subtasksChopped = subtasks.slice(selectedPlace + 1);
+    subtasksChopped = subtasks.slice(selectedPlace + 1);
   }
-  if (window.data.settings.hideComplete == 'hideComplete') {
-    var insertPlace = (subtasksChopped.findIndex(x =>
-      window.data.tasks[util.stripR(x)].info.complete != 'complete') + 1) * direction;
+  var insertPlace;
+  if (window.data.settings.hideComplete === 'hideComplete') {
+    insertPlace = (subtasksChopped.findIndex(x =>
+      window.data.tasks[util.stripR(x)].info.complete !== 'complete') + 1) * direction;
   } else {
-    var insertPlace = 1 * direction;
+    insertPlace = 1 * direction;
   }
   const spliceTask = subtasks.splice(selectedPlace, 1)[0];
   subtasks.splice(selectedPlace + insertPlace, 0, spliceTask);
-  selected.props.parent.setState({ subtasks: subtasks });
-  save(selected.props.parent, 'task');
+  window.selected.props.parent.setState({ subtasks: subtasks });
+  save(window.selected.props.parent, 'task');
 }
 
 export function listEdit(type) {
-  if (!selected) {
+  if (!window.selected) {
     alert('select a list');
     return;
   }
-  if (type === 'migrate' && util.getFrame(selected).props.id === 'bank') {
+  if (type === 'migrate' && util.getFrame(window.selected).props.id === 'bank') {
     alert('select a date');
     return;
   }
   var incompleteTasks = [];
-  var subtasksCurrent = util.getList(selected).subtasksCurrent;
+  var subtasksCurrent = util.getList(window.selected).subtasksCurrent;
   function addIncomplete(task) {
     for (let x of task.taskList.current.subtaskObjects) {
       addIncomplete(x.current);
@@ -215,7 +212,7 @@ export function listEdit(type) {
           x.current.displayOptions({target: undefined}, 'hide');
           save(x.current);
         } else if (type === 'migrate' && 
-          x.current.props.id.charAt(0) != 'R') {
+          x.current.props.id.charAt(0) !== 'R') {
           incompleteTasks.push(x.current.props.id);
           subtasksCurrent.splice(subtasksCurrent
             .findIndex(y => y === x.current.props.id), 1);
@@ -223,19 +220,19 @@ export function listEdit(type) {
       }
     }
   }
-  addIncomplete(util.getList(selected));
+  addIncomplete(util.getList(window.selected));
   if (type === 'migrate') {
-    const tomorrow = new Date(util.getList(selected).state.title);
+    const tomorrow = new Date(util.getList(window.selected).state.title);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    util.getList(selected).setState({
+    util.getList(window.selected).setState({
       subtasks: subtasksCurrent
     });
-    save(util.getList(selected));
+    save(util.getList(window.selected));
     display.searchDate(tomorrow.toDateString());
     setTimeout(() => {
-      selected.setState(
-        { subtasks: selected.subtasksCurrent.concat(incompleteTasks) });
-      save(selected);
+      window.selected.setState(
+        { subtasks: window.selected.subtasksCurrent.concat(incompleteTasks) });
+      save(window.selected);
     }, 500);
   }
 }

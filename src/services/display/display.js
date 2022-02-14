@@ -1,6 +1,7 @@
-import $ from '@utils/jquery';
-import * as edit from '@services/edit/edit';
-import * as util from '@services/util/util';
+import $ from 'jquery';
+import * as edit from '../edit/edit';
+import * as util from '../util/util';
+import Task from '../../components/Task/Task';
 
 export function checkTimes() {
   const today = new Date();
@@ -19,8 +20,8 @@ export function checkTimes() {
         taskEntry.info.startDate[0] === now[0] &&
         taskEntry.info.startDate[1] === now[1]
       ) {
-        var permission = Notification.requestPermission();
-        const notification = new Notification('Event: ' + taskEntry.title);
+        Notification.requestPermission();
+        new Notification('Event: ' + taskEntry.title);
         break;
       } else {
         const newDate = new Date();
@@ -32,8 +33,8 @@ export function checkTimes() {
           newDate.getHours() === now[0] &&
           newDate.getMinutes() === now[1]
         ) {
-          var permission = Notification.requestPermission();
-          const notification = new Notification('in 15: ' + taskEntry.title);
+          Notification.requestPermission();
+          new Notification('in 15: ' + taskEntry.title);
         }
       }
     }
@@ -41,8 +42,8 @@ export function checkTimes() {
 }
 
 export function switchView(direction) {
-  if (!selected) return;
-  let parent = selected;
+  if (!window.selected) return;
+  let parent = window.selected;
   while (parent instanceof Task) {
     parent = parent.props.parent;
   }
@@ -50,24 +51,45 @@ export function switchView(direction) {
   updateAllSizes();
 }
 
-export function focus(set) {
-  if (set != undefined) {
-    var focusSet = set;
+export function toggleMode() {
+  if (window.data.settings.mode === 'night') {
+    window.data.settings.mode = 'day';
   } else {
-    if (window.app.current.state.bank.current.state.info.focused == 'focused') {
-      var focusSet = '';
+    window.data.settings.mode = 'night';
+  }
+  setTheme(window.data.settings.theme);
+  localStorage.setItem('data', JSON.stringify(window.data));
+}
+
+export function toggleSounds() {
+  if (window.data.settings.sounds === 'false') {
+    window.data.settings.sounds = 'true';
+    alert('sounds on');
+  } else {
+    window.data.settings.sounds = 'false';
+    alert('sounds off');
+  }
+}
+
+export function focus(set) {
+  var focusSet;
+  if (set !== undefined) {
+    focusSet = set;
+  } else {
+    if (window.app.current.state.bank.current.state.info.focused === 'focused') {
+      focusSet = '';
     } else {
-      var focusSet = 'focused';
+      focusSet = 'focused';
     }
   }
-  if (selected) {
-    // set the index of the focused list to the selected list
-    let focusView = selected
+  if (window.selected) {
+    // set the index of the focused list to the window.selected list
+    let focusView = window.selected
     while (focusView instanceof Task) {
       focusView = focusView.props.parent;
     }
     focusView.props.parent.changeIndex(focusView.props.parent.frames
-      .findIndex(x => x.current.props.id == focusView.props.id));
+      .findIndex(x => x.current.props.id === focusView.props.id));
   }
   window.app.current.state.bank.current.setState(prevState => (
     {
@@ -117,12 +139,11 @@ export function setTheme(theme) {
 }
 
 export function displayTable() {
-  if (window.app.current.state.displayTable === 'none' && selected) {
+  if (window.app.current.state.displayTable === 'none' && window.selected) {
     window.app.current.setState({displayTable: 'true'});
   } else {
     window.app.current.setState({displayTable: 'none'});
   }
-  console.log(window.app.current.state.displayTable);
 }
 
 export function playSound(sound) {
@@ -132,13 +153,14 @@ export function playSound(sound) {
 }
 
 export function processWidth(focused) {
-  if (focused != 'focused') {
-    var width = Math.floor(window.innerWidth / 250);
+  var width;
+  if (focused !== 'focused') {
+    width = Math.floor(window.innerWidth / 250);
     $(':root').css('--frameWidth',
       ((window.innerWidth - 40) / width) + 'px');
   } else {
     // focus mode
-    var width = 1;
+    width = 1;
     $(':root').css('--frameWidth', 'calc(100% - 24px)');
   }
   return width;
@@ -157,20 +179,21 @@ export function searchDate(text, type) {
 
 export function zoom() {
   // zoom everything upwards
+  var zoomedSetting;
   if (window.app.current.state.zoomed === 'zoomed') {
-    var zoomedSetting = '';
+    zoomedSetting = '';
   } else {
-    var zoomedSetting = 'zoomed';
-    if (!selected) { return }; // no zoomie
+    zoomedSetting = 'zoomed';
+    if (!window.selected) { return }; // no zoomie
   }
-  var zoomFrame = util.getFrame(selected);
+  var zoomFrame = util.getFrame(window.selected);
   zoomFrame.setState({ zoomed: zoomedSetting });
   window.app.current.setState({ zoomed: zoomedSetting });
-  if (!zoomed) {
+  if (!window.zoomed) {
     // unzoom
-    zoomed = selected;
+    window.zoomed = window.selected;
   } else {
-    zoomed = undefined;
+    window.zoomed = undefined;
   }
   setTimeout(
     updateAllSizes, 200

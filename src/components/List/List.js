@@ -1,9 +1,9 @@
 import React from 'react';
 import './List.css';
-import * as display from '@services/display/display';
-import * as edit from '@services/edit/edit';
-import * as util from '@services/util/util';
-import TaskList from '@components/TaskList/TaskList';
+import * as display from '../../services/display/display';
+import * as edit from '../../services/edit/edit';
+import * as util from '../../services/util/util';
+import TaskList from '../TaskList/TaskList';
 
 export default class List extends React.Component {
   constructor(props) {
@@ -27,7 +27,7 @@ export default class List extends React.Component {
       const task = window.data.tasks[util.stripR(x)];
       const thisTime = util.getTime(task.info.startDate);
       if (
-        task.info.type == 'event' &&
+        task.info.type === 'event' &&
         thisTime < currentTime
       ) {
         ordered = false;
@@ -108,10 +108,9 @@ export default class List extends React.Component {
     }
   }
   render() {
-    function selectThis() {
+    var selectThis = () => {
       edit.selectTask(this);
     }
-    selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
     this.subtasksCurrent = this.state.subtasks.filter(x =>
@@ -130,13 +129,13 @@ export default class List extends React.Component {
       setTimeout(this.updateHeights, 100);
     }
     return (
-      <div className={'list' + ' ' + this.state.zoomed} onClick={selectThis}>
+      <div className={'list ' + this.state.zoomed} onClick={selectThis}>
         <div className='listInputBackground'>
           {this.props.parent.props.id === 'bank' ?
             <input className='listInput' value={this.state.title}
               onChange={this.changeTitle} ref={this.listInput}></input> :
             <>
-              <div class='monthYear'>
+              <div className='monthYear'>
                 <span>{this.state.title.slice(4, 8)}</span>
                 <span>{this.state.title.slice(11)}</span>
               </div>

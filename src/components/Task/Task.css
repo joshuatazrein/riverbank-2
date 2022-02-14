@@ -5,15 +5,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400&family=Dosis:wght@200;300;400&family=EB+Garamond:wght@400;500&family=Exo+2:wght@100;200;300&family=Exo:wght@100;200;300&family=Josefin+Sans:wght@100;200;300&family=Kanit:wght@100;200;300&family=Lato:wght@100;300&family=Montserrat:wght@100;300&family=Nunito:wght@200;300&family=Quicksand:wght@300;400&family=Raleway:wght@100;200;300&family=Roboto:wght@100;300&family=Halant:wght@300;400&family=Work+Sans:wght@100;300&display=swap');
 @font-face {
   font-family: 'Pilo Thin';
-  src: url('pilo-thin.otf');
+  src: url('../../assets/font/pilo-thin.otf');
 }
 @font-face {
   font-family: 'Adam';
-  src: url('adam.ttf');
+  src: url('../../assets/font/adam.ttf');
 }
 @font-face {
   font-family: 'Kirvy';
-  src: url('kirvy.otf');
+  src: url('../../assets/font/kirvy.otf');
 }
 
 * {

@@ -1,10 +1,11 @@
 import React from 'react';
 import './Task.css';
-import $ from '@utils/jquery';
-import * as display from '@services/display/display';
-import * as edit from '@services/edit/edit';
-import * as util from '@services/util/util';
-import TaskList from '@components/TaskList/TaskList';
+import $ from 'jquery';
+import * as display from '../../services/display/display';
+import * as edit from '../../services/edit/edit';
+import * as util from '../../services/util/util';
+import TaskList from '../TaskList/TaskList';
+import List from '../List/List';
 
 export default class Task extends React.Component {
   constructor(props) {
@@ -34,7 +35,7 @@ export default class Task extends React.Component {
   displayOptions(ev, showHide) {
     edit.save(this);
     if (this.freeze === true) return;
-    if (window.selected != this) {
+    if (window.selected !== this) {
       edit.selectTask(this);
     }
     if (this.editBar.current) {
@@ -52,7 +53,7 @@ export default class Task extends React.Component {
       ) {
         this.props.parent.forceUpdate();
       }
-    } else if (showHide == 'show' || this.state.displayOptions === 'hide') {
+    } else if (showHide === 'show' || this.state.displayOptions === 'hide') {
       this.setState({ displayOptions: 'show' });
     }
   }
@@ -61,7 +62,7 @@ export default class Task extends React.Component {
     this.updateHeight();
   }
   updateHeight() {
-    if (this.resizable != false) {
+    if (this.resizable !== false) {
       this.editBar.current.style.height = '0px';
       this.editBar.current.style.height =
         (this.editBar.current.scrollHeight) + "px";
@@ -71,7 +72,6 @@ export default class Task extends React.Component {
   }
   updateRiverDate(type, action) {
     // remove from startdates/deadlines
-    var river = window.app.current.state.river.current;
     var date = new Date();
     var deadlineData;
     if (type === 'start') {
@@ -152,7 +152,7 @@ export default class Task extends React.Component {
         info: { ...prevState.info, complete: status }
       }));
     }
-    if (change != false) {
+    if (change !== false) {
       this.displayOptions('hide');
     }
   }
@@ -163,7 +163,7 @@ export default class Task extends React.Component {
     this.setState(prevState => ({
       info: { ...prevState.info, important: status, maybe: '' }
     }));
-    if (change != false) {
+    if (change !== false) {
       this.displayOptions('hide');
     }
   }
@@ -174,7 +174,7 @@ export default class Task extends React.Component {
     this.setState(prevState => ({
       info: { ...prevState.info, maybe: status, important: '' }
     }));
-    if (change != false) {
+    if (change !== false) {
       this.displayOptions('hide');
     }
   }
@@ -211,12 +211,12 @@ export default class Task extends React.Component {
       parent = parent.props.parent;
     }
     const subtasks = this.state.parent.state.subtasks;
-    const currentTask = subtasks.findIndex(x => x == this.props.id);
+    const currentTask = subtasks.findIndex(x => x === this.props.id);
     subtasks.splice(currentTask, 1);
     window.selected = this.state.parent;
     window.preventSelect = true;
     this.state.parent.setState({ subtasks: subtasks });
-    if (removeData != false) {
+    if (removeData !== false) {
       this.updateRiverDate('start', 'remove');
       this.updateRiverDate('end', 'remove');
       this.toggleRepeat('all', true);
@@ -239,10 +239,11 @@ export default class Task extends React.Component {
     this.resizable = true;
   }
   dateRender = (type) => {
+    var info;
     if (type === 'start') {
-      var info = this.state.info.startDate.concat();
+      info = this.state.info.startDate.concat();
     } else if (type === 'end') {
-      var info = this.state.info.endDate.concat();
+      info = this.state.info.endDate.concat();
     }
     if (this.state.info.type === 'event') {
       if (type === 'start') {
@@ -253,8 +254,8 @@ export default class Task extends React.Component {
         return info[0] + ':' + String(info[1]).padStart(2, 0) + end;
       } else if (type === 'end') {
         let string = '';
-        if (info[0] != 0) string += info[0] + 'h';
-        if (info[1] != 0) string += info[1] + 'm';
+        if (info[0] !== 0) string += info[0] + 'h';
+        if (info[1] !== 0) string += info[1] + 'm';
         return string;
       }
     } else if (this.state.info.type === 'date') {
@@ -268,10 +269,11 @@ export default class Task extends React.Component {
     } else {
       days = [dayInput];
     }
+    let repeatId;
     if (this.props.id.charAt(0) === 'R') {
-      var repeatId = this.props.id;
+      repeatId = this.props.id;
     } else {
-      var repeatId = 'R' + this.props.id;
+      repeatId = 'R' + this.props.id;
     }
     const repeats = { ...window.app.current.state.river.current.state.repeats };
     for (let day of days) {
@@ -322,8 +324,10 @@ export default class Task extends React.Component {
         if (infoOrig === '--') {
           infoOrig = 0;
         }
-        if (orig2 === '--') {
+        if (orig2 === '--' && type === 'end') {
           orig2 = 0;
+        } else if (orig2 === '--' && type === 'start') {
+          orig2 = new Date().getHours();
         }
         let change;
         if (ev2.shiftKey) {
@@ -339,10 +343,18 @@ export default class Task extends React.Component {
           val = 60 + change;
           orig2 -= 1;
         }
-        if (orig2 >= 24 || orig2 < 0) {
-          val = '--';
-          orig2 = '--';
-          window.removeEventListener('mousemove', changeTime);
+        if (type === 'end') {
+          if (orig2 >= 24 || orig2 < 0) {
+            val = '--';
+            orig2 = '--';
+            window.removeEventListener('mousemove', changeTime);
+          }
+        } else if (type === 'start') {
+          if (orig2 == 3) {
+            val = '--';
+            orig2 = '--';
+            window.removeEventListener('mousemove', changeTime);
+          }
         }
         if (type === 'start') {
           this.setState({
@@ -518,7 +530,7 @@ export default class Task extends React.Component {
       parent = parent.props.parent;
     }
     id = id.reverse().join('-');
-    const hasTimes = this.state.info.type == 'event' &&
+    const hasTimes = this.state.info.type === 'event' &&
       !this.state.info.startDate.includes('--');
     let repeatsOn = {};
     for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
@@ -744,7 +756,7 @@ export default class Task extends React.Component {
         <textarea className='editBar' value={this.state.title}
           onChange={(ev) => this.changeTitle(ev)} ref={this.editBar}
           spellCheck='false' onClick={(ev) => this.displayOptions(ev, 'hide')}></textarea>
-        {this.state.info.notes.length == 0 &&
+        {this.state.info.notes.length === 0 &&
           <div style={{
             display: 'flex', flexDirection: 'column',
             marginRight: '5px'

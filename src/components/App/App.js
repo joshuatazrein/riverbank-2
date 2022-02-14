@@ -1,14 +1,12 @@
 import React from 'react';
 import './App.css';
-import Frame from '../Frame/Frame';
 import { DragDropContext } from 'react-beautiful-dnd';
+import popSnd from '../../assets/snd/pop.mp3';
 import * as edit from '../../services/edit/edit';
-import popSnd from './snd/pop.mp3';
-import * as display from '@services/display/display';
-import * as edit from '@services/edit/edit';
-import * as util from '@services/util/util';
-import Frame from '@components/Frame/Frame';
-import StatusBar from '@components/StatusBar/StatusBar';
+import * as display from '../../services/display/display';
+import * as util from '../../services/util/util';
+import Frame from '../Frame/Frame';
+import StatusBar from '../StatusBar/StatusBar';
 
 // main app, governs everything
 export default class App extends React.Component {
@@ -34,17 +32,18 @@ export default class App extends React.Component {
 
   // hide/show completes
   toggleComplete() {
-    if (this.state.hideComplete == '') {
-      var hideComplete = 'hideComplete';
+    var hideComplete;
+    if (this.state.hideComplete === '') {
+      hideComplete = 'hideComplete';
     } else {
-      var hideComplete = '';
+      hideComplete = '';
     }
     this.setState({ hideComplete: hideComplete });
     edit.saveSetting('hideComplete', hideComplete);
     display.updateAllSizes();
   }
   onDragEnd = result => {
-    const { destination, source, draggableId } = result;
+    const { destination, source } = result;
     if (!destination) {
       return;
     }
@@ -59,7 +58,7 @@ export default class App extends React.Component {
       var listObjs = [];
       listObjs.push(window.app.current.state[listSplit[0]]);
       listObjs.push(listObjs[0].current.frames.find(x =>
-        x.current.props.id == listSplit[1]));
+        x.current.props.id === listSplit[1]));
       var i = 2;
       var task;
       function getTask() {
@@ -166,7 +165,6 @@ class SelectMenu extends React.Component {
 
 class TableDisplay extends React.Component {
   render() {
-    console.log(window.selected.props.id, window.data.tasks[util.stripR(window.selected.props.id)].subtasks);
     return (
       <table className='table'>
         <thead></thead>

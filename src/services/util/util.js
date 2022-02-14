@@ -1,3 +1,5 @@
+import Task from '../../components/Task/Task';
+
 export function getFrame(task) {
   let parent = task;
   while (parent.props.parent) {

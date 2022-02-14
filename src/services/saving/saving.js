@@ -1,5 +1,5 @@
-import $ from '@utils/jquery';
-import * as util from '@services/util/util';
+import $ from 'jquery';
+import * as util from '../util/util';
 
 export function reset() {
   var accept = window.confirm('Are you sure you want to reset all window.data?');
@@ -54,7 +54,7 @@ export function clean() {
         break;
       }
     }
-    if (found == false) {
+    if (found === false) {
       delete window.data.tasks[id];
       removeDeadline(window.data.settings.deadlines, id);
       removeDeadline(window.data.settings.startdates, id);

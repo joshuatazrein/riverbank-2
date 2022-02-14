@@ -1,32 +1,12 @@
 import React from 'react';
 import './StatusBar.css';
-import $ from '@utils/jquery';
-import timerSnd from './snd/timer.mp3';
-import startSnd from './snd/start.mp3';
-import * as display from '@services/display/display';
-import * as edit from '@services/edit/edit';
-import * as saving from '@services/saving/saving';
-import * as util from '@services/util/util';
-
-function toggleMode() {
-  if (window.data.settings.mode == 'night') {
-    window.data.settings.mode = 'day';
-  } else {
-    window.data.settings.mode = 'night';
-  }
-  display.setTheme(window.data.settings.theme);
-  localStorage.setItem('data', JSON.stringify(window.data));
-}
-
-function toggleSounds() {
-  if (window.data.settings.sounds == 'false') {
-    window.data.settings.sounds = 'true';
-    alert('sounds on');
-  } else {
-    window.data.settings.sounds = 'false';
-    alert('sounds off');
-  }
-}
+import timerSnd from '../../assets/snd/timer.mp3';
+import startSnd from '../../assets/snd/start.mp3';
+import * as display from '../../services/display/display';
+import * as edit from '../../services/edit/edit';
+import * as util from '../../services/util/util';
+import * as saving from '../../services/saving/saving';
+import $ from 'jquery';
 
 export default class StatusBar extends React.Component {
   constructor(props) {
@@ -111,19 +91,47 @@ export default class StatusBar extends React.Component {
     this.functions = React.createRef();
     this.move = React.createRef();
     this.upcoming = React.createRef();
-    console.log(Object.keys(this.props.deadlines));
     let deadlineItems = Object.keys(this.props.deadlines).filter(
       x => new Date(x).getTime() >= new Date().getTime()
     )
-    console.log(deadlineItems);
     deadlineItems = deadlineItems.map(x => (
       this.props.deadlines[x].map(y => [x, y])
     )).flat().filter(x => x.length > 0);
-    console.log(deadlineItems);
+    this.functionsDict = {
+      'newTask': edit.newTask,
+      'cutTask': edit.cutTask,
+      'copyTask': edit.copyTask,
+      'copyTaskTrue': () => edit.copyTask(true),
+      'pasteTask': edit.pasteTask,
+      'pasteTaskTask': () => edit.pasteTask('task'),
+      'deleteTask': edit.deleteTask,
+      'moveTaskUp': () => edit.moveTask(-1),
+      'moveTaskDown': () => edit.moveTask(1),
+      'switchView': () => display.switchView(1),
+      'listEditMigrate': () => edit.listEdit('migrate'),
+      'listEditClear': () => edit.listEdit('clear'),
+      'displayTable': display.displayTable,
+      'focus': display.focus,
+      'zoom': display.zoom,
+      'undo': edit.undo,
+      'toggleComplete': () => window.app.current.toggleComplete(),
+      'backup': saving.backup,
+      'restore': saving.restore,
+      'reset': saving.reset,
+      'toggleSounds': display.toggleSounds,
+      'toggleMode': display.toggleMode,
+      'setThemeSpace': () => display.setTheme("space"),
+      'setThemeSky': () => display.setTheme("sky"),
+      'setThemeWater': () => display.setTheme("water"),
+      'setThemeEarth': () => display.setTheme("earth"),
+      'setThemeFire': () => display.setTheme("fire"),
+      'indent': edit.indentTask,
+      'unindent': () => edit.indentTask(true),
+    }
     return (
       <div className='statusBar'>
-        <span class='title'><span class='r'>River</span>
-          <span class='b'>Bank</span></span>
+        <span className='title'><span className='r'>River</span>
+          <span className='b'>Bank</span></span>
         <div style={{
           display: 'flex', flexDirection: 'column',
           position: 'relative'
@@ -159,76 +167,80 @@ export default class StatusBar extends React.Component {
         </div>
         <Timer />
         <div className='buttonBar nowrap'>
-          <select ref={this.functions} style={{ width: '35px' }}
+          <select defaultValue='' ref={this.functions} style={{ width: '35px' }}
             onChange={() => {
-              eval(this.functions.current.value);
+              this.functionsDict[this.functions.current.value].call();
               this.functions.current.value = '';
             }}>
-            <option value="" selected disabled hidden>edit</option>
-            <option value='edit.newTask()'>
+            <option value="" disabled hidden>edit</option>
+            <option value='newTask'>
               new task (return)</option>
-            <option value='edit.cutTask()'>
+            <option value='cutTask'>
               cut (ctrl-x)</option>
-            <option value='edit.copyTask()'>
+            <option value='copyTask'>
               copy (ctrl-c)</option>
-            <option value='edit.copyTask(true)'>
+            <option value='copyTaskTrue'>
               mirror (ctrl-shift-C)</option>
-            <option value='edit.pasteTask()'>
+            <option value='pasteTask'>
               paste (ctrl-v)</option>
-            <option value='edit.pasteTask("task")'>
+            <option value='pasteTaskTask'>
               paste as subtask (ctrl-shift-V)</option>
-            <option value="edit.deleteTask()">
+            <option value="deleteTask">
               delete (ctrl-delete)</option>
           </select>
-          <select ref={this.move} style={{ width: '45px' }}
+          <select defaultValue='' ref={this.move} style={{ width: '45px' }}
             onChange={() => {
-              eval(this.move.current.value);
+              this.functionsDict[this.move.current.value].call();
               this.move.current.value = '';
             }}>
-            <option value="" selected disabled hidden>move</option>
-            <option value="edit.moveTask(1)">
-              move down (ctrl-s)</option>
-            <option value="edit.moveTask(-1)">
+            <option value="" disabled hidden>move</option>
+            <option value="moveTaskUp">
               move up (ctrl-w)</option>
-            <option value="switchView(1)">
+            <option value="moveTaskDown">
+              move down (ctrl-s)</option>
+            <option value="indent">
+              indent (ctrl-])</option>
+            <option value='unindent'>
+              unindent (ctrl-[)</option>
+            <option value="switchView">
               following week/lists (ctrl-d)</option>
             <option value="switchView(-1)">
               previous week/lists (ctrl-a)</option>
-            <option value="edit.listEdit('migrate')">
+            <option value="listEditMigrate">
               migrate date</option>
-            <option value="edit.listEdit('clear')">
+            <option value="listEditClear">
               clear list</option>
-            <option value="display.displayTable()">
+            <option value="displayTable">
               display as table</option>
           </select>
-          <select ref={this.options} onChange={() => {
-            eval(this.options.current.value);
+          <select defaultValue='' ref={this.options} onChange={() => {
+            this.functionsDict[this.options.current.value].call();
             this.options.current.value = '';
           }}
             style={{ width: '60px' }}>
-            <option value="" selected disabled hidden>settings</option>
-            <option value='focus()'>focus on list (ctrl-f)</option>
-            <option value='display.zoom()'>focus on view (ctrl-shift-F)</option>
-            <option value='window.app.current.toggleComplete()'>
+            <option value="" disabled hidden>settings</option>
+            <option value='focus'>focus on list (ctrl-f)</option>
+            <option value='zoom'>focus on view (ctrl-shift-F)</option>
+            <option value='toggleComplete'>
               show/hide complete (ctrl-h)</option>
-            <option value='edit.undo()'>edit.undo (ctrl-z)</option>
-            <option value='saving.backup()'>saving.backup</option>
-            <option value='saving.restore()'>saving.restore</option>
-            <option value='saving.reset()'>saving.reset</option>
-            <option value='toggleSounds()'>toggle sounds</option>
-            <option value='display.toggleMode()'>toggle day/night</option>
-            <option value='display.setTheme("space")'>theme: space</option>
-            <option value='display.setTheme("sky")'>theme: sky</option>
-            <option value='display.setTheme("water")'>theme: water</option>
-            <option value='display.setTheme("earth")'>theme: earth</option>
-            <option value='display.setTheme("fire")'>theme: fire</option>
+            <option value='undo'>undo (ctrl-z)</option>
+            <option value='backup'>backup</option>
+            <option value='restore'>restore</option>
+            <option value='reset'>reset</option>
+            <option value='toggleSounds'>toggle sounds</option>
+            <option value='toggleMode'>toggle day/night</option>
+            <option value='setThemeSpace'>theme: space</option>
+            <option value='setThemeSky'>theme: sky</option>
+            <option value='setThemeWater'>theme: water</option>
+            <option value='setThemeEarth'>theme: earth</option>
+            <option value='setThemeFire'>theme: fire</option>
           </select>
           <ListMenu />
-          <select ref={this.upcoming} onChange={() => {
+          <select defaultValue='' ref={this.upcoming} onChange={() => {
             this.goToSearch(this.upcoming.current.value);
             this.upcoming.current.value = '';
           }} style={{width: '75px'}}>
-            <option value="" selected disabled hidden>upcoming</option>
+            <option value="" disabled hidden>upcoming</option>
             {deadlineItems.map(x => (
               <option value={util.stripR(x[1])}>
                 {x[0].slice(0, x[0].length - 5)}: {
@@ -267,16 +279,16 @@ class ListMenu extends React.Component {
     this.bankLister = React.createRef();
     return (
       <>
-        <select ref={this.bankLister} onChange={() => this.goToList('bank')}
+        <select defaultValue='' ref={this.bankLister} onChange={() => this.goToList('bank')}
           style={{ width: '35px' }}>
-          <option value="" selected disabled hidden>lists</option>
+          <option value="" disabled hidden>lists</option>
           {window.data.tasks['bank'].subtasks.filter(
-            x => window.data.tasks[x].title != '--')
+            x => window.data.tasks[x].title !== '--')
             .map((x, index) =>
-              <option value={index}>{window.data.tasks[x].title}</option>)}
+              <option key={x} value={index}>{window.data.tasks[x].title}</option>)}
         </select>
-        <select ref={this.riverLister} onChange={() => {
-          if (this.riverLister.current.value == 'today') {
+        <select defaultValue='' ref={this.riverLister} onChange={() => {
+          if (this.riverLister.current.value === 'today') {
             display.goToToday();
             this.riverLister.current.value = '';
           } else {
@@ -284,13 +296,13 @@ class ListMenu extends React.Component {
           }
         }}
           style={{ width: '45px' }}>
-          <option value="" selected disabled hidden>dates</option>
+          <option value="" disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
           {window.data.tasks['river'].subtasks.filter(x => new Date(
             window.data.tasks[x].title).getTime() >=
             new Date().getTime())
             .map((x) =>
-              <option value={window.data.tasks[x].title}>
+              <option key={x} value={window.data.tasks[x].title}>
                 {window.data.tasks[x].title}</option>)}
         </select>
       </>
@@ -318,11 +330,10 @@ class Timer extends React.Component {
     this.play();
   }
   play(stopwatch, backwards) {
-    var permission = Notification.requestPermission();
-    const multiplier = backwards ? -1 : 1;
+    Notification.requestPermission();
     clearInterval(this.interval);
     this.setState({ ended: false });
-    if (stopwatch == 'stopwatch') {
+    if (stopwatch === 'stopwatch') {
       display.playSound(this.state.start);
       this.interval = setInterval(() => {
         this.setState({ seconds: this.state.seconds + 1 });
@@ -343,7 +354,7 @@ class Timer extends React.Component {
     this.setState({ play: true, ended: true });
     display.playSound(this.state.audio);
     this.options.current.value = '';
-    var alert = new Notification('timer complete');
+    new Notification('timer complete');
   }
   playPause() {
     clearInterval(this.interval);
@@ -356,19 +367,20 @@ class Timer extends React.Component {
     this.play = this.play.bind(this);
     this.audioRef = React.createRef();
     this.options = React.createRef();
+    var timeReadout;
     if (this.state.seconds >= 0) {
-      var timeReadout = Math.floor(this.state.seconds / 60) + ':' +
+      timeReadout = Math.floor(this.state.seconds / 60) + ':' +
         String(this.state.seconds -
           (Math.floor(this.state.seconds / 60) * 60))
           .padStart(2, '0')
     } else {
       if ((this.state.seconds / 60) === Math.floor(this.state.seconds / 60)
-        && this.state.seconds != 0) {
+        && this.state.seconds !== 0) {
         // right on minute
-        var timeReadout = '-' +
+        timeReadout = '-' +
           (-1 * (Math.floor(this.state.seconds / 60))) + ':00'
       } else {
-        var timeReadout = '-' +
+        timeReadout = '-' +
           (-1 * (Math.floor(this.state.seconds / 60) + 1)) + ':' +
           String(60 - (this.state.seconds -
             (Math.floor(this.state.seconds / 60) * 60)))
@@ -379,7 +391,7 @@ class Timer extends React.Component {
       <>
         <input className='timerBar' readOnly={true}
           value={timeReadout}></input>
-        <select ref={this.options} onChange={() => {
+        <select value='' ref={this.options} onChange={() => {
           if (this.options.current.value === 'clear') {
             this.playPause();
             this.options.current.value = '';
@@ -393,7 +405,7 @@ class Timer extends React.Component {
           }
         }}
           style={{ width: '45px' }}>
-          <option value="" selected disabled hidden>timer</option>
+          <option value="" disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
           <option value={25}>25:00</option>

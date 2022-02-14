@@ -1,8 +1,8 @@
 import React from 'react';
 import './TaskList.css';
 import { Droppable } from 'react-beautiful-dnd';
-import * as util from '@services/util/util';
-import Task from '@components/Task/Task';
+import * as util from '../../services/util/util';
+import Task from '../Task/Task';
 
 export default class TaskList extends React.Component {
   render() {

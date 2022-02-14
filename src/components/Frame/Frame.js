@@ -1,8 +1,8 @@
 import React from 'react';
 import './Frame.css';
-import * as display from '@services/display/display';
-import * as util from '@services/util/util';
-import List from '@components/List/List';
+import * as display from '../../services/display/display';
+import * as util from '../../services/util/util';
+import List from '../List/List';
 
 export default class Frame extends React.Component {
   constructor(props) {
@@ -16,7 +16,7 @@ export default class Frame extends React.Component {
       this.state.repeats = window.data.settings.repeats;
     }
   }
-  changeIndex(val, set) {
+  changeIndex = (val, set) => {
     let newIndex;
     if (set === true) {
       newIndex = val;
@@ -46,12 +46,13 @@ export default class Frame extends React.Component {
     let c = Math.floor(Math.random() * 1000);
     while (this.state.subtasks.length < this.state.info.index + 7) {
       j++;
+      var title;
       if (this.props.id === 'bank') {
-        var title = '--';
+        title = '--';
       } else if (this.props.id === 'river') {
         const date = new Date(lastDate.getTime());
         date.setDate(lastDate.getDate() + j);
-        var title = date.toDateString();
+        title = date.toDateString();
       }
       const now = new Date();
       const id = now.getTime();
@@ -63,14 +64,12 @@ export default class Frame extends React.Component {
       window.data.tasks[String(id + i)] = { title: title, subtasks: [], info: {} };
       this.state.subtasks.push(String(id + i));
     }
-    function resizeCheck() {
-      if (this.state.width != display.processWidth(this.state.info.focused)) {
+    var resizeCheck = () => {
+      if (this.state.width !== display.processWidth(this.state.info.focused)) {
         this.setState({ width: display.processWidth(this.state.info.focused) });
       }
     }
     let endIndex = this.state.info.index + this.state.width;
-    this.changeIndex = this.changeIndex.bind(this);
-    resizeCheck = resizeCheck.bind(this);
     this.frames = [];
     window.addEventListener('resize', resizeCheck);
     const shownLists =

@@ -1,5 +1,8 @@
-import * as display from '@services/display/display';
-import * as edit from '@services/edit/edit';
+import * as display from '../display/display';
+import * as edit from '../edit/edit';
+import $ from 'jquery';
+import Task from '../../components/Task/Task';
+import List from '../../components/List/List';
 
 export function keyComms(ev) {
   if (!ev.ctrlKey) {
@@ -15,13 +18,13 @@ export function keyComms(ev) {
       ev.preventDefault();
       if (window.app.current.state.displayTable !== 'none') display.displayTable();
       document.activeElement.blur();
-      if (selected) {
-        edit.save(selected, 'task');
-        if (selected instanceof Task &&
-          selected.state.displayOptions === 'show') {
-          selected.displayOptions('hide');
+      if (window.selected) {
+        edit.save(window.selected, 'task');
+        if (window.selected instanceof Task &&
+          window.selected.state.displayOptions === 'show') {
+          window.selected.displayOptions('hide');
         } else {
-          selected = undefined;
+          window.selected = undefined;
         }
       }
       return;
@@ -74,7 +77,7 @@ export function keyComms(ev) {
         break;
       case 'f':
         ev.preventDefault();
-        focus();
+        display.focus();
         break;
       case 'z':
         ev.preventDefault();
@@ -86,29 +89,29 @@ export function keyComms(ev) {
         break;
       case 'Backspace':
         ev.preventDefault();
-        if (selected && selected instanceof Task) {
-          selected.deleteThis();
-        } else if (selected && selected instanceof List &&
-          selected.props.parent.props.id === 'bank') {
+        if (window.selected && window.selected instanceof Task) {
+          window.selected.deleteThis();
+        } else if (window.selected && window.selected instanceof List &&
+          window.selected.props.parent.props.id === 'bank') {
           const confirm = window.confirm('delete this list?');
           if (confirm) {
-            const subtasks = selected.props.parent.state.subtasks;
+            const subtasks = window.selected.props.parent.state.subtasks;
             window.undoData = localStorage.getItem('data');
             subtasks.splice(
-              subtasks.findIndex(x => x === selected.props.id), 1);
-            selected.props.parent.setState({ subtasks: subtasks });
+              subtasks.findIndex(x => x === window.selected.props.id), 1);
+            window.selected.props.parent.setState({ subtasks: subtasks });
           }
         }
         break;
       case 'w':
         ev.preventDefault();
-        if (selected.props.parent.props.id != 'river') {
+        if (window.selected.props.parent.props.id !== 'river') {
           edit.moveTask(-1);
         }
         break;
       case 's':
         ev.preventDefault();
-        if (selected.props.parent.props.id != 'river') {
+        if (window.selected.props.parent.props.id !== 'river') {
           edit.moveTask(1);
         }
         break;
@@ -131,28 +134,28 @@ export function keyComms(ev) {
         break;
       case '1':
         ev.preventDefault();
-        if (selected instanceof Task) {
-          selected.toggleComplete(false);
+        if (window.selected instanceof Task) {
+          window.selected.toggleComplete(false);
         }
         break;
       case '2':
         ev.preventDefault();
-        if (selected instanceof Task) {
-          selected.toggleImportant(false);
+        if (window.selected instanceof Task) {
+          window.selected.toggleImportant(false);
         }
         break;
       case '3':
         ev.preventDefault();
-        if (selected instanceof Task) {
-          selected.toggleMaybe(false);
+        if (window.selected instanceof Task) {
+          window.selected.toggleMaybe(false);
         }
         break;
       case 'i':
         ev.preventDefault();
-        if (selected && selected instanceof Task) {
-          selected.displayOptions({ target: $('<p></p>') });
-          if (selected.state.displayOptions === 'hide') {
-            selected.editBar.current.focus();
+        if (window.selected && window.selected instanceof Task) {
+          window.selected.displayOptions({ target: $('<p></p>') });
+          if (window.selected.state.displayOptions === 'hide') {
+            window.selected.editBar.current.focus();
           }
         };
         break;

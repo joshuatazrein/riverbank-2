@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
-import * as display from '@services/display/display';
-import * as keyComms from '@services/keyComms/keyComms';
-import * as saving from '@services/saving/saving';
-import * as util from '@services/util/util';
-import App from '@components/App/App';
+import * as display from './services/display/display';
+import * as keyComms from './services/keyComms/keyComms';
+import * as saving from './services/saving/saving';
+import * as util from './services/util/util';
+import App from './components/App/App.js';
 
 window.themes = {
   'earth-day': {
@@ -299,7 +299,7 @@ function init() {
   display.focus(window.data.settings.focused);
   display.setTheme(window.data.settings.theme);
   window.addEventListener('resize', () => {
-    if (window.innerWidth / 10 != Math.floor(window.innerWidth / 10)) return;
+    if (window.innerWidth / 10 !== Math.floor(window.innerWidth / 10)) return;
     display.updateAllSizes();
   });
   display.checkTimes();
@@ -307,7 +307,6 @@ function init() {
   window.addEventListener('contextmenu', (ev) => {
     ev.preventDefault();
     const contextMenu = window.app.current.state.contextMenu.current.self.current;
-    console.log(window.innerHeight, $(contextMenu).height(), window.innerHeight - $(contextMenu).height());
     window.app.current.state.contextMenu.current.setState({ 
       top: Math.min(ev.pageY, 
         window.innerHeight - $(contextMenu).height()), 
@@ -321,6 +320,8 @@ function init() {
 }
 
 // MIGRATION PROTOCOLS
+
+window.data = window.resetData;
 
 if (!window.data.settings.migrated) {
   window.data.settings.migrated = [];
