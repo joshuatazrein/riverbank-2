@@ -1157,12 +1157,10 @@ function checkTimes() {
   const today = new Date();
   const now = [today.getHours(), today.getMinutes()];
   const dateString = today.toDateString();
-  try {
-    const todayList = data.tasks[Object.keys(data.tasks)
-      .find(x => data.tasks[x].title === dateString)].subtasks;
-  } catch {
-    return
-  }
+  const list = data.tasks[Object.keys(data.tasks)
+    .find(x => data.tasks[x].title === dateString)];
+  if (!list) return;
+  const todayList = list.subtasks;
   for (let task of todayList) {
     const taskEntry = data.tasks[stripR(task)];
     if (taskEntry.info.type === 'event' &&
@@ -1312,9 +1310,19 @@ class Task extends React.Component {
   }
   toggleComplete(change) {
     let status = this.state.info.complete
-    if (status === 'complete') { status = '' }
+    if (status === 'complete') { 
+      status = '';
+      if (this.state.info.type === 'date') {
+        this.updateRiverDate('start', 'add');
+        this.updateRiverDate('end', 'add');
+      }
+    }
     else {
       status = 'complete';
+      if (this.state.info.type === 'date') {
+        this.updateRiverDate('start', 'remove');
+        this.updateRiverDate('end', 'remove');
+      }
       playSound(app.current.state.popSnd);
     }
     // excludes lets it put it in complete
@@ -1516,7 +1524,7 @@ class Task extends React.Component {
           infoOrig = 0;
         }
         if (orig2 === '--') {
-          orig2 = new Date().getHours();
+          orig2 = 0;
         }
         let change;
         if (ev2.shiftKey) {
@@ -1532,8 +1540,7 @@ class Task extends React.Component {
           val = 60 + change;
           orig2 -= 1;
         }
-        if (orig2 >= 24) orig2 -= 24;
-        if (orig2 == 3) {
+        if (orig2 >= 24 || orig2 < 0) {
           val = '--';
           orig2 = '--';
           window.removeEventListener('mousemove', changeTime);
