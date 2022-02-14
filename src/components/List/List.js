@@ -1,4 +1,11 @@
-class List extends React.Component {
+import React from 'react';
+import './List.css';
+import * as display from '@services/display/display';
+import * as edit from '@services/edit/edit';
+import * as util from '@services/util/util';
+import TaskList from '@components/TaskList/TaskList';
+
+export default class List extends React.Component {
   constructor(props) {
     super(props);
     this.taskList = React.createRef();
@@ -17,8 +24,8 @@ class List extends React.Component {
     let ordered = true;
     let currentTime = 0;
     for (let x of this.subtasksCurrent) {
-      const task = window.data.tasks[stripR(x)];
-      const thisTime = getTime(task.info.startDate);
+      const task = window.data.tasks[util.stripR(x)];
+      const thisTime = util.getTime(task.info.startDate);
       if (
         task.info.type == 'event' &&
         thisTime < currentTime
@@ -33,7 +40,7 @@ class List extends React.Component {
     let sortedList = [];
     let currentSort = ['start'];
     for (let task of this.subtasksCurrent) {
-      const taskData = window.data.tasks[stripR(task)];
+      const taskData = window.data.tasks[util.stripR(task)];
       if (taskData.info.type === 'event' && 
         !taskData.info.startDate.includes('--')) {
         sortedList.push(currentSort);
@@ -52,8 +59,8 @@ class List extends React.Component {
         b = b.splice(0, 1);
         return 1;
       } else {
-        return getTime(window.data.tasks[stripR(a[0])].info.startDate) - 
-          getTime(window.data.tasks[stripR(b[0])].info.startDate)
+        return util.getTime(window.data.tasks[util.stripR(a[0])].info.startDate) - 
+          util.getTime(window.data.tasks[util.stripR(b[0])].info.startDate)
       }
     }).flat();
     this.subtasksCurrent = sortedList;
@@ -81,7 +88,7 @@ class List extends React.Component {
           const startDate = nextObject.state.info.startDate;
           if (!startDate.includes('--')) {
             const difference = 
-              getTime(startDate) - getTime(thisObject.state.info.startDate);
+              util.getTime(startDate) - util.getTime(thisObject.state.info.startDate);
             minHeight = difference / 60;
           }
         }
@@ -102,23 +109,23 @@ class List extends React.Component {
   }
   render() {
     function selectThis() {
-      selectTask(this);
+      edit.selectTask(this);
     }
     selectThis = selectThis.bind(this);
     this.changeTitle = this.changeTitle.bind(this);
     this.listInput = React.createRef();
     this.subtasksCurrent = this.state.subtasks.filter(x =>
       !(x.charAt(0) === 'R' && !this.props.repeats.includes(x)) &&
-      window.data.tasks[stripR(x)]);
+      window.data.tasks[util.stripR(x)]);
     if (this.props.parent.props.id === 'river') {
       for (let task of this.props.repeats) {
         if (!this.subtasksCurrent.includes(task) &&
-          !this.subtasksCurrent.includes(stripR(task))) {
+          !this.subtasksCurrent.includes(util.stripR(task))) {
           this.subtasksCurrent.push(task);
         }
       }
     }
-    if (getFrame(this).props.id === 'river') {
+    if (util.getFrame(this).props.id === 'river') {
       this.sortList();
       setTimeout(this.updateHeights, 100);
     }
@@ -134,7 +141,7 @@ class List extends React.Component {
                 <span>{this.state.title.slice(11)}</span>
               </div>
               <input readOnly className='listInput listTitle'
-                value={dateFormat(this.state.title)} ref={this.listInput}>
+                value={util.dateFormat(this.state.title)} ref={this.listInput}>
               </input>
             </>
           }
@@ -146,8 +153,8 @@ class List extends React.Component {
               {this.props.deadlines.map(x => {
                 return <li
                   className='deadline' key={String(x)}
-                  onClick={() => searchDate(window.data.tasks[stripR(x)].title, 'start')}>
-                  {window.data.tasks[stripR(x)].title}</li>;
+                  onClick={() => display.searchDate(window.data.tasks[util.stripR(x)].title, 'start')}>
+                  {window.data.tasks[util.stripR(x)].title}</li>;
               })}
             </ul>}
           {this.props.parent.props.id === 'river' &&
@@ -156,9 +163,9 @@ class List extends React.Component {
               {this.props.startdates.map(x => {
                 return (<li
                   className='startdate' key={String(x)}
-                  onClick={() => searchDate(window.data.tasks[stripR(x)].title,
+                  onClick={() => display.searchDate(window.data.tasks[util.stripR(x)].title,
                     'start')}>
-                  {window.data.tasks[stripR(x)].title}</li>);
+                  {window.data.tasks[util.stripR(x)].title}</li>);
               })}
             </ul>}
           {<TaskList ref={this.taskList} subtasks={this.subtasksCurrent}

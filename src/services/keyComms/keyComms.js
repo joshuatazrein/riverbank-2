@@ -1,19 +1,22 @@
-function keyComms(ev) {
+import * as display from '@services/display/display';
+import * as edit from '@services/edit/edit';
+
+export function keyComms(ev) {
   if (!ev.ctrlKey) {
     if (ev.key === 'Enter' && !window.preventReturn) {
       ev.preventDefault();
       if (ev.shiftKey) {
-        newTask('task');
+        edit.newTask('task');
       } else {
-        newTask();
+        edit.newTask();
       }
       return;
     } else if (ev.key === 'Escape' && !window.preventReturn) {
       ev.preventDefault();
-      if (window.app.current.state.displayTable !== 'none') displayTable();
+      if (window.app.current.state.displayTable !== 'none') display.displayTable();
       document.activeElement.blur();
       if (selected) {
-        save(selected, 'task');
+        edit.save(selected, 'task');
         if (selected instanceof Task &&
           selected.state.displayOptions === 'show') {
           selected.displayOptions('hide');
@@ -27,18 +30,18 @@ function keyComms(ev) {
   if (ev.ctrlKey && ev.shiftKey) {
     switch (ev.key) {
       case 'V':
-        pasteTask('task');
+        edit.pasteTask('task');
         break;
       case 'N':
-        newTask('task');
+        edit.newTask('task');
         break;
       case 'F':
         ev.preventDefault();
-        zoom();
+        display.zoom();
         break;
       case 'C':
         // mirror task
-        copyTask(true);
+        edit.copyTask(true);
         break;
       default:
         break;
@@ -47,27 +50,27 @@ function keyComms(ev) {
     switch (ev.key) {
       case 'x':
         ev.preventDefault();
-        cutTask();
+        edit.cutTask();
         break;
       case 'c':
         ev.preventDefault();
-        copyTask();
+        edit.copyTask();
         break;
       case 'v':
         ev.preventDefault();
-        pasteTask();
+        edit.pasteTask();
         break;
       case 'n':
         ev.preventDefault();
-        newTask();
+        edit.newTask();
         break;
       case ']':
         ev.preventDefault();
-        indentTask();
+        edit.indentTask();
         break;
       case '[':
         ev.preventDefault();
-        indentTask(true);
+        edit.indentTask(true);
         break;
       case 'f':
         ev.preventDefault();
@@ -75,11 +78,11 @@ function keyComms(ev) {
         break;
       case 'z':
         ev.preventDefault();
-        undo();
+        edit.undo();
         break;
       case 'r':
         ev.preventDefault();
-        updateAllSizes();
+        display.updateAllSizes();
         break;
       case 'Backspace':
         ev.preventDefault();
@@ -100,22 +103,22 @@ function keyComms(ev) {
       case 'w':
         ev.preventDefault();
         if (selected.props.parent.props.id != 'river') {
-          moveTask(-1);
+          edit.moveTask(-1);
         }
         break;
       case 's':
         ev.preventDefault();
         if (selected.props.parent.props.id != 'river') {
-          moveTask(1);
+          edit.moveTask(1);
         }
         break;
       case 'a':
         ev.preventDefault();
-        switchView(-1);
+        display.switchView(-1);
         break;
       case 'd':
         ev.preventDefault();
-        switchView(1);
+        display.switchView(1);
         break;
       case 'h':
         ev.preventDefault();
@@ -124,7 +127,7 @@ function keyComms(ev) {
       case 't':
         ev.preventDefault();
         if (window.app.current.state.zoomed === 'zoomed') return;
-        goToToday();
+        display.goToToday();
         break;
       case '1':
         ev.preventDefault();

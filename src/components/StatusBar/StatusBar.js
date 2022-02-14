@@ -1,4 +1,34 @@
-class StatusBar extends React.Component {
+import React from 'react';
+import './StatusBar.css';
+import $ from '@utils/jquery';
+import timerSnd from './snd/timer.mp3';
+import startSnd from './snd/start.mp3';
+import * as display from '@services/display/display';
+import * as edit from '@services/edit/edit';
+import * as saving from '@services/saving/saving';
+import * as util from '@services/util/util';
+
+function toggleMode() {
+  if (window.data.settings.mode == 'night') {
+    window.data.settings.mode = 'day';
+  } else {
+    window.data.settings.mode = 'night';
+  }
+  display.setTheme(window.data.settings.theme);
+  localStorage.setItem('data', JSON.stringify(window.data));
+}
+
+function toggleSounds() {
+  if (window.data.settings.sounds == 'false') {
+    window.data.settings.sounds = 'true';
+    alert('sounds on');
+  } else {
+    window.data.settings.sounds = 'false';
+    alert('sounds off');
+  }
+}
+
+export default class StatusBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = { searchString: '', foundTasks: {} };
@@ -24,7 +54,7 @@ class StatusBar extends React.Component {
     var idList = [id];
     function buildParents(otherId) {
       for (let x of Object.keys(window.data.tasks)) {
-        if (window.data.tasks[stripR(x)].subtasks.includes(otherId)) {
+        if (window.data.tasks[util.stripR(x)].subtasks.includes(otherId)) {
           idList.splice(0, 0, x);
           buildParents(x);
           return;
@@ -56,7 +86,7 @@ class StatusBar extends React.Component {
         i++;
       }
       window.preventSelect = false;
-      selectTask(foundTask);
+      edit.selectTask(foundTask);
       this.setState({ searchString: '', foundTasks: {} });
       // go through IDs and find the trace paths
       setTimeout(() => {
@@ -65,7 +95,7 @@ class StatusBar extends React.Component {
     }, 100);
   }
   componentDidMount() {
-    setTimeout(goToToday, 200);
+    setTimeout(display.goToToday, 200);
   }
   goToFirst() {
     this.goToSearch($($(this.searchResults.current)
@@ -134,20 +164,20 @@ class StatusBar extends React.Component {
               eval(this.functions.current.value);
               this.functions.current.value = '';
             }}>
-            <option value="" window.selected disabled hidden>edit</option>
-            <option value='newTask()'>
+            <option value="" selected disabled hidden>edit</option>
+            <option value='edit.newTask()'>
               new task (return)</option>
-            <option value='cutTask()'>
+            <option value='edit.cutTask()'>
               cut (ctrl-x)</option>
-            <option value='copyTask()'>
+            <option value='edit.copyTask()'>
               copy (ctrl-c)</option>
-            <option value='copyTask(true)'>
+            <option value='edit.copyTask(true)'>
               mirror (ctrl-shift-C)</option>
-            <option value='pasteTask()'>
+            <option value='edit.pasteTask()'>
               paste (ctrl-v)</option>
-            <option value='pasteTask("task")'>
+            <option value='edit.pasteTask("task")'>
               paste as subtask (ctrl-shift-V)</option>
-            <option value="deleteTask()">
+            <option value="edit.deleteTask()">
               delete (ctrl-delete)</option>
           </select>
           <select ref={this.move} style={{ width: '45px' }}
@@ -155,20 +185,20 @@ class StatusBar extends React.Component {
               eval(this.move.current.value);
               this.move.current.value = '';
             }}>
-            <option value="" window.selected disabled hidden>move</option>
-            <option value="moveTask(1)">
+            <option value="" selected disabled hidden>move</option>
+            <option value="edit.moveTask(1)">
               move down (ctrl-s)</option>
-            <option value="moveTask(-1)">
+            <option value="edit.moveTask(-1)">
               move up (ctrl-w)</option>
             <option value="switchView(1)">
               following week/lists (ctrl-d)</option>
             <option value="switchView(-1)">
               previous week/lists (ctrl-a)</option>
-            <option value="listEdit('migrate')">
+            <option value="edit.listEdit('migrate')">
               migrate date</option>
-            <option value="listEdit('clear')">
+            <option value="edit.listEdit('clear')">
               clear list</option>
-            <option value="displayTable()">
+            <option value="display.displayTable()">
               display as table</option>
           </select>
           <select ref={this.options} onChange={() => {
@@ -176,33 +206,33 @@ class StatusBar extends React.Component {
             this.options.current.value = '';
           }}
             style={{ width: '60px' }}>
-            <option value="" window.selected disabled hidden>settings</option>
+            <option value="" selected disabled hidden>settings</option>
             <option value='focus()'>focus on list (ctrl-f)</option>
-            <option value='zoom()'>focus on view (ctrl-shift-F)</option>
+            <option value='display.zoom()'>focus on view (ctrl-shift-F)</option>
             <option value='window.app.current.toggleComplete()'>
               show/hide complete (ctrl-h)</option>
-            <option value='undo()'>undo (ctrl-z)</option>
-            <option value='backup()'>backup</option>
-            <option value='restore()'>restore</option>
-            <option value='reset()'>reset</option>
+            <option value='edit.undo()'>edit.undo (ctrl-z)</option>
+            <option value='saving.backup()'>saving.backup</option>
+            <option value='saving.restore()'>saving.restore</option>
+            <option value='saving.reset()'>saving.reset</option>
             <option value='toggleSounds()'>toggle sounds</option>
-            <option value='toggleMode()'>toggle day/night</option>
-            <option value='setTheme("space")'>theme: space</option>
-            <option value='setTheme("sky")'>theme: sky</option>
-            <option value='setTheme("water")'>theme: water</option>
-            <option value='setTheme("earth")'>theme: earth</option>
-            <option value='setTheme("fire")'>theme: fire</option>
+            <option value='display.toggleMode()'>toggle day/night</option>
+            <option value='display.setTheme("space")'>theme: space</option>
+            <option value='display.setTheme("sky")'>theme: sky</option>
+            <option value='display.setTheme("water")'>theme: water</option>
+            <option value='display.setTheme("earth")'>theme: earth</option>
+            <option value='display.setTheme("fire")'>theme: fire</option>
           </select>
           <ListMenu />
           <select ref={this.upcoming} onChange={() => {
             this.goToSearch(this.upcoming.current.value);
             this.upcoming.current.value = '';
           }} style={{width: '75px'}}>
-            <option value="" window.selected disabled hidden>upcoming</option>
+            <option value="" selected disabled hidden>upcoming</option>
             {deadlineItems.map(x => (
-              <option value={stripR(x[1])}>
+              <option value={util.stripR(x[1])}>
                 {x[0].slice(0, x[0].length - 5)}: {
-                window.data.tasks[stripR(x[1])].title}
+                window.data.tasks[util.stripR(x[1])].title}
               </option>
             ))}
           </select>
@@ -219,7 +249,7 @@ class ListMenu extends React.Component {
   }
   goToList(type) {
     if (type === 'river') {
-      searchDate(this.riverLister.current.value);
+      display.searchDate(this.riverLister.current.value);
     } else if (type === 'bank') {
       var parent = window.app.current.state.bank.current;
       var list = this.bankLister;
@@ -239,7 +269,7 @@ class ListMenu extends React.Component {
       <>
         <select ref={this.bankLister} onChange={() => this.goToList('bank')}
           style={{ width: '35px' }}>
-          <option value="" window.selected disabled hidden>lists</option>
+          <option value="" selected disabled hidden>lists</option>
           {window.data.tasks['bank'].subtasks.filter(
             x => window.data.tasks[x].title != '--')
             .map((x, index) =>
@@ -247,14 +277,14 @@ class ListMenu extends React.Component {
         </select>
         <select ref={this.riverLister} onChange={() => {
           if (this.riverLister.current.value == 'today') {
-            goToToday();
+            display.goToToday();
             this.riverLister.current.value = '';
           } else {
             this.goToList('river')
           }
         }}
           style={{ width: '45px' }}>
-          <option value="" window.selected disabled hidden>dates</option>
+          <option value="" selected disabled hidden>dates</option>
           <option value='today'>today (ctrl-t)</option>
           {window.data.tasks['river'].subtasks.filter(x => new Date(
             window.data.tasks[x].title).getTime() >=
@@ -284,7 +314,7 @@ class Timer extends React.Component {
     const endTime =
       new Date(new Date().getTime() + val * 60 * 1000).getTime();
     this.setState({ endTime: endTime, seconds: val * 60 });
-    playSound(this.state.start);
+    display.playSound(this.state.start);
     this.play();
   }
   play(stopwatch, backwards) {
@@ -293,7 +323,7 @@ class Timer extends React.Component {
     clearInterval(this.interval);
     this.setState({ ended: false });
     if (stopwatch == 'stopwatch') {
-      playSound(this.state.start);
+      display.playSound(this.state.start);
       this.interval = setInterval(() => {
         this.setState({ seconds: this.state.seconds + 1 });
       }, 1000);
@@ -311,7 +341,7 @@ class Timer extends React.Component {
   }
   end() {
     this.setState({ play: true, ended: true });
-    playSound(this.state.audio);
+    display.playSound(this.state.audio);
     this.options.current.value = '';
     var alert = new Notification('timer complete');
   }
@@ -363,7 +393,7 @@ class Timer extends React.Component {
           }
         }}
           style={{ width: '45px' }}>
-          <option value="" window.selected disabled hidden>timer</option>
+          <option value="" selected disabled hidden>timer</option>
           <option value={'clear'}>--:--</option>
           <option value={50}>50:00</option>
           <option value={25}>25:00</option>
@@ -375,47 +405,4 @@ class Timer extends React.Component {
       </>
     )
   }
-}
-
-class SelectMenu extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { display: 'none', top: '0', left: '0' };
-  }
-  render() {
-    this.self = React.createRef();
-    return (
-      <div className='selectMenu' ref={this.self} style={{ display: this.state.display,
-        top: this.state.top, left: this.state.left }}>
-        <p onClick={() => newTask()}>
-        new task (return)</p>
-        <p onClick={() => cutTask()}>
-          cut (ctrl-x)</p>
-        <p onClick={() => copyTask()}>
-          copy (ctrl-c)</p>
-        <p onClick={() => copyTask(true)}>
-          mirror (ctrl-shift-C)</p>
-        <p onClick={() => pasteTask()}>
-          paste (ctrl-v)</p>
-        <p onClick={() => pasteTask("task")}>
-          paste as subtask (ctrl-shift-V)</p>
-        <p onClick={() => deleteTask()}>
-          delete (ctrl-delete)</p>
-        <p onClick={() => moveTask(1)}>
-          move down (ctrl-s)</p>
-        <p onClick={() => moveTask(-1)}>
-          move up (ctrl-w)</p>
-        <p onClick={() => switchView(1)}>
-          following week/lists (ctrl-d)</p>
-        <p onClick={() => switchView(-1)}>
-          previous week/lists (ctrl-a)</p>
-        <p onClick={() => listEdit('migrate')}>
-          migrate date</p>
-        <p onClick={() => listEdit('clear')}>
-          clear list</p>
-        <p onClick={() => displayTable()}>
-          display as table</p>
-      </div>
-    )
-  } 
 }

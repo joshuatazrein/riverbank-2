@@ -1,11 +1,14 @@
-function deleteTask() {
+import * as display from '@services/display/display';
+import * as util from '@services/util/util';
+
+export function deleteTask() {
   if (selected && selected instanceof Task) {
     window.undoData = localStorage.getItem('data');
     selected.deleteThis();
   }
 }
 
-function newTask(type) {
+export function newTask(type) {
   // create new task after selected
   if (!selected || window.preventReturn) return;
   let el;
@@ -26,7 +29,7 @@ function newTask(type) {
   pasteTask(type);
 }
 
-function selectTask(el, force) {
+export function selectTask(el, force) {
   // make this task selected
   if (window.preventSelect) return
   if (el instanceof TaskList) {
@@ -51,7 +54,7 @@ function selectTask(el, force) {
   }
 }
 
-function save(task, saveType) {
+export function save(task, saveType) {
   // save the new window.data
   if (saveType === 'list') {
     var saveObject = task.props.parent;
@@ -60,31 +63,31 @@ function save(task, saveType) {
   }
   if (saveObject.subtasksCurrent) var subtasks = saveObject.subtasksCurrent;
   else var subtasks = saveObject.state.subtasks;
-  window.data.tasks[stripR(saveObject.props.id)] = {
+  window.data.tasks[util.stripR(saveObject.props.id)] = {
     title: saveObject.state.title,
     info: saveObject.state.info, subtasks: subtasks
   };
   localStorage.setItem('data', JSON.stringify(window.data));
 }
 
-function undo() {
+export function undo() {
   localStorage.setItem('data', window.undoData);
   setTimeout(() => window.location.reload(), 500);
 }
 
-function saveSetting(setting, value) {
+export function saveSetting(setting, value) {
   window.data.settings[setting] = value;
   localStorage.setItem('data', JSON.stringify(window.data));
 }
 
-function cutTask() {
+export function cutTask() {
   if (!selected || selected instanceof List) return;
   copyTask();
   selected.deleteThis(false);
   window.undoData = localStorage.getItem('data');
 }
 
-function copyTask(mirror) {
+export function copyTask(mirror) {
   if (!selected || selected instanceof List) return;
   save(selected);
   if (mirror) {
@@ -94,12 +97,12 @@ function copyTask(mirror) {
     const today = new Date();
     const now = today.getTime();
     const newTask = String(now);
-    window.data.tasks[newTask] = { ...window.data.tasks[stripR(selected.props.id)] };
+    window.data.tasks[newTask] = { ...window.data.tasks[util.stripR(selected.props.id)] };
     window.copiedTask = newTask;
   }
 }
 
-function pasteTask(type) {
+export function pasteTask(type) {
   console.log(selected);
   if (!selected || !window.copiedTask) return;
   window.undoData = localStorage.getItem('data');
@@ -117,7 +120,7 @@ function pasteTask(type) {
   }
 }
 
-function indentTask(unindent) {
+export function indentTask(unindent) {
   // umm fix sometime
   if (!selected) return;
   const lastSelected = selected;
@@ -125,24 +128,24 @@ function indentTask(unindent) {
   const subtasks = selected.props.parent.taskList.current.subtaskObjects;
   const here = subtasks
     .findIndex(x => 
-    stripR(x.current.props.id) === stripR(selected.props.id));
+    util.stripR(x.current.props.id) === util.stripR(selected.props.id));
   console.log(subtasks, here);
   if (unindent != true) {
     if (here === 0) return;
     const taskAbove = subtasks[here - 1].current;
-    const theseSubtasks = getSubtasks(taskAbove);
+    const theseSubtasks = util.getSubtasks(taskAbove);
     theseSubtasks.push(selected.props.id);
-    const previousSubtasks = getSubtasks(selected.props.parent);
+    const previousSubtasks = util.getSubtasks(selected.props.parent);
     previousSubtasks.splice(here, 1);
-    console.log(previousSubtasks.map(x => window.data.tasks[stripR(x)].title));
+    console.log(previousSubtasks.map(x => window.data.tasks[util.stripR(x)].title));
     taskAbove.setState( { subtasks: theseSubtasks });
-    console.log(window.data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[util.stripR(selected.props.id)]);
     lastSelected.props.parent.setState({ subtasks: previousSubtasks });
-    console.log(window.data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[util.stripR(selected.props.id)]);
     save(taskAbove);
-    console.log(window.data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[util.stripR(selected.props.id)]);
     save(lastSelected.props.parent);
-    console.log(window.data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[util.stripR(selected.props.id)]);
   } else {
     if (selected.props.parent.props.parent instanceof Frame) return;
     const subtasks = selected.props.parent.props.parent
@@ -154,7 +157,7 @@ function indentTask(unindent) {
     console.log(theseSubtasks);
     selected.props.parent.props.parent.setState({ subtasks: theseSubtasks });
     save(selected.props.parent.props.parent);
-    const parentSubtasks = getSubtasks(lastSelected.props.parent);
+    const parentSubtasks = util.getSubtasks(lastSelected.props.parent);
     parentSubtasks.splice(parentSubtasks.findIndex(x => 
       x === lastSelected.props.id), 1);
     lastSelected.props.parent.setState({ subtasks: parentSubtasks });
@@ -162,7 +165,7 @@ function indentTask(unindent) {
   }
 }
 
-function moveTask(direction) {
+export function moveTask(direction) {
   if (!selected) return;
   if (selected.props.parent.subtasksCurrent) {
     var subtasks = selected.props.parent.subtasksCurrent.concat();
@@ -182,7 +185,7 @@ function moveTask(direction) {
   }
   if (window.data.settings.hideComplete == 'hideComplete') {
     var insertPlace = (subtasksChopped.findIndex(x =>
-      window.data.tasks[stripR(x)].info.complete != 'complete') + 1) * direction;
+      window.data.tasks[util.stripR(x)].info.complete != 'complete') + 1) * direction;
   } else {
     var insertPlace = 1 * direction;
   }
@@ -192,17 +195,17 @@ function moveTask(direction) {
   save(selected.props.parent, 'task');
 }
 
-function listEdit(type) {
+export function listEdit(type) {
   if (!selected) {
     alert('select a list');
     return;
   }
-  if (type === 'migrate' && getFrame(selected).props.id === 'bank') {
+  if (type === 'migrate' && util.getFrame(selected).props.id === 'bank') {
     alert('select a date');
     return;
   }
   var incompleteTasks = [];
-  var subtasksCurrent = getList(selected).subtasksCurrent;
+  var subtasksCurrent = util.getList(selected).subtasksCurrent;
   function addIncomplete(task) {
     for (let x of task.taskList.current.subtaskObjects) {
       addIncomplete(x.current);
@@ -220,15 +223,15 @@ function listEdit(type) {
       }
     }
   }
-  addIncomplete(getList(selected));
+  addIncomplete(util.getList(selected));
   if (type === 'migrate') {
-    const tomorrow = new Date(getList(selected).state.title);
+    const tomorrow = new Date(util.getList(selected).state.title);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    getList(selected).setState({
+    util.getList(selected).setState({
       subtasks: subtasksCurrent
     });
-    save(getList(selected));
-    searchDate(tomorrow.toDateString());
+    save(util.getList(selected));
+    display.searchDate(tomorrow.toDateString());
     setTimeout(() => {
       selected.setState(
         { subtasks: selected.subtasksCurrent.concat(incompleteTasks) });

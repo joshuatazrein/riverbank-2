@@ -1,4 +1,7 @@
-function reset() {
+import $ from '@utils/jquery';
+import * as util from '@services/util/util';
+
+export function reset() {
   var accept = window.confirm('Are you sure you want to reset all window.data?');
   if (accept) {
     window.data = window.resetData;
@@ -7,7 +10,7 @@ function reset() {
   }
 }
 
-function restore() {
+export function restore() {
   window.preventReturn = true;
   const textarea = $('<textarea class="restore"></textarea>');
   $('#root').append(textarea);
@@ -24,12 +27,12 @@ function restore() {
   })
 }
 
-function backup() {
+export function backup() {
   alert('open console to copy window.data (file download option will be added soon)');
-  consoleLog(JSON.stringify(window.data));
+  util.consoleLog(JSON.stringify(window.data));
 }
 
-function clean() {
+export function clean() {
   function removeDeadline(list, id) {
     for (let x of Object.keys(list)) {
       // switch it out of things
@@ -46,7 +49,7 @@ function clean() {
     let found = false;
     for (let containerId of Object.keys(window.data.tasks)) {
       if (window.data.tasks[containerId].subtasks.map(x =>
-        stripR(x)).includes(id)) {
+        util.stripR(x)).includes(id)) {
         found = true;
         break;
       }

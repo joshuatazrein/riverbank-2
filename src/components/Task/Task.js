@@ -1,10 +1,18 @@
-class Task extends React.Component {
+import React from 'react';
+import './Task.css';
+import $ from '@utils/jquery';
+import * as display from '@services/display/display';
+import * as edit from '@services/edit/edit';
+import * as util from '@services/util/util';
+import TaskList from '@components/TaskList/TaskList';
+
+export default class Task extends React.Component {
   constructor(props) {
     super();
     this.state = {
       info: props.info, title: props.title,
       subtasks: props.subtasks.filter(x =>
-        window.data.tasks[stripR(x)]), parent: props.parent,
+        window.data.tasks[util.stripR(x)]), parent: props.parent,
       id: props.id, displayOptions: 'hide', riverTask: false,
       zoomed: '', minHeight: 1
     };
@@ -14,7 +22,7 @@ class Task extends React.Component {
     if (!this.state.info.notes) this.state.info.notes = '';
     if (!this.state.info.type) {
       if (props.parent instanceof List &&
-        getFrame(props.parent).props.id === 'river') {
+        util.getFrame(props.parent).props.id === 'river') {
         this.state.info.type = 'event';
       } else {
         this.state.info.type = 'date';
@@ -24,10 +32,10 @@ class Task extends React.Component {
     if (!this.state.info.excludes) this.state.info.excludes = [];
   }
   displayOptions(ev, showHide) {
-    save(this);
+    edit.save(this);
     if (this.freeze === true) return;
     if (window.selected != this) {
-      selectTask(this);
+      edit.selectTask(this);
     }
     if (this.editBar.current) {
       this.editBar.current.focus();
@@ -40,7 +48,7 @@ class Task extends React.Component {
       this.setState({ displayOptions: 'hide' });
       if (
         this.props.parent instanceof List && 
-        getFrame(this).props.id === 'river'
+        util.getFrame(this).props.id === 'river'
       ) {
         this.props.parent.forceUpdate();
       }
@@ -93,10 +101,10 @@ class Task extends React.Component {
     // add to the things
     if (type === 'start') {
       window.app.current.setState({ startdates: { ...deadlineData } });
-      saveSetting('startdates', deadlineData);
+      edit.saveSetting('startdates', deadlineData);
     } else if (type === 'end') {
       window.app.current.setState({ deadlines: { ...deadlineData } });
-      saveSetting('deadlines', deadlineData);
+      edit.saveSetting('deadlines', deadlineData);
     }
   }
   toggleComplete(change) {
@@ -114,7 +122,7 @@ class Task extends React.Component {
         this.updateRiverDate('start', 'remove');
         this.updateRiverDate('end', 'remove');
       }
-      playSound(window.app.current.state.popSnd);
+      display.playSound(window.app.current.state.popSnd);
     }
     // excludes lets it put it in complete
     const repeats = window.app.current.state.river.current.state.repeats;
@@ -125,7 +133,7 @@ class Task extends React.Component {
     }
     const excludes = this.state.info.excludes;
     for (let x of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
-      if (repeats[x].includes('R' + stripR(this.props.id))) {
+      if (repeats[x].includes('R' + util.stripR(this.props.id))) {
         repeating = true;
         if (!excludes.includes(parent.state.title)) {
           excludes.push(parent.state.title);
@@ -183,7 +191,7 @@ class Task extends React.Component {
     let repeating = false;
     for (let repeat of Object.keys(window.data.settings.repeats)) {
       if (window.data.settings.repeats[repeat].includes('R' +
-        stripR(this.props.id))) {
+        util.stripR(this.props.id))) {
         repeating = true;
         break;
       }
@@ -212,12 +220,12 @@ class Task extends React.Component {
       this.updateRiverDate('start', 'remove');
       this.updateRiverDate('end', 'remove');
       this.toggleRepeat('all', true);
-      delete window.data.tasks[stripR(this.props.id)];
+      delete window.data.tasks[util.stripR(this.props.id)];
     }
     setTimeout(() => {
       window.undoData = localStorage.getItem('data');
       window.preventSelect = false
-      save(this.props.parent, 'list');
+      edit.save(this.props.parent, 'list');
     }, 200);
   }
   componentDidMount() {
@@ -227,7 +235,7 @@ class Task extends React.Component {
         if (this.editBar.current) this.updateHeight();
       }, 50
     )
-    selectTask(this);
+    edit.selectTask(this);
     this.resizable = true;
   }
   dateRender = (type) => {
@@ -279,7 +287,7 @@ class Task extends React.Component {
     window.app.current.state.river.current.setState({
       repeats: repeats
     });
-    saveSetting('repeats', repeats);
+    edit.saveSetting('repeats', repeats);
   }
   timeDrag = (ev, unit, type) => {
     var mouseup = () => {
@@ -514,8 +522,8 @@ class Task extends React.Component {
       !this.state.info.startDate.includes('--');
     let repeatsOn = {};
     for (let day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
-      if (window.data.settings.repeats[day].map(x => stripR(x)).includes(
-        stripR(this.props.id))) {
+      if (window.data.settings.repeats[day].map(x => util.stripR(x)).includes(
+        util.stripR(this.props.id))) {
         repeatsOn[day] = 'repeatOn';
       } else {
         repeatsOn[day] = '';
@@ -599,7 +607,7 @@ class Task extends React.Component {
               <button
                 className={'button'}
                 onClick={() => {
-                  newTask('task');
+                  edit.newTask('task');
                   this.displayOptions('hide');
                 }}>
                 +</button>
@@ -783,8 +791,8 @@ class Task extends React.Component {
         ' ' + this.state.info.type +
         ' ' + this.state.info.collapsed +
         ' ' + this.state.zoomed}
-        onClick={() => { selectTask(this) }} 
-        onContextMenu={() => selectTask(this) }
+        onClick={() => { edit.selectTask(this) }} 
+        onContextMenu={() => edit.selectTask(this) }
         style={{minHeight: this.state.minHeight * 1.15 * 30}}>
         {listRender}
       </li>

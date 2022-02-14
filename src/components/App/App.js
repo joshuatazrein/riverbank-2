@@ -1,4 +1,18 @@
-class App extends React.Component {
+import React from 'react';
+import './App.css';
+import Frame from '../Frame/Frame';
+import { DragDropContext } from 'react-beautiful-dnd';
+import * as edit from '../../services/edit/edit';
+import popSnd from './snd/pop.mp3';
+import * as display from '@services/display/display';
+import * as edit from '@services/edit/edit';
+import * as util from '@services/util/util';
+import Frame from '@components/Frame/Frame';
+import StatusBar from '@components/StatusBar/StatusBar';
+
+// main app, governs everything
+export default class App extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -9,7 +23,7 @@ class App extends React.Component {
       mode: window.data.settings.mode,
       focused: window.data.settings.focused,
       popSnd: new Audio(popSnd),
-      window.zoomed: '',
+      zoomed: '',
       disableSelect: '',
       contextMenu: React.createRef(),
       deadlines: window.data.settings.deadlines,
@@ -17,6 +31,8 @@ class App extends React.Component {
       displayTable: 'none',
     };
   }
+
+  // hide/show completes
   toggleComplete() {
     if (this.state.hideComplete == '') {
       var hideComplete = 'hideComplete';
@@ -24,8 +40,8 @@ class App extends React.Component {
       var hideComplete = '';
     }
     this.setState({ hideComplete: hideComplete });
-    saveSetting('hideComplete', hideComplete);
-    updateAllSizes();
+    edit.saveSetting('hideComplete', hideComplete);
+    display.updateAllSizes();
   }
   onDragEnd = result => {
     const { destination, source, draggableId } = result;
@@ -67,10 +83,11 @@ class App extends React.Component {
     destState.splice(destination.index, 0, splicedTask[0]);
     destItem.current.setState({ subtasks: destState });
     // splice in the new DATA from the source into the OBJECT of the destination
-    save(sourceItem.current);
-    save(destItem.current);
+    edit.save(sourceItem.current);
+    edit.save(destItem.current);
     window.selected = undefined;
   }
+
   render() {
     this.statusBar = React.createRef();
     return (
@@ -99,6 +116,76 @@ class App extends React.Component {
         {window.selected && this.state.displayTable !== 'none' &&
           <TableDisplay />}
       </>
+    )
+  }
+}
+
+// extra function menu tacked on after the drag/drop context
+class SelectMenu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { display: 'none', top: '0', left: '0' };
+  }
+  render() {
+    this.self = React.createRef();
+    return (
+      <div className='selectMenu' ref={this.self} style={{ display: this.state.display,
+        top: this.state.top, left: this.state.left }}>
+        <p onClick={() => edit.newTask()}>
+        new task (return)</p>
+        <p onClick={() => edit.cutTask()}>
+          cut (ctrl-x)</p>
+        <p onClick={() => edit.copyTask()}>
+          copy (ctrl-c)</p>
+        <p onClick={() => edit.copyTask(true)}>
+          mirror (ctrl-shift-C)</p>
+        <p onClick={() => edit.pasteTask()}>
+          paste (ctrl-v)</p>
+        <p onClick={() => edit.pasteTask("task")}>
+          paste as subtask (ctrl-shift-V)</p>
+        <p onClick={() => edit.deleteTask()}>
+          delete (ctrl-delete)</p>
+        <p onClick={() => edit.moveTask(1)}>
+          move down (ctrl-s)</p>
+        <p onClick={() => edit.moveTask(-1)}>
+          move up (ctrl-w)</p>
+        <p onClick={() => display.switchView(1)}>
+          following week/lists (ctrl-d)</p>
+        <p onClick={() => display.switchView(-1)}>
+          previous week/lists (ctrl-a)</p>
+        <p onClick={() => edit.listEdit('migrate')}>
+          migrate date</p>
+        <p onClick={() => edit.listEdit('clear')}>
+          clear list</p>
+        <p onClick={() => display.displayTable()}>
+          display as table</p>
+      </div>
+    )
+  } 
+}
+
+class TableDisplay extends React.Component {
+  render() {
+    console.log(window.selected.props.id, window.data.tasks[util.stripR(window.selected.props.id)].subtasks);
+    return (
+      <table className='table'>
+        <thead></thead>
+        <tbody>
+          {window.data.tasks[util.stripR(window.selected.props.id)].subtasks.map(x => (
+            <tr key={x}>
+              <td>{
+                window.data.tasks[util.stripR(x)].title
+              }</td>
+              {window.data.tasks[x].subtasks.map(y => (
+                <td key={y}>
+                  {window.data.tasks[util.stripR(y)].title
+                  }
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     )
   }
 }

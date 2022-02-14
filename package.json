@@ -47,5 +47,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+
+  "_moduleAliases": {
+    "@components": "src/components",
+    "@services": "src/services",
+    "@services/all": "src/services/index.js",
+    "@utils": "src/utils"
   }
 }

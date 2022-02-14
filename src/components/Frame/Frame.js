@@ -1,9 +1,15 @@
-class Frame extends React.Component {
+import React from 'react';
+import './Frame.css';
+import * as display from '@services/display/display';
+import * as util from '@services/util/util';
+import List from '@components/List/List';
+
+export default class Frame extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       subtasks: props.subtasks, info: props.info,
-      width: processWidth(props.info.focused),
+      width: display.processWidth(props.info.focused),
       zoomed: '',
     };
     if (props.id === 'river') {
@@ -58,8 +64,8 @@ class Frame extends React.Component {
       this.state.subtasks.push(String(id + i));
     }
     function resizeCheck() {
-      if (this.state.width != processWidth(this.state.info.focused)) {
-        this.setState({ width: processWidth(this.state.info.focused) });
+      if (this.state.width != display.processWidth(this.state.info.focused)) {
+        this.setState({ width: display.processWidth(this.state.info.focused) });
       }
     }
     let endIndex = this.state.info.index + this.state.width;
@@ -86,7 +92,7 @@ class Frame extends React.Component {
                 subtasks={task.subtasks} parent={this}
                 deadlines={this.props.deadlines[task.title]}
                 startdates={this.props.startdates[task.title]}
-                repeats={this.state.repeats[dateFormat(task.title)
+                repeats={this.state.repeats[util.dateFormat(task.title)
                   .slice(0, 3)]}
                 ref={this.frames[this.frames.length - 1]} />
             )

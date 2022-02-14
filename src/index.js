@@ -1,17 +1,11 @@
 import React from 'react';
-import { useState } from 'react';
 import ReactDOM from 'react-dom';
-import DatePicker from 'react-datepicker';
 import $ from 'jquery';
-import './style.css';
-import { render } from '@testing-library/react';
-import "react-datepicker/dist/react-datepicker.css";
-import { DragDropContext } from 'react-beautiful-dnd';
-import { Droppable } from 'react-beautiful-dnd';
-import { Draggable } from 'react-beautiful-dnd';
-import timerSnd from './snd/timer.mp3';
-import popSnd from './snd/pop.mp3';
-import startSnd from './snd/start.mp3';
+import * as display from '@services/display/display';
+import * as keyComms from '@services/keyComms/keyComms';
+import * as saving from '@services/saving/saving';
+import * as util from '@services/util/util';
+import App from '@components/App/App';
 
 window.themes = {
   'earth-day': {
@@ -300,17 +294,16 @@ function init() {
   window.width = Math.floor(window.innerWidth / 200);
   window.prevWidth = Math.floor(window.innerWidth / 200);
   window.app = React.createRef();
-  $('body').append("<link rel='stylesheet' id='theme' href='./themes/space-night.css' />");
   ReactDOM.render(<App ref={window.app} />, document.getElementById('root'));
-  $(document).on('keydown', keyComms);
-  focus(window.data.settings.focused);
-  setTheme(window.data.settings.theme);
+  $(document).on('keydown', keyComms.keyComms);
+  display.focus(window.data.settings.focused);
+  display.setTheme(window.data.settings.theme);
   window.addEventListener('resize', () => {
     if (window.innerWidth / 10 != Math.floor(window.innerWidth / 10)) return;
-    updateAllSizes();
+    display.updateAllSizes();
   });
-  checkTimes();
-  window.setInterval(checkTimes, 60000);
+  display.checkTimes();
+  window.setInterval(display.checkTimes, 60000);
   window.addEventListener('contextmenu', (ev) => {
     ev.preventDefault();
     const contextMenu = window.app.current.state.contextMenu.current.self.current;
@@ -324,7 +317,7 @@ function init() {
   })
   window.addEventListener('click', () => 
     window.app.current.state.contextMenu.current.setState({ display: 'none' }))
-  document.addEventListener('fullscreenchange', updateAllSizes);
+  document.addEventListener('fullscreenchange', display.updateAllSizes);
 }
 
 // MIGRATION PROTOCOLS
@@ -360,7 +353,7 @@ if (!window.data.settings.migrated.includes('12/1')) {
 if (!window.data.settings.migrated.includes('12/2')) {
   window.data.settings.migrated.push('12/2');
   for (let task of Object.keys(window.data.tasks)) {
-    const foundTask = window.data.tasks[stripR(task)];
+    const foundTask = window.data.tasks[util.stripR(task)];
     delete foundTask.info.startDate;
     delete foundTask.info.endDate;
   }
@@ -377,6 +370,6 @@ if (!window.data.settings.migrated.includes('12/24')) {
   window.data.settings.sounds = 'true';
 }
 
-clean();
+saving.clean();
 
 init();
