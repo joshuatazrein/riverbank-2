@@ -19,8 +19,8 @@ class StatusBar extends React.Component {
     this.setState({ foundTasks: this.searches });
   }
   goToSearch(id) {
-    preventReturn = true;
-    preventSelect = true;
+    window.preventReturn = true;
+    window.preventSelect = true;
     var idList = [id];
     function buildParents(otherId) {
       for (let x of Object.keys(window.data.tasks)) {
@@ -32,7 +32,7 @@ class StatusBar extends React.Component {
       }
     }
     buildParents(id);
-    const frame = app.current.state[idList[0]].current;
+    const frame = window.app.current.state[idList[0]].current;
     const listIndex = frame.state.subtasks.findIndex(x => x === idList[1]);
     frame.changeIndex(listIndex, true);
     setTimeout(() => {
@@ -55,12 +55,12 @@ class StatusBar extends React.Component {
           .subtaskObjects[taskIndex].current;
         i++;
       }
-      preventSelect = false;
+      window.preventSelect = false;
       selectTask(foundTask);
       this.setState({ searchString: '', foundTasks: {} });
       // go through IDs and find the trace paths
       setTimeout(() => {
-        preventReturn = false;
+        window.preventReturn = false;
       }, 100);
     }, 100);
   }
@@ -179,7 +179,7 @@ class StatusBar extends React.Component {
             <option value="" window.selected disabled hidden>settings</option>
             <option value='focus()'>focus on list (ctrl-f)</option>
             <option value='zoom()'>focus on view (ctrl-shift-F)</option>
-            <option value='app.current.toggleComplete()'>
+            <option value='window.app.current.toggleComplete()'>
               show/hide complete (ctrl-h)</option>
             <option value='undo()'>undo (ctrl-z)</option>
             <option value='backup()'>backup</option>
@@ -221,7 +221,7 @@ class ListMenu extends React.Component {
     if (type === 'river') {
       searchDate(this.riverLister.current.value);
     } else if (type === 'bank') {
-      var parent = app.current.state.bank.current;
+      var parent = window.app.current.state.bank.current;
       var list = this.bankLister;
       parent.changeIndex(Number(list.current.value), true);
     }

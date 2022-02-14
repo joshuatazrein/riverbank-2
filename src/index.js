@@ -13,7 +13,7 @@ import timerSnd from './snd/timer.mp3';
 import popSnd from './snd/pop.mp3';
 import startSnd from './snd/start.mp3';
 
-var themes = {
+window.themes = {
   'earth-day': {
     "--font": "var(--fontSize) 'Quicksand', sans-serif",
     "--fontSize": "30px",
@@ -250,7 +250,7 @@ var themes = {
   }
 }
 
-var resetData = {
+window.resetData = {
   bank:
   {
     info: { index: 0 }, subtasks: [
@@ -279,31 +279,29 @@ var resetData = {
     hideComplete: '',
   }
 };
+
 window.data = undefined;
-var window.selected;
-var preventSelect;
-var copiedTask;
-var width;
-var prevWidth;
-var app;
-var preventReturn;
-var zoomed;
-var undoData = localStorage.getItem('window.data');
+window.selected = undefined;
+window.preventSelect = undefined;
+window.copiedTask = undefined;
+window.app = undefined;
+window.preventReturn = undefined;
+window.undoData = localStorage.getItem('data');
 
 try {
-  window.data = !localStorage.getItem('window.data') ? resetData :
-    JSON.parse(localStorage.getItem('window.data'));
+  window.data = !localStorage.getItem('data') ? window.resetData :
+    JSON.parse(localStorage.getItem('data'));
 } catch (err) {
-  window.data = resetData;
+  window.data = window.resetData;
 }
 
 function init() {
   window.selected = undefined;
-  width = Math.floor(window.innerWidth / 200);
-  prevWidth = Math.floor(window.innerWidth / 200);
-  app = React.createRef();
+  window.width = Math.floor(window.innerWidth / 200);
+  window.prevWidth = Math.floor(window.innerWidth / 200);
+  window.app = React.createRef();
   $('body').append("<link rel='stylesheet' id='theme' href='./themes/space-night.css' />");
-  ReactDOM.render(<App ref={app} />, document.getElementById('root'));
+  ReactDOM.render(<App ref={window.app} />, document.getElementById('root'));
   $(document).on('keydown', keyComms);
   focus(window.data.settings.focused);
   setTheme(window.data.settings.theme);
@@ -315,9 +313,9 @@ function init() {
   window.setInterval(checkTimes, 60000);
   window.addEventListener('contextmenu', (ev) => {
     ev.preventDefault();
-    const contextMenu = app.current.state.contextMenu.current.self.current;
+    const contextMenu = window.app.current.state.contextMenu.current.self.current;
     console.log(window.innerHeight, $(contextMenu).height(), window.innerHeight - $(contextMenu).height());
-    app.current.state.contextMenu.current.setState({ 
+    window.app.current.state.contextMenu.current.setState({ 
       top: Math.min(ev.pageY, 
         window.innerHeight - $(contextMenu).height()), 
       left: Math.min(ev.pageX, 
@@ -325,7 +323,7 @@ function init() {
       display: 'block' });
   })
   window.addEventListener('click', () => 
-    app.current.state.contextMenu.current.setState({ display: 'none' }))
+    window.app.current.state.contextMenu.current.setState({ display: 'none' }))
   document.addEventListener('fullscreenchange', updateAllSizes);
 }
 

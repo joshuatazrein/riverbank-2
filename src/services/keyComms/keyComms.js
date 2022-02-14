@@ -1,6 +1,6 @@
 function keyComms(ev) {
   if (!ev.ctrlKey) {
-    if (ev.key === 'Enter' && !preventReturn) {
+    if (ev.key === 'Enter' && !window.preventReturn) {
       ev.preventDefault();
       if (ev.shiftKey) {
         newTask('task');
@@ -8,9 +8,9 @@ function keyComms(ev) {
         newTask();
       }
       return;
-    } else if (ev.key === 'Escape' && !preventReturn) {
+    } else if (ev.key === 'Escape' && !window.preventReturn) {
       ev.preventDefault();
-      if (app.current.state.displayTable !== 'none') displayTable();
+      if (window.app.current.state.displayTable !== 'none') displayTable();
       document.activeElement.blur();
       if (selected) {
         save(selected, 'task');
@@ -90,7 +90,7 @@ function keyComms(ev) {
           const confirm = window.confirm('delete this list?');
           if (confirm) {
             const subtasks = selected.props.parent.state.subtasks;
-            undoData = localStorage.getItem('data');
+            window.undoData = localStorage.getItem('data');
             subtasks.splice(
               subtasks.findIndex(x => x === selected.props.id), 1);
             selected.props.parent.setState({ subtasks: subtasks });
@@ -119,11 +119,11 @@ function keyComms(ev) {
         break;
       case 'h':
         ev.preventDefault();
-        app.current.toggleComplete();
+        window.app.current.toggleComplete();
         break;
       case 't':
         ev.preventDefault();
-        if (app.current.state.zoomed === 'zoomed') return;
+        if (window.app.current.state.zoomed === 'zoomed') return;
         goToToday();
         break;
       case '1':

@@ -2,12 +2,12 @@ function checkTimes() {
   const today = new Date();
   const now = [today.getHours(), today.getMinutes()];
   const dateString = today.toDateString();
-  const list = data.tasks[Object.keys(data.tasks)
-    .find(x => data.tasks[x].title === dateString)];
+  const list = window.data.tasks[Object.keys(window.data.tasks)
+    .find(x => window.data.tasks[x].title === dateString)];
   if (!list) return;
   const todayList = list.subtasks;
   for (let task of todayList) {
-    const taskEntry = data.tasks[stripR(task)];
+    const taskEntry = window.data.tasks[stripR(task)];
     if (taskEntry.info.type === 'event' &&
       taskEntry.info.complete !== 'complete' &&
       !taskEntry.info.startDate.includes('--')) {
@@ -50,7 +50,7 @@ function focus(set) {
   if (set != undefined) {
     var focusSet = set;
   } else {
-    if (app.current.state.bank.current.state.info.focused == 'focused') {
+    if (window.app.current.state.bank.current.state.info.focused == 'focused') {
       var focusSet = '';
     } else {
       var focusSet = 'focused';
@@ -65,7 +65,7 @@ function focus(set) {
     focusView.props.parent.changeIndex(focusView.props.parent.frames
       .findIndex(x => x.current.props.id == focusView.props.id));
   }
-  app.current.state.bank.current.setState(prevState => (
+  window.app.current.state.bank.current.setState(prevState => (
     {
       info: {
         ...prevState.info,
@@ -73,7 +73,7 @@ function focus(set) {
       },
       width: processWidth(focusSet)
     }));
-  app.current.state.river.current.setState(prevState => (
+  window.app.current.state.river.current.setState(prevState => (
     {
       info: {
         ...prevState.info,
@@ -92,57 +92,57 @@ function updateAllSizes() {
       update(task);
     }
   }
-  const riverLists = app.current.state.river.current.frames;
-  const bankLists = app.current.state.bank.current.frames;
+  const riverLists = window.app.current.state.river.current.frames;
+  const bankLists = window.app.current.state.bank.current.frames;
   for (let list of riverLists.concat(bankLists)) {
     update(list);
   }
 }
 
 function setTheme(theme) {
-  const newTheme = themes[theme + '-' +
-    data.settings.mode];
+  const newTheme = window.themes[theme + '-' +
+    window.data.settings.mode];
   for (let key of Object.keys(newTheme)) {
     document.documentElement.style.setProperty(
       key, newTheme[key]
     );
   }
-  data.settings.theme = theme;
-  localStorage.setItem('data', JSON.stringify(data));
+  window.data.settings.theme = theme;
+  localStorage.setItem('data', JSON.stringify(window.data));
   setTimeout(updateAllSizes, 100);
 }
 
 function displayTable() {
-  if (app.current.state.displayTable === 'none' && selected) {
-    app.current.setState({displayTable: 'true'});
+  if (window.app.current.state.displayTable === 'none' && selected) {
+    window.app.current.setState({displayTable: 'true'});
   } else {
-    app.current.setState({displayTable: 'none'});
+    window.app.current.setState({displayTable: 'none'});
   }
-  console.log(app.current.state.displayTable);
+  console.log(window.app.current.state.displayTable);
 }
 
 function toggleMode() {
-  if (data.settings.mode == 'night') {
-    data.settings.mode = 'day';
+  if (window.data.settings.mode == 'night') {
+    window.data.settings.mode = 'day';
   } else {
-    data.settings.mode = 'night';
+    window.data.settings.mode = 'night';
   }
-  setTheme(data.settings.theme);
-  localStorage.setItem('data', JSON.stringify(data));
+  setTheme(window.data.settings.theme);
+  localStorage.setItem('data', JSON.stringify(window.data));
 }
 
 function toggleSounds() {
-  if (data.settings.sounds == 'false') {
-    data.settings.sounds = 'true';
+  if (window.data.settings.sounds == 'false') {
+    window.data.settings.sounds = 'true';
     alert('sounds on');
   } else {
-    data.settings.sounds = 'false';
+    window.data.settings.sounds = 'false';
     alert('sounds off');
   }
 }
 
 function playSound(sound) {
-  if (data.settings.sounds === 'true') {
+  if (window.data.settings.sounds === 'true') {
     sound.play();
   }
 }
@@ -166,14 +166,14 @@ function goToToday() {
 
 function searchDate(text, type) {
   setTimeout(() => {
-    app.current.statusBar.current.search({ target: { value: text } });
-    app.current.statusBar.current.goToFirst();
+    window.app.current.statusBar.current.search({ target: { value: text } });
+    window.app.current.statusBar.current.goToFirst();
   }, 100);
 }
 
 function zoom() {
   // zoom everything upwards
-  if (app.current.state.zoomed === 'zoomed') {
+  if (window.app.current.state.zoomed === 'zoomed') {
     var zoomedSetting = '';
   } else {
     var zoomedSetting = 'zoomed';
@@ -181,7 +181,7 @@ function zoom() {
   }
   var zoomFrame = getFrame(selected);
   zoomFrame.setState({ zoomed: zoomedSetting });
-  app.current.setState({ zoomed: zoomedSetting });
+  window.app.current.setState({ zoomed: zoomedSetting });
   if (!zoomed) {
     // unzoom
     zoomed = selected;

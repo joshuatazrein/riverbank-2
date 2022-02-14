@@ -63,17 +63,17 @@ class Task extends React.Component {
   }
   updateRiverDate(type, action) {
     // remove from startdates/deadlines
-    var river = app.current.state.river.current;
+    var river = window.app.current.state.river.current;
     var date = new Date();
     var deadlineData;
     if (type === 'start') {
       if (this.state.info.startDate.includes('--')) return;
-      deadlineData = app.current.state.startdates;
+      deadlineData = window.app.current.state.startdates;
       date.setMonth(this.state.info.startDate[0] - 1);
       date.setDate(this.state.info.startDate[1]);
     } else if (type === 'end') {
       if (this.state.info.endDate.includes('--')) return;
-      deadlineData = app.current.state.deadlines;
+      deadlineData = window.app.current.state.deadlines;
       date.setMonth(this.state.info.endDate[0] - 1);
       date.setDate(this.state.info.endDate[1]);
     }
@@ -92,10 +92,10 @@ class Task extends React.Component {
     }
     // add to the things
     if (type === 'start') {
-      app.current.setState({ startdates: { ...deadlineData } });
+      window.app.current.setState({ startdates: { ...deadlineData } });
       saveSetting('startdates', deadlineData);
     } else if (type === 'end') {
-      app.current.setState({ deadlines: { ...deadlineData } });
+      window.app.current.setState({ deadlines: { ...deadlineData } });
       saveSetting('deadlines', deadlineData);
     }
   }
@@ -114,10 +114,10 @@ class Task extends React.Component {
         this.updateRiverDate('start', 'remove');
         this.updateRiverDate('end', 'remove');
       }
-      playSound(app.current.state.popSnd);
+      playSound(window.app.current.state.popSnd);
     }
     // excludes lets it put it in complete
-    const repeats = app.current.state.river.current.state.repeats;
+    const repeats = window.app.current.state.river.current.state.repeats;
     let repeating = false;
     let parent = this.props.parent; /// find list it's in
     while (!parent instanceof List) {
@@ -206,7 +206,7 @@ class Task extends React.Component {
     const currentTask = subtasks.findIndex(x => x == this.props.id);
     subtasks.splice(currentTask, 1);
     window.selected = this.state.parent;
-    preventSelect = true;
+    window.preventSelect = true;
     this.state.parent.setState({ subtasks: subtasks });
     if (removeData != false) {
       this.updateRiverDate('start', 'remove');
@@ -215,8 +215,8 @@ class Task extends React.Component {
       delete window.data.tasks[stripR(this.props.id)];
     }
     setTimeout(() => {
-      undoData = localStorage.getItem('window.data');
-      preventSelect = false
+      window.undoData = localStorage.getItem('data');
+      window.preventSelect = false
       save(this.props.parent, 'list');
     }, 200);
   }
@@ -265,7 +265,7 @@ class Task extends React.Component {
     } else {
       var repeatId = 'R' + this.props.id;
     }
-    const repeats = { ...app.current.state.river.current.state.repeats };
+    const repeats = { ...window.app.current.state.river.current.state.repeats };
     for (let day of days) {
       if (repeats[day].includes(repeatId) || del === true) {
         if (repeats[day].includes(repeatId)) {
@@ -276,7 +276,7 @@ class Task extends React.Component {
         repeats[day].push(repeatId);
       }
     }
-    app.current.state.river.current.setState({
+    window.app.current.state.river.current.setState({
       repeats: repeats
     });
     saveSetting('repeats', repeats);
@@ -284,7 +284,7 @@ class Task extends React.Component {
   timeDrag = (ev, unit, type) => {
     var mouseup = () => {
       window.removeEventListener('mousemove', changeTime);
-      app.current.setState({ disableSelect: '' });
+      window.app.current.setState({ disableSelect: '' });
       if (unit === 'e' || this.state.info.type === 'event') {
         this.displayOptions('hide');
       } else if (unit === 's') {
@@ -468,7 +468,7 @@ class Task extends React.Component {
         updateTime(ev, changeTime, unit);
       }
     }
-    app.current.setState({ disableSelect: 'disable-select' });
+    window.app.current.setState({ disableSelect: 'disable-select' });
     window.addEventListener('mousemove', changeTime);
   }
   isComplete = () => {
@@ -560,7 +560,7 @@ class Task extends React.Component {
         onKeyDown={(ev) => {
           if (ev.key === 'Escape') {
             $(this.infoArea.current).hide();
-            setTimeout(() => preventReturn = false, 100);
+            setTimeout(() => window.preventReturn = false, 100);
           }
         }}
         onChange={() => {
@@ -712,7 +712,7 @@ class Task extends React.Component {
               }}></input>
             <button className='button' onClick={() => {
               $(this.infoArea.current).show();
-              preventReturn = true;
+              window.preventReturn = true;
             }} title='expand notes to paragraph'>+</button>
           </div>
         </div>

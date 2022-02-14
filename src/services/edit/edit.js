@@ -1,13 +1,13 @@
 function deleteTask() {
   if (selected && selected instanceof Task) {
-    undoData = localStorage.getItem('data');
+    window.undoData = localStorage.getItem('data');
     selected.deleteThis();
   }
 }
 
 function newTask(type) {
   // create new task after selected
-  if (!selected || preventReturn) return;
+  if (!selected || window.preventReturn) return;
   let el;
   if (type == 'task' || !selected.state.parent) {
     el = selected;
@@ -17,23 +17,23 @@ function newTask(type) {
   const today = new Date();
   const now = today.getTime();
   const newTask = String(now);
-  data.tasks[newTask] = {
+  window.data.tasks[newTask] = {
     info: { complete: '', startDate: '', endDate: '' },
     title: '',
     subtasks: [],
   };
-  copiedTask = newTask;
+  window.copiedTask = newTask;
   pasteTask(type);
 }
 
 function selectTask(el, force) {
   // make this task selected
-  if (preventSelect) return
+  if (window.preventSelect) return
   if (el instanceof TaskList) {
     return
   }
-  preventSelect = true;
-  setTimeout(function () { preventSelect = false }, 100);
+  window.preventSelect = true;
+  setTimeout(function () { window.preventSelect = false }, 100);
   if (selected) {
     save(selected, 'task');
   }
@@ -52,7 +52,7 @@ function selectTask(el, force) {
 }
 
 function save(task, saveType) {
-  // save the new data
+  // save the new window.data
   if (saveType === 'list') {
     var saveObject = task.props.parent;
   } else {
@@ -60,58 +60,58 @@ function save(task, saveType) {
   }
   if (saveObject.subtasksCurrent) var subtasks = saveObject.subtasksCurrent;
   else var subtasks = saveObject.state.subtasks;
-  data.tasks[stripR(saveObject.props.id)] = {
+  window.data.tasks[stripR(saveObject.props.id)] = {
     title: saveObject.state.title,
     info: saveObject.state.info, subtasks: subtasks
   };
-  localStorage.setItem('data', JSON.stringify(data));
+  localStorage.setItem('data', JSON.stringify(window.data));
 }
 
 function undo() {
-  localStorage.setItem('data', undoData);
+  localStorage.setItem('data', window.undoData);
   setTimeout(() => window.location.reload(), 500);
 }
 
 function saveSetting(setting, value) {
-  data.settings[setting] = value;
-  localStorage.setItem('data', JSON.stringify(data));
+  window.data.settings[setting] = value;
+  localStorage.setItem('data', JSON.stringify(window.data));
 }
 
 function cutTask() {
   if (!selected || selected instanceof List) return;
   copyTask();
   selected.deleteThis(false);
-  undoData = localStorage.getItem('data');
+  window.undoData = localStorage.getItem('data');
 }
 
 function copyTask(mirror) {
   if (!selected || selected instanceof List) return;
   save(selected);
   if (mirror) {
-    copiedTask = selected.props.id;
+    window.copiedTask = selected.props.id;
   } else {
-    // only copy data
+    // only copy window.data
     const today = new Date();
     const now = today.getTime();
     const newTask = String(now);
-    data.tasks[newTask] = { ...data.tasks[stripR(selected.props.id)] };
-    copiedTask = newTask;
+    window.data.tasks[newTask] = { ...window.data.tasks[stripR(selected.props.id)] };
+    window.copiedTask = newTask;
   }
 }
 
 function pasteTask(type) {
   console.log(selected);
-  if (!selected || !copiedTask) return;
-  undoData = localStorage.getItem('data');
+  if (!selected || !window.copiedTask) return;
+  window.undoData = localStorage.getItem('data');
   if (selected instanceof List || type === 'task') {
     const subtasks = selected.state.subtasks;
-    subtasks.splice(0, 0, copiedTask);
+    subtasks.splice(0, 0, window.copiedTask);
     selected.setState({ subtasks: subtasks });
     save(selected, 'task');
   } else if (selected instanceof Task || type === 'list') {
     const subtasks = selected.state.parent.state.subtasks;
     const insertIndex = subtasks.findIndex(x => x == selected.props.id) + 1;
-    subtasks.splice(insertIndex, 0, copiedTask);
+    subtasks.splice(insertIndex, 0, window.copiedTask);
     selected.state.parent.setState({ subtasks: subtasks });
     save(selected, 'list');
   }
@@ -134,15 +134,15 @@ function indentTask(unindent) {
     theseSubtasks.push(selected.props.id);
     const previousSubtasks = getSubtasks(selected.props.parent);
     previousSubtasks.splice(here, 1);
-    console.log(previousSubtasks.map(x => data.tasks[stripR(x)].title));
+    console.log(previousSubtasks.map(x => window.data.tasks[stripR(x)].title));
     taskAbove.setState( { subtasks: theseSubtasks });
-    console.log(data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[stripR(selected.props.id)]);
     lastSelected.props.parent.setState({ subtasks: previousSubtasks });
-    console.log(data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[stripR(selected.props.id)]);
     save(taskAbove);
-    console.log(data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[stripR(selected.props.id)]);
     save(lastSelected.props.parent);
-    console.log(data.tasks[stripR(selected.props.id)]);
+    console.log(window.data.tasks[stripR(selected.props.id)]);
   } else {
     if (selected.props.parent.props.parent instanceof Frame) return;
     const subtasks = selected.props.parent.props.parent
@@ -180,9 +180,9 @@ function moveTask(direction) {
   } else {
     var subtasksChopped = subtasks.slice(selectedPlace + 1);
   }
-  if (data.settings.hideComplete == 'hideComplete') {
+  if (window.data.settings.hideComplete == 'hideComplete') {
     var insertPlace = (subtasksChopped.findIndex(x =>
-      data.tasks[stripR(x)].info.complete != 'complete') + 1) * direction;
+      window.data.tasks[stripR(x)].info.complete != 'complete') + 1) * direction;
   } else {
     var insertPlace = 1 * direction;
   }

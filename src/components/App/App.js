@@ -9,7 +9,7 @@ class App extends React.Component {
       mode: window.data.settings.mode,
       focused: window.data.settings.focused,
       popSnd: new Audio(popSnd),
-      zoomed: '',
+      window.zoomed: '',
       disableSelect: '',
       contextMenu: React.createRef(),
       deadlines: window.data.settings.deadlines,
@@ -41,7 +41,7 @@ class App extends React.Component {
 
     function buildList(listSplit) {
       var listObjs = [];
-      listObjs.push(app.current.state[listSplit[0]]);
+      listObjs.push(window.app.current.state[listSplit[0]]);
       listObjs.push(listObjs[0].current.frames.find(x =>
         x.current.props.id == listSplit[1]));
       var i = 2;

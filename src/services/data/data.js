@@ -1,32 +1,32 @@
 function reset() {
-  var accept = window.confirm('Are you sure you want to reset all data?');
+  var accept = window.confirm('Are you sure you want to reset all window.data?');
   if (accept) {
-    data = resetData;
-    localStorage.setItem('data', JSON.stringify(resetData));
+    window.data = window.resetData;
+    localStorage.setItem('data', JSON.stringify(window.resetData));
     setTimeout(function () { window.location.reload() }, 200);
   }
 }
 
 function restore() {
-  preventReturn = true;
+  window.preventReturn = true;
   const textarea = $('<textarea class="restore"></textarea>');
   $('#root').append(textarea);
   textarea.on('keydown', ev => {
     if (ev.key === 'Enter') {
       ev.preventDefault();
-      data = JSON.parse(textarea.val());
-      localStorage.setItem('data', JSON.stringify(data));
+      window.data = JSON.parse(textarea.val());
+      localStorage.setItem('data', JSON.stringify(window.data));
       window.location.reload();
     } else if (ev.key === 'Escape') {
       textarea.remove();
-      setTimeout(() => preventReturn = false, 100);
+      setTimeout(() => window.preventReturn = false, 100);
     }
   })
 }
 
 function backup() {
-  alert('open console to copy data (file download option will be added soon)');
-  consoleLog(JSON.stringify(data));
+  alert('open console to copy window.data (file download option will be added soon)');
+  consoleLog(JSON.stringify(window.data));
 }
 
 function clean() {
@@ -41,20 +41,20 @@ function clean() {
     }
   }
   // clean out tasks which aren't in lists
-  for (let id of Object.keys(data.tasks).filter(x =>
+  for (let id of Object.keys(window.data.tasks).filter(x =>
     !['river', 'bank'].includes(x))) {
     let found = false;
-    for (let containerId of Object.keys(data.tasks)) {
-      if (data.tasks[containerId].subtasks.map(x =>
+    for (let containerId of Object.keys(window.data.tasks)) {
+      if (window.data.tasks[containerId].subtasks.map(x =>
         stripR(x)).includes(id)) {
         found = true;
         break;
       }
     }
     if (found == false) {
-      delete data.tasks[id];
-      removeDeadline(data.settings.deadlines, id);
-      removeDeadline(data.settings.startdates, id);
+      delete window.data.tasks[id];
+      removeDeadline(window.data.settings.deadlines, id);
+      removeDeadline(window.data.settings.startdates, id);
     }
   }
 }
