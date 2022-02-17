@@ -64,10 +64,14 @@ export function save(task, saveType) {
   var subtasks;
   if (saveObject.subtasksCurrent) subtasks = saveObject.subtasksCurrent;
   else subtasks = saveObject.state.subtasks;
-  window.data.tasks[util.stripR(saveObject.props.id)] = {
-    title: saveObject.state.title,
-    info: saveObject.state.info, subtasks: subtasks
-  };
+  try {
+    window.data.tasks[util.stripR(saveObject.props.id)] = {
+      title: saveObject.state.title,
+      info: saveObject.state.info, subtasks: subtasks
+    };
+  } catch (err) {
+    return;
+  }
   localStorage.setItem('data', JSON.stringify(window.data));
 }
 

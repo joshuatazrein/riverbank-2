@@ -15,16 +15,25 @@ export default class Frame extends React.Component {
     };
     if (props.id === 'river') {
       this.state.repeats = window.data.settings.repeats;
+      this.state.shownIndex = this.todayIndex();
+    } else if (props.id === 'bank') {
+      this.state.shownIndex = 0;
     }
+  }
+
+  // find index of today in shownLists
+  todayIndex = () => {
     const today = new Date();
-    this.state.shownIndex = this.state.subtasks.findIndex(x => {
+    return this.state.subtasks.findIndex(x => {
       const now = new Date(window.data.tasks[x].title);
       return now.getDate() === today.getDate() &&
         now.getMonth() === today.getMonth() &&
         now.getFullYear() === today.getFullYear()
     })
   }
-  addList = () => {
+
+  // create a new list
+  addList = (id) => {
     // add a new list
     var title;
     if (this.props.id === 'river') {
@@ -33,19 +42,33 @@ export default class Frame extends React.Component {
       lastDate.setDate(lastDate.getDate() + 1);
       title = lastDate.toDateString();
     } else {
-      title = '--';
+      title = '';
     }
 
     const subtasks = this.state.subtasks;
-    const id = String(new Date().getTime());
+    if (!id) id = String(new Date().getTime());
     window.data.tasks[id] = {
       title: title, subtasks: [], info: {}
     }
     subtasks.push(id);
     this.setState({subtasks: subtasks});
+    setTimeout(() => {
+      this.frames[this.frames.length - 1].current.listInput.current.focus();
+    }, 100);
   }
 
-  changeIndex = (val, set) => {
+  addLists = () => {
+    if (this.props.id === 'river') {
+      const id = new Date().getTime();
+      for (let i = 0; i < 7; i ++) {
+        this.addList(id + i);
+      }
+    } else {
+      this.addList();
+    }
+  }
+
+  changeIndex = async (val, set) => {
     var newIndex;
     if (set === true) {
       newIndex = val;
@@ -53,33 +76,47 @@ export default class Frame extends React.Component {
       newIndex = this.state.info.index + val;
     }
     if (!this.frame) return;
-    const children = $(this.frame.current).children();
-    console.log(newIndex, children[newIndex]);
-    if (children[newIndex]) {
-      children[newIndex].scrollIntoView();
+
+    const finish = () => {
+      const children = $(this.frame.current).children();
+      if (children[newIndex]) {
+        children[newIndex].scrollIntoView();
+      }
+      console.log(
+        window.data.tasks[this.state.subtasks[this.state.info.index]]
+        .title);
     }
-    // let newIndex;
-    // if (set === true) {
-    //   newIndex = val;
-    // } else {
-    //   newIndex = this.state.info.index + val;
-    // }
-    // if (newIndex > 0 &&
-    //   window.data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
-    //   return;
-    // }
-    // if (
-    //   set !== undefined && 
-    //   newIndex > this.state.info.index && 
-    //   this.props.id === 'bank'
-    // ) {
-    //   newIndex -= (this.state.width - 1);
-    // }
-    // if (newIndex < 0) newIndex = 0;
-    // this.setState(prevState => ({
-    //   info: { ...prevState.info, index: newIndex }
-    // }));
+
+    this.setState({
+      info: {...this.state.info, index: newIndex}
+    }, finish);
   }
+
+  updatePosition = () => {
+    if (this.state.focused === 'focused') return;
+    if (this.props.id !== 'river') return;
+    if (this.scrollPos === undefined) this.scrollPos = 
+      Math.floor($(this.frameContainer.current).scrollLeft() / 300) * 300;
+    let position = $(this.frameContainer.current).scrollLeft();
+    if (position < 0) position = 0;
+    if (Math.abs(position - this.scrollPos) > 300) {
+      this.scrollPos = Math.floor(position / 300) * 300;
+      // this.setState({ index: this.state.shownIndex + 
+      //   Math.floor(scrollPos / 300) });
+      console.log(this.state.shownIndex + Math.floor(this.scrollPos / 300));
+      this.setState({ info: 
+        {
+          ...this.state.info, 
+          index: this.state.shownIndex + Math.floor(this.scrollPos / 300)
+        }
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.updatePosition();
+  }
+
   render() {
     var resizeCheck = () => {
       if (this.state.width !== display.processWidth(this.state.info.focused)) {
@@ -89,16 +126,29 @@ export default class Frame extends React.Component {
     let endIndex = this.state.info.index + this.state.width;
     this.frames = [];
     window.addEventListener('resize', resizeCheck);
-    // const shownLists =
-    //   this.state.subtasks.slice(this.state.info.index, endIndex);
     const shownLists = this.state.subtasks.slice(
       this.state.shownIndex
     );
-    console.log(shownLists);
     this.frame = React.createRef();
+    this.frameContainer = React.createRef();
+    console.log(
+      this.state.info.index,
+      this.state.subtasks[this.state.info.index],
+      window.data.tasks[this.state.subtasks[this.state.info.index]]);
     return (
       <div className={`frameContainer 
-        ${this.state.info.focused} ${this.state.zoomed}`}>
+        ${this.state.info.focused} ${this.state.zoomed} ${this.props.id}`}
+        onScroll={this.updatePosition} ref={this.frameContainer}>
+        {this.props.id === 'river' &&
+        this.state.info.focused !== 'focused' &&
+        <div className='monthYear'>
+          <span>{
+            window.data.tasks[this.state.subtasks[this.state.info.index]]
+              .title.slice(4, 8)}</span>
+          <span>{
+            window.data.tasks[this.state.subtasks[this.state.info.index]]
+              .title.slice(11)}</span>
+        </div>}
         <div id={this.props.id}
           className={'frame'} ref={this.frame}>
           {shownLists.map(x => {
@@ -124,7 +174,7 @@ export default class Frame extends React.Component {
             }
           })}
           <button className='changeButton' title='add list or date'
-            onClick={() => this.addList()}>+</button>
+            onClick={() => this.addLists()}>+</button>
         </div>
       </div>
     );

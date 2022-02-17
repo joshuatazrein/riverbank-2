@@ -159,19 +159,16 @@ export default class List extends React.Component {
     return (
       <div className={'list ' + this.state.zoomed} onClick={selectThis}
         onContextMenu={selectThis}
-        onDrop={drop}
-        onDragOver={dragOver}
-        onDragEnter={dragEnter}
       >
         <div className='listInputBackground'>
           {this.props.parent.props.id === 'bank' ?
             <input className='listInput' value={this.state.title}
-              onChange={this.changeTitle} ref={this.listInput}></input> :
+              onChange={this.changeTitle} ref={this.listInput}
+              onDrop={drop}
+              onDragOver={dragOver}
+              onDragEnter={dragEnter}
+            ></input> :
             <>
-              <div className='monthYear'>
-                <span>{this.state.title.slice(4, 8)}</span>
-                <span>{this.state.title.slice(11)}</span>
-              </div>
               <input readOnly className='listInput listTitle'
                 value={util.dateFormat(this.state.title)} ref={this.listInput}>
               </input>

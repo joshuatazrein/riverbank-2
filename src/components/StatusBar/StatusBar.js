@@ -45,7 +45,8 @@ export default class StatusBar extends React.Component {
     const frame = window.app.current.state[idList[0]].current;
     const listIndex = frame.state.subtasks.slice(frame.state.shownIndex)
       .findIndex(x => x === idList[1]);
-    frame.changeIndex(listIndex, true);
+    frame.changeIndex(frame.state.shownIndex + listIndex, true);
+    console.log(listIndex, window.data.tasks[id].title);
     this.setState({ searchString: '', foundTasks: {} });
     
     setTimeout(() => {
@@ -143,6 +144,19 @@ export default class StatusBar extends React.Component {
       'setThemeFire': () => display.setTheme("fire"),
       'indent': edit.indentTask,
       'unindent': () => edit.indentTask(true),
+      'togglePast': () => {
+        console.log(window.app.current);
+        if (window.app.current.state.river.current.state.shownIndex !== 0) {
+          window.app.current.state.river.current.setState({
+            shownIndex: 0
+          });
+        } else {
+          window.app.current.state.river.current.setState({
+            shownIndex: window.app.current.state.river.current.todayIndex()
+          });
+        }
+        display.goToToday();
+      } 
     }
     return (
       <>
@@ -231,6 +245,8 @@ export default class StatusBar extends React.Component {
               clear list</option>
             <option value="displayTable">
               display as table</option>
+            <option value="togglePast">
+              show/hide past dates</option>
           </select>
           <select defaultValue='' ref={this.options} onChange={() => {
             this.functionsDict[this.options.current.value].call();

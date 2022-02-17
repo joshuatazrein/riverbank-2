@@ -60,4 +60,19 @@ export function clean() {
       removeDeadline(window.data.settings.startdates, id);
     }
   }
+
+  // clean out empty dates in the river view
+  const dates = window.data.tasks['river'].subtasks;
+  let i = dates.length - 1;
+  const today = new Date().toDateString();
+
+  while(window.data.tasks[dates[i]].subtasks.length === 0) {
+    i --;
+    const now = window.data.tasks[dates[i]].title;
+    if (i == 0 || now === today) break;
+  }
+  console.log(window.data.tasks[dates[i]].title);
+  if (i < dates.length - 1) {
+    window.data.tasks['river'].subtasks = dates.slice(0, i + 1);
+  }
 }
