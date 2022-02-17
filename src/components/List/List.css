@@ -5,8 +5,25 @@
 .list {
   height: 100%;
   padding: 5px 5px 0 5px;
-  flex-grow: 0;
-  width: var(--frameWidth);
+  width: 300px;
+}
+
+.list:first-of-type > .monthYear {
+  display: flex;
+  position: absolute;
+  left: 5px;
+  top: 0.5em;
+  z-index: 2;
+  height: 1em;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: var(--fontWeight);
+  border-radius: 5px;
+}
+
+.list:not(:first-of-type) .monthYear {
+  display: none;
 }
 
 .listInputBackground {
@@ -50,24 +67,6 @@
 .listTitle {
   border: none;
   margin: 0;
-}
-
-.list:first-of-type > .monthYear {
-  display: flex;
-  position: absolute;
-  left: 5px;
-  top: 0.5em;
-  z-index: 2;
-  height: 1em;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-weight: var(--fontWeight);
-  border-radius: 5px;
-}
-
-.list:not(:first-of-type) .monthYear {
-  display: none;
 }
 
 .deadline {

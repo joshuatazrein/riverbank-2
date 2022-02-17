@@ -76,36 +76,38 @@ export default class Frame extends React.Component {
     //   this.state.subtasks.slice(this.state.info.index, endIndex);
     const shownLists = this.state.subtasks;
     return (
-      <div id={this.props.id}
-        className={'frame ' + this.state.info.focused + ' ' +
-          this.state.zoomed}>
-        <button className='changeButton'
-          onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
-        </button>
-        {shownLists.map(x => {
-          this.frames.push(React.createRef());
-          const task = window.data.tasks[x];
-          if (this.props.id === 'river') {
-            // render state correctly in original lists
-            return (
-              <List key={x} id={x} title={task.title}
-                subtasks={task.subtasks} parent={this}
-                deadlines={this.props.deadlines[task.title]}
-                startdates={this.props.startdates[task.title]}
-                repeats={this.state.repeats[util.dateFormat(task.title)
-                  .slice(0, 3)]}
-                ref={this.frames[this.frames.length - 1]} />
-            )
-          } else {
-            return (
-              <List key={x} id={x} title={task.title}
-                subtasks={task.subtasks} parent={this}
-                ref={this.frames[this.frames.length - 1]} />
-            )
-          }
-        })}
-        <button className='changeButton'
-          onClick={() => this.changeIndex(this.state.width)}>&gt;</button>
+      <div className='frameContainer'>
+        <div id={this.props.id}
+          className={'frame ' + this.state.info.focused + ' ' +
+            this.state.zoomed}>
+          <button className='changeButton'
+            onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
+          </button>
+          {shownLists.map(x => {
+            this.frames.push(React.createRef());
+            const task = window.data.tasks[x];
+            if (this.props.id === 'river') {
+              // render state correctly in original lists
+              return (
+                <List key={x} id={x} title={task.title}
+                  subtasks={task.subtasks} parent={this}
+                  deadlines={this.props.deadlines[task.title]}
+                  startdates={this.props.startdates[task.title]}
+                  repeats={this.state.repeats[util.dateFormat(task.title)
+                    .slice(0, 3)]}
+                  ref={this.frames[this.frames.length - 1]} />
+              )
+            } else {
+              return (
+                <List key={x} id={x} title={task.title}
+                  subtasks={task.subtasks} parent={this}
+                  ref={this.frames[this.frames.length - 1]} />
+              )
+            }
+          })}
+          <button className='changeButton'
+            onClick={() => this.changeIndex(this.state.width)}>&gt;</button>
+        </div>
       </div>
     );
   }
