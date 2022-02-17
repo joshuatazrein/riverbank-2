@@ -129,9 +129,40 @@ export default class List extends React.Component {
       this.sortList();
       setTimeout(this.updateHeights, 100);
     }
+    const drop = (ev) => {
+      edit.selectTask(window.draggedTask);
+      const listParent = window.selected.props.parent;
+      edit.cutTask();
+      edit.save(listParent, 'list');
+      window.preventSelect = false;
+      setTimeout(() => {
+        edit.selectTask(this);
+        if (ev.metaKey) {
+          console.log('yes');
+          edit.pasteTask('task');
+        } else {
+          edit.pasteTask();
+        }
+      }, 100);
+      ev.stopPropagation();
+    }
+    const dragOver = (ev) => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'all';
+    }
+    const dragEnter = (ev) => {
+      ev.dataTransfer.dropEffect = 'all';
+    }
+    const dragLeave = (ev) => {
+      ev.dataTransfer.dropEffect = 'all';
+    }
     return (
       <div className={'list ' + this.state.zoomed} onClick={selectThis}
-        onContextMenu={selectThis}>
+        onContextMenu={selectThis}
+        onDrop={drop}
+        onDragOver={dragOver}
+        onDragEnter={dragEnter}
+      >
         <div className='listInputBackground'>
           {this.props.parent.props.id === 'bank' ?
             <input className='listInput' value={this.state.title}

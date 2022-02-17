@@ -574,6 +574,41 @@ export default class Task extends React.Component {
         endExtra = getWeekday(this.state.info.endDate);
       }
     } 
+    const startDrag = (ev) => {
+      // enabling drag & drop: only select target with matching title
+      // const dragId = $(ev.target).attr('dragid');
+      // if (this.props.id === dragId) {
+      // }
+      window.draggedTask = this;
+      ev.stopPropagation();
+    }
+    const drop = (ev) => {
+      edit.selectTask(window.draggedTask);
+      const listParent = window.selected.props.parent;
+      edit.cutTask();
+      edit.save(listParent, 'list');
+      window.preventSelect = false;
+      setTimeout(() => {
+        edit.selectTask(this);
+        if (ev.metaKey) {
+          console.log('yes');
+          edit.pasteTask('task');
+        } else {
+          edit.pasteTask();
+        }
+      }, 100);
+      ev.stopPropagation();
+    }
+    const dragOver = (ev) => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'all';
+    }
+    const dragEnter = (ev) => {
+      ev.dataTransfer.dropEffect = 'all';
+    }
+    const dragLeave = (ev) => {
+      ev.dataTransfer.dropEffect = 'all';
+    }
     const listRender = <>
       <textarea className='infoArea' 
         ref={this.infoArea}
@@ -591,9 +626,10 @@ export default class Task extends React.Component {
             }
           })
         }}
-        value={this.state.info.notes}></textarea>
+        value={this.state.info.notes}
+        ></textarea>
       <div className='taskContent'>
-      <div className={'options ' + this.state.displayOptions}>
+        <div className={'options ' + this.state.displayOptions}>
           <div className='buttonBar' style={{
             width: '100%',
             justifyContent: 'space-around',
@@ -650,100 +686,107 @@ export default class Task extends React.Component {
                 }}>U</button>
             </div>
           </div>
-          <div className='timeDiv buttonBar' style={{
-            flexWrap: 'nowrap',
-          }}>
-            <button className='button timeSwitch'
-              onClick={() => {
-                var changeValue = this.state.info.type === 'event' ?
-                  'date' : 'event';
-                this.setState({
-                  info: {
-                    ...this.state.info,
-                    type: changeValue,
-                    startDate: ['--', '--'],
-                    endDate: ['--', '--'],
+            <div className='timeDiv buttonBar' style={{
+              flexWrap: 'nowrap',
+            }}>
+              <button className='button timeSwitch'
+                onClick={() => {
+                  var changeValue = this.state.info.type === 'event' ?
+                    'date' : 'event';
+                  this.setState({
+                    info: {
+                      ...this.state.info,
+                      type: changeValue,
+                      startDate: ['--', '--'],
+                      endDate: ['--', '--'],
+                    }
+                  })
+                }}>
+                {this.state.info.type}
+              </button>
+              <span className='startSpan start'>
+                <span className='s' onMouseDown={(ev) => {
+                  this.timeDrag(ev, 's', 'start');
+                }}>{
+                  this.state.info.type === 'event' ?
+                    amPmFormat(this.state.info.startDate[0]) :
+                    this.state.info.startDate[0]
+                }</span>
+                <span className='m'>{
+                  this.state.info.type === 'event' ? ':' : '/'
+                }</span>
+                <span 
+                  className='e' 
+                  onMouseDown={(ev) => {
+                    this.timeDrag(ev, 'e', 'start');
+                  }}
+                >
+                  {this.state.info.type === 'event' ?
+                    String(this.state.info.startDate[1]).padStart(2, 0) :
+                    this.state.info.startDate[1]
                   }
-                })
-              }}>
-              {this.state.info.type}
-            </button>
-            <span className='startSpan start'>
-              <span className='s' onMouseDown={(ev) => {
-                this.timeDrag(ev, 's', 'start');
-              }}>{
-                this.state.info.type === 'event' ?
-                  amPmFormat(this.state.info.startDate[0]) :
-                  this.state.info.startDate[0]
-              }</span>
-              <span className='m'>{
-                this.state.info.type === 'event' ? ':' : '/'
-              }</span>
-              <span 
-                className='e' 
-                onMouseDown={(ev) => {
-                  this.timeDrag(ev, 'e', 'start');
-                }}
-              >
-                {this.state.info.type === 'event' ?
-                  String(this.state.info.startDate[1]).padStart(2, 0) :
-                  this.state.info.startDate[1]
-                }
+                </span>
+                {startExtra && 
+                <span className='startSpan extraInfo'>
+                  {startExtra}
+                </span>}
               </span>
-              {startExtra && 
-              <span className='startSpan extraInfo'>
-                {startExtra}
-              </span>}
-            </span>
-            <span className='startSpan end'>
-              <span className='s' onMouseDown={(ev) => {
-                this.timeDrag(ev, 's', 'end');
-              }}>{this.state.info.endDate[0]}</span>
-              <span className='m'>{
-                this.state.info.type === 'event' ? 'h' : '/'
-              }</span>
-              <span className='e' onMouseDown={(ev) => {
-                this.timeDrag(ev, 'e', 'end');
-              }}>{this.state.info.endDate[1]}</span>
-              <span>{this.state.info.type === 'event' ?
-                'm' : ''}</span>
-              {endExtra && 
-              <span className='startSpan extraInfo'>
-                {endExtra}
-              </span>}
-            </span>
-            <input ref={this.infoInput} className='infoSpan' placeholder='notes'
-              style={{ marginLeft: '5px' }}
-              value={this.state.info.notes}
-              onChange={() => {
-                this.setState({
-                  info: {
-                    ...this.state.info,
-                    notes: this.infoInput.current.value
-                  }
-                })
-              }}></input>
-            <button className='button' onClick={() => {
-              $(this.infoArea.current).show();
-              window.preventReturn = true;
-            }} title='expand notes to paragraph'>+</button>
-          </div>
+              <span className='startSpan end'>
+                <span className='s' onMouseDown={(ev) => {
+                  this.timeDrag(ev, 's', 'end');
+                }}>{this.state.info.endDate[0]}</span>
+                <span className='m'>{
+                  this.state.info.type === 'event' ? 'h' : '/'
+                }</span>
+                <span className='e' onMouseDown={(ev) => {
+                  this.timeDrag(ev, 'e', 'end');
+                }}>{this.state.info.endDate[1]}</span>
+                <span>{this.state.info.type === 'event' ?
+                  'm' : ''}</span>
+                {endExtra && 
+                <span className='startSpan extraInfo'>
+                  {endExtra}
+                </span>}
+              </span>
+              <input ref={this.infoInput} className='infoSpan' placeholder='notes'
+                style={{ marginLeft: '5px' }}
+                value={this.state.info.notes}
+                onChange={() => {
+                  this.setState({
+                    info: {
+                      ...this.state.info,
+                      notes: this.infoInput.current.value
+                    }
+                  })
+                }}></input>
+              <button className='button' onClick={() => {
+                $(this.infoArea.current).show();
+                window.preventReturn = true;
+              }} title='expand notes to paragraph'>+</button>
+            </div>
         </div>
         {!hasTimes ? 
           <span className='info'
             onClick={(ev) => this.displayOptions(ev)}
-            ref={this.optionsButton}>
+            ref={this.optionsButton}
+            dragid={this.props.id}
+            draggable 
+            onDragStart={startDrag}>
           </span> :
           <span className='startDate'
-            onMouseUp={(ev) => {
-              if (!this.freeze) this.displayOptions(ev);
-              else this.freeze = false;
-            }}
-            onMouseDown={(ev) => {
-              this.freeze = true;
-              this.timeDrag(ev, 'e', 'start');
-            }}
-            ref={this.optionsButton}>
+            // onMouseUp={(ev) => {
+            //   if (!this.freeze) this.displayOptions(ev);
+            //   else this.freeze = false;
+            // }}
+            // onMouseDown={(ev) => {
+            //   this.freeze = true;
+            //   this.timeDrag(ev, 'e', 'start');
+            // }}
+            onClick={(ev) => this.displayOptions(ev)}
+            ref={this.optionsButton}
+            dragid={this.props.id}
+            draggable 
+            onDragStart={startDrag}>
             {this.dateRender('start')}
           </span>}
         <textarea className='editBar' value={this.state.title}
@@ -798,7 +841,11 @@ export default class Task extends React.Component {
         ' ' + this.state.zoomed}
         onClick={() => { edit.selectTask(this) }} 
         onContextMenu={() => edit.selectTask(this) }
-        style={{minHeight: this.state.minHeight * 1.15 * 30}}>
+        style={{minHeight: this.state.minHeight * 1.15 * 30}}
+        onDrop={drop}
+        onDragOver={dragOver}
+        onDragEnter={dragEnter}
+      >
         {listRender}
       </li>
     )
