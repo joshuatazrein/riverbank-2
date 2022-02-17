@@ -183,10 +183,15 @@ export default class List extends React.Component {
             this.props.deadlines &&
             <ul>
               {this.props.deadlines.map(x => {
+                try {
+
                 return <li
                   className='deadline' key={String(x)}
                   onClick={() => display.searchDate(window.data.tasks[util.stripR(x)].title, 'start')}>
                   {window.data.tasks[util.stripR(x)].title}</li>;
+                } catch {
+                  return undefined;
+                }
               })}
             </ul>}
           {this.props.parent.props.id === 'river' &&

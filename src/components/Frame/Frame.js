@@ -47,7 +47,10 @@ export default class Frame extends React.Component {
     }
     if (!this.frame) return;
     const children = $(this.frame.current).children();
-    children[newIndex].scrollIntoView();
+    console.log(newIndex, children[newIndex]);
+    if (children[newIndex]) {
+      children[newIndex].scrollIntoView();
+    }
     // let newIndex;
     // if (set === true) {
     //   newIndex = val;
