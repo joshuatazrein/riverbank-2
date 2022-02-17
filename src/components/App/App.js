@@ -130,28 +130,32 @@ class SelectMenu extends React.Component {
     return (
       <div className='selectMenu' ref={this.self} style={{ display: this.state.display,
         top: this.state.top, left: this.state.left }}>
+        <p className='centerAlign'><b>edit</b></p>
         <p onClick={() => edit.newTask()}>
-        new task (return)</p>
+          new task<span className='rightAlign'>(return)</span></p>
+        <p onClick={() => edit.newTask('task')}>
+          new subtask <span className='rightAlign'>(shift-return)</span></p>
         <p onClick={() => edit.cutTask()}>
-          cut (ctrl-x)</p>
+          cut <span className='rightAlign'>(ctrl-x)</span></p>
         <p onClick={() => edit.copyTask()}>
-          copy (ctrl-c)</p>
+          copy <span className='rightAlign'>(ctrl-c)</span></p>
         <p onClick={() => edit.copyTask(true)}>
-          mirror (ctrl-shift-C)</p>
+          mirror <span className='rightAlign'>(ctrl-shift-C)</span></p>
         <p onClick={() => edit.pasteTask()}>
-          paste (ctrl-v)</p>
+          paste <span className='rightAlign'>(ctrl-v)</span></p>
         <p onClick={() => edit.pasteTask("task")}>
           paste as subtask (ctrl-shift-V)</p>
         <p onClick={() => edit.deleteTask()}>
-          delete (ctrl-delete)</p>
+          delete <span className='rightAlign'>(ctrl-delete)</span></p>
+        <p  className='centerAlign' style={{marginTop:'5px'}}><b>move</b></p>
         <p onClick={() => edit.moveTask(1)}>
-          move down (ctrl-s)</p>
+          move down <span className='rightAlign'>(ctrl-s)</span></p>
         <p onClick={() => edit.moveTask(-1)}>
-          move up (ctrl-w)</p>
+          move up <span className='rightAlign'>(ctrl-w)</span></p>
         <p onClick={() => display.switchView(1)}>
-          following week/lists (ctrl-d)</p>
+          following week/lists <span className='rightAlign'>(ctrl-d)</span></p>
         <p onClick={() => display.switchView(-1)}>
-          previous week/lists (ctrl-a)</p>
+          previous week/lists <span className='rightAlign'>(ctrl-a)</span></p>
         <p onClick={() => edit.listEdit('migrate')}>
           migrate date</p>
         <p onClick={() => edit.listEdit('clear')}>

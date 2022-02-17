@@ -66,6 +66,7 @@ export default class List extends React.Component {
     this.subtasksCurrent = sortedList;
   }
   updateHeights = () => {
+    return
     if (!this.taskList.current) return;
     const objects = this.taskList.current.subtaskObjects.filter(
       x => x.current.isComplete() !== 'complete'
@@ -129,7 +130,8 @@ export default class List extends React.Component {
       setTimeout(this.updateHeights, 100);
     }
     return (
-      <div className={'list ' + this.state.zoomed} onClick={selectThis}>
+      <div className={'list ' + this.state.zoomed} onClick={selectThis}
+        onContextMenu={selectThis}>
         <div className='listInputBackground'>
           {this.props.parent.props.id === 'bank' ?
             <input className='listInput' value={this.state.title}

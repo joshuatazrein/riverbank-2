@@ -139,22 +139,6 @@ body {
   padding: 50px; */
 /* } */
 
-.selectMenu {
-  position: fixed;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-.selectMenu p:hover {
-  color: var(--select);
-}
-
-.selectMenu p {
-  margin: 0;
-  font: var(--menuFont);
-  font-size: 18px;
-}
-
 .task.collapsed textarea {
   opacity: 0.75;
 }

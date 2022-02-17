@@ -99,6 +99,7 @@ export default class StatusBar extends React.Component {
     )).flat().filter(x => x.length > 0);
     this.functionsDict = {
       'newTask': edit.newTask,
+      'newSubtask': () => edit.newTask("task"),
       'cutTask': edit.cutTask,
       'copyTask': edit.copyTask,
       'copyTaskTrue': () => edit.copyTask(true),
@@ -175,6 +176,8 @@ export default class StatusBar extends React.Component {
             <option value="" disabled hidden>edit</option>
             <option value='newTask'>
               new task (return)</option>
+            <option value='newSubtask'>
+              new subtask (shift-return)</option>
             <option value='cutTask'>
               cut (ctrl-x)</option>
             <option value='copyTask'>

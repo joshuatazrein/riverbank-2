@@ -127,34 +127,6 @@ body {
   color: var(--foreground);
 }
 
-/* .table tbody {
-  display: block;
-  overflow: auto;
-  height: 100%;
-  width: 100%;
-} */
-
-/* .table tr {
-  display: inline-block;
-  padding: 50px; */
-/* } */
-
-.selectMenu {
-  position: fixed;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-.selectMenu p:hover {
-  color: var(--select);
-}
-
-.selectMenu p {
-  margin: 0;
-  font: var(--menuFont);
-  font-size: 18px;
-}
-
 .task.collapsed textarea {
   opacity: 0.75;
 }
@@ -298,7 +270,7 @@ ul {
   width: calc(100% + 7px);
 }
 
-.task .task .task {
+.task .task {
   padding-left: var(--padding);
 }
 

@@ -306,6 +306,13 @@ function init() {
   window.setInterval(display.checkTimes, 60000);
   window.addEventListener('contextmenu', (ev) => {
     ev.preventDefault();
+    if (window.getSelection) {
+      if (window.getSelection().empty) {  // Chrome
+        window.getSelection().empty();
+      } else if (window.getSelection().removeAllRanges) {  // Firefox
+        window.getSelection().removeAllRanges();
+      }
+    }
     const contextMenu = window.app.current.state.contextMenu.current.self.current;
     window.app.current.state.contextMenu.current.setState({ 
       top: Math.min(ev.pageY, 
@@ -320,8 +327,6 @@ function init() {
 }
 
 // MIGRATION PROTOCOLS
-
-window.data = window.resetData;
 
 if (!window.data.settings.migrated) {
   window.data.settings.migrated = [];

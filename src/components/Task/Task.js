@@ -601,29 +601,22 @@ export default class Task extends React.Component {
           }}>
             <div className='buttonBar'>
               <button
+                title='toggle complete'
                 className={'button ' + this.state.info.complete}
                 onClick={this.toggleComplete}>
                 √</button>
               <button
+                title='toggle important'
                 className={'button ' + this.state.info.important}
                 onClick={this.toggleImportant}>
                 !</button>
               <button
+                title='toggle maybe'
                 className={'button ' + this.state.info.maybe}
                 onClick={this.toggleMaybe}>
                 ?</button>
               <button
-                className={'button'}
-                onClick={this.deleteThis}>
-                x</button>
-              <button
-                className={'button'}
-                onClick={() => {
-                  edit.newTask('task');
-                  this.displayOptions('hide');
-                }}>
-                +</button>
-              <button
+                title='toggle fold'
                 className={'button'}
                 onClick={() => this.toggleCollapse()}>
                 {'[]'}</button>

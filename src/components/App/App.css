@@ -27,6 +27,15 @@ body {
   overflow: hidden;
 }
 
+.rightAlign {
+  position: absolute;
+  right: 0;
+}
+
+.centerAlign {
+  text-align: center;
+}
+
 .container.zoomed .frame:not(.zoomed) {
   display: none !important;
 }
@@ -127,22 +136,12 @@ body {
   color: var(--foreground);
 }
 
-/* .table tbody {
-  display: block;
-  overflow: auto;
-  height: 100%;
-  width: 100%;
-} */
-
-/* .table tr {
-  display: inline-block;
-  padding: 50px; */
-/* } */
-
 .selectMenu {
   position: fixed;
-  background: var(--background);
+  background: #000000dd;
   color: var(--foreground);
+  z-index: 3;
+  padding: 4px 8px;
 }
 
 .selectMenu p:hover {
@@ -153,6 +152,7 @@ body {
   margin: 0;
   font: var(--menuFont);
   font-size: 18px;
+  background: transparent;
 }
 
 .task.collapsed textarea {
