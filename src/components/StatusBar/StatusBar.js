@@ -46,34 +46,35 @@ export default class StatusBar extends React.Component {
     const listIndex = frame.state.subtasks.findIndex(x => x === idList[1]);
     frame.changeIndex(listIndex, true);
     this.setState({ searchString: '', foundTasks: {} });
-    // setTimeout(() => {
-    //   const list = frame.frames[0].current;
-    //   let foundTask = list;
-    //   let i = 2;
-    //   while (idList.length > i) {
-    //     // find in tasks starting at index 2 (if it's there)
-    //     let taskId = idList[i];
-    //     let taskIndex;
-    //     if (foundTask.subtasksCurrent &&
-    //       foundTask.subtasksCurrent.length > 0) {
-    //       taskIndex = foundTask.subtasksCurrent
-    //         .findIndex(x => x === taskId);
-    //     } else {
-    //       taskIndex = foundTask.state.subtasks
-    //         .findIndex(x => x === taskId);
-    //     }
-    //     foundTask = foundTask.taskList.current
-    //       .subtaskObjects[taskIndex].current;
-    //     i++;
-    //   }
-    //   window.preventSelect = false;
-    //   edit.selectTask(foundTask);
-    //   
-    //   // go through IDs and find the trace paths
-    //   setTimeout(() => {
-    //     window.preventReturn = false;
-    //   }, 100);
-    // }, 100);
+    
+    setTimeout(() => {
+      const list = frame.frames[listIndex].current;
+      let foundTask = list;
+      let i = 2;
+      while (idList.length > i) {
+        // find in tasks starting at index 2 (if it's there)
+        let taskId = idList[i];
+        let taskIndex;
+        if (foundTask.subtasksCurrent &&
+          foundTask.subtasksCurrent.length > 0) {
+          taskIndex = foundTask.subtasksCurrent
+            .findIndex(x => x === taskId);
+        } else {
+          taskIndex = foundTask.state.subtasks
+            .findIndex(x => x === taskId);
+        }
+        foundTask = foundTask.taskList.current
+          .subtaskObjects[taskIndex].current;
+        i++;
+      }
+      window.preventSelect = false;
+      edit.selectTask(foundTask);
+      
+      // go through IDs and find the trace paths
+      setTimeout(() => {
+        window.preventReturn = false;
+      }, 100);
+    }, 100);
   }
   componentDidMount() {
     setTimeout(display.goToToday, 200);
