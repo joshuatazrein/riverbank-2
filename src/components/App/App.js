@@ -7,6 +7,8 @@ import * as display from '../../services/display/display';
 import * as util from '../../services/util/util';
 import Frame from '../Frame/Frame';
 import StatusBar from '../StatusBar/StatusBar';
+import Task from '../Task/Task';
+import List from '../List/List';
 
 // main app, governs everything
 export default class App extends React.Component {
@@ -145,7 +147,21 @@ class SelectMenu extends React.Component {
           paste <span className='rightAlign'>(ctrl-v)</span></p>
         <p onClick={() => edit.pasteTask("task")}>
           paste as subtask (ctrl-shift-V)</p>
-        <p onClick={() => edit.deleteTask()}>
+        <p onClick={() => {
+          if (window.selected && window.selected instanceof Task) {
+            window.selected.deleteThis();
+          } else if (window.selected && window.selected instanceof List &&
+            window.selected.props.parent.props.id === 'bank') {
+            const confirm = window.confirm('delete this list?');
+            if (confirm) {
+              const subtasks = window.selected.props.parent.state.subtasks;
+              window.undoData = localStorage.getItem('data');
+              subtasks.splice(
+                subtasks.findIndex(x => x === window.selected.props.id), 1);
+              window.selected.props.parent.setState({ subtasks: subtasks });
+            }
+          }
+        }}>
           delete <span className='rightAlign'>(ctrl-delete)</span></p>
         <p  className='centerAlign' style={{marginTop:'5px'}}><b>move</b></p>
         <p onClick={() => edit.moveTask(1)}>

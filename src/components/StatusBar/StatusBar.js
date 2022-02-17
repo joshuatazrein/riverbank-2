@@ -81,6 +81,18 @@ export default class StatusBar extends React.Component {
     this.goToSearch($($(this.searchResults.current)
       .children()[0]).attr('value'));
   }
+  tutorial = () => {
+    this.setState({ tutorial: true });
+    const myFunc = (ev) => {
+      if (!$(ev.target).hasClass('tutorialShow')) {
+        this.setState({ tutorial: false });
+        $(window).off('click', myFunc);
+      }
+    }
+    setTimeout(() => {
+      $(window).on('click', myFunc)
+    }, 100);
+  }
   render() {
     this.search = this.search.bind(this);
     this.goToSearch = this.goToSearch.bind(this);
@@ -130,6 +142,7 @@ export default class StatusBar extends React.Component {
       'unindent': () => edit.indentTask(true),
     }
     return (
+      <>
       <div className='statusBar'>
         <span className='title'><span className='r'>River</span>
           <span className='b'>Bank</span></span>
@@ -252,7 +265,16 @@ export default class StatusBar extends React.Component {
             ))}
           </select>
         </div>
+        <a className='tutorialLink' onClick={this.tutorial}>help</a>
       </div>
+      {this.state.tutorial && 
+        <div className='tutorial tutorialShow'>
+          <video controls className='tutorialShow'>
+            <source src='../../assets/media/tutorial.mp4'></source>
+          </video>
+        </div>
+      }
+      </>
     )
   }
 }

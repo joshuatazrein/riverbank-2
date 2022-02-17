@@ -100,3 +100,25 @@
   font-size: 0.5em;
   margin-left: 5px;
 }
+
+/* Focused settings */
+
+.frameContainer.focused .list {
+  float: none;
+  clear: left;
+  width: 100%;
+  height: 80vh;
+}
+
+/*
+
+.frameContainer.focused .listFrame {
+  height: max-content;
+  overflow: hidden;
+}
+
+.frameContainer.focused .list > .listFrame > .listContent {
+  padding-bottom: 100px;
+  height: max-content;
+  overflow: hidden;
+} */

@@ -56,3 +56,35 @@
 .buttonBar {
   float: left;
 }
+
+.tutorialLink {
+  background: var(--background);
+  border: 1px solid var(--border);
+  padding: 3px;
+  margin: 0px 1px;
+  height: 1.5em;
+  cursor: pointer;
+  color: var(--foreground);
+  border-radius: 5px;
+  font: var(--menufont);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 100;
+}
+
+.tutorial {
+  position: fixed;
+  width: 80vw;
+  height: 80vh;
+  top: 10vh;
+  left: 10vw;
+  border: 1px solid grey;
+  border-radius: 4px;
+  background: var(--backround);
+  z-index: 4;
+}
+
+.tutorial video {
+  height: 100%;
+  width: 100%;
+}

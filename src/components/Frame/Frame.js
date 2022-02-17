@@ -16,6 +16,27 @@ export default class Frame extends React.Component {
       this.state.repeats = window.data.settings.repeats;
     }
   }
+  addList = () => {
+    // add a new list
+    var title;
+    if (this.props.id === 'river') {
+      const lastDate = new Date(
+        window.data.tasks[this.state.subtasks[this.state.subtasks.length - 1]].title);
+      lastDate.setDate(lastDate.getDate() + 1);
+      title = lastDate.toDateString();
+    } else {
+      title = '--';
+    }
+
+    const subtasks = this.state.subtasks;
+    const id = String(new Date().getTime());
+    window.data.tasks[id] = {
+      title: title, subtasks: [], info: {}
+    }
+    subtasks.push(id);
+    this.setState({subtasks: subtasks});
+  }
+
   changeIndex = (val, set) => {
     let newIndex;
     if (set === true) {
@@ -40,30 +61,6 @@ export default class Frame extends React.Component {
     }));
   }
   render() {
-    const lastDate = new Date(
-      window.data.tasks[this.state.subtasks[this.state.subtasks.length - 1]].title);
-    let j = 0;
-    let c = Math.floor(Math.random() * 1000);
-    while (this.state.subtasks.length < this.state.info.index + 7) {
-      j++;
-      var title;
-      if (this.props.id === 'bank') {
-        title = '--';
-      } else if (this.props.id === 'river') {
-        const date = new Date(lastDate.getTime());
-        date.setDate(lastDate.getDate() + j);
-        title = date.toDateString();
-      }
-      const now = new Date();
-      const id = now.getTime();
-      // preventing overlap
-      let i = Math.floor(Math.random() * 1000) + c;
-      while (window.data.tasks[String(id + i)] !== undefined) {
-        i += 1;
-      }
-      window.data.tasks[String(id + i)] = { title: title, subtasks: [], info: {} };
-      this.state.subtasks.push(String(id + i));
-    }
     var resizeCheck = () => {
       if (this.state.width !== display.processWidth(this.state.info.focused)) {
         this.setState({ width: display.processWidth(this.state.info.focused) });
@@ -76,13 +73,10 @@ export default class Frame extends React.Component {
     //   this.state.subtasks.slice(this.state.info.index, endIndex);
     const shownLists = this.state.subtasks;
     return (
-      <div className='frameContainer'>
+      <div className={`frameContainer 
+        ${this.state.info.focused} ${this.state.zoomed}`}>
         <div id={this.props.id}
-          className={'frame ' + this.state.info.focused + ' ' +
-            this.state.zoomed}>
-          <button className='changeButton'
-            onClick={() => this.changeIndex(this.state.width * -1)}>&lt;
-          </button>
+          className={'frame'}>
           {shownLists.map(x => {
             this.frames.push(React.createRef());
             const task = window.data.tasks[x];
@@ -105,8 +99,8 @@ export default class Frame extends React.Component {
               )
             }
           })}
-          <button className='changeButton'
-            onClick={() => this.changeIndex(this.state.width)}>&gt;</button>
+          <button className='changeButton' title='add list or date'
+            onClick={() => this.addList()}>+</button>
         </div>
       </div>
     );
