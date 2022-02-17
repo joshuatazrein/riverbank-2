@@ -72,8 +72,9 @@ export default class Frame extends React.Component {
     let endIndex = this.state.info.index + this.state.width;
     this.frames = [];
     window.addEventListener('resize', resizeCheck);
-    const shownLists =
-      this.state.subtasks.slice(this.state.info.index, endIndex);
+    // const shownLists =
+    //   this.state.subtasks.slice(this.state.info.index, endIndex);
+    const shownLists = this.state.subtasks;
     return (
       <div id={this.props.id}
         className={'frame ' + this.state.info.focused + ' ' +

@@ -6,6 +6,7 @@ import * as keyComms from './services/keyComms/keyComms';
 import * as saving from './services/saving/saving';
 import * as util from './services/util/util';
 import App from './components/App/App.js';
+import './style.css';
 
 window.themes = {
   'earth-day': {
