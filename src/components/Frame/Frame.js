@@ -3,6 +3,7 @@ import './Frame.css';
 import * as display from '../../services/display/display';
 import * as util from '../../services/util/util';
 import List from '../List/List';
+import $ from 'jquery';
 
 export default class Frame extends React.Component {
   constructor(props) {
@@ -38,27 +39,36 @@ export default class Frame extends React.Component {
   }
 
   changeIndex = (val, set) => {
-    let newIndex;
+    var newIndex;
     if (set === true) {
       newIndex = val;
     } else {
       newIndex = this.state.info.index + val;
     }
-    if (newIndex > 0 &&
-      window.data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
-      return;
-    }
-    if (
-      set !== undefined && 
-      newIndex > this.state.info.index && 
-      this.props.id === 'bank'
-    ) {
-      newIndex -= (this.state.width - 1);
-    }
-    if (newIndex < 0) newIndex = 0;
-    this.setState(prevState => ({
-      info: { ...prevState.info, index: newIndex }
-    }));
+    if (!this.frame) return;
+    const children = $(this.frame.current).children();
+    children[newIndex].scrollIntoView();
+    // let newIndex;
+    // if (set === true) {
+    //   newIndex = val;
+    // } else {
+    //   newIndex = this.state.info.index + val;
+    // }
+    // if (newIndex > 0 &&
+    //   window.data.tasks[this.state.subtasks[newIndex - 1]].title === '--') {
+    //   return;
+    // }
+    // if (
+    //   set !== undefined && 
+    //   newIndex > this.state.info.index && 
+    //   this.props.id === 'bank'
+    // ) {
+    //   newIndex -= (this.state.width - 1);
+    // }
+    // if (newIndex < 0) newIndex = 0;
+    // this.setState(prevState => ({
+    //   info: { ...prevState.info, index: newIndex }
+    // }));
   }
   render() {
     var resizeCheck = () => {
@@ -72,11 +82,12 @@ export default class Frame extends React.Component {
     // const shownLists =
     //   this.state.subtasks.slice(this.state.info.index, endIndex);
     const shownLists = this.state.subtasks;
+    this.frame = React.createRef();
     return (
       <div className={`frameContainer 
         ${this.state.info.focused} ${this.state.zoomed}`}>
         <div id={this.props.id}
-          className={'frame'}>
+          className={'frame'} ref={this.frame}>
           {shownLists.map(x => {
             this.frames.push(React.createRef());
             const task = window.data.tasks[x];
