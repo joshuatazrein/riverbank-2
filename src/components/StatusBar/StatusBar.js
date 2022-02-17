@@ -43,7 +43,8 @@ export default class StatusBar extends React.Component {
     }
     buildParents(id);
     const frame = window.app.current.state[idList[0]].current;
-    const listIndex = frame.state.subtasks.findIndex(x => x === idList[1]);
+    const listIndex = frame.state.subtasks.slice(frame.state.shownIndex)
+      .findIndex(x => x === idList[1]);
     frame.changeIndex(listIndex, true);
     this.setState({ searchString: '', foundTasks: {} });
     

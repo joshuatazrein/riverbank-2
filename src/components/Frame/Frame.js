@@ -16,6 +16,13 @@ export default class Frame extends React.Component {
     if (props.id === 'river') {
       this.state.repeats = window.data.settings.repeats;
     }
+    const today = new Date();
+    this.state.shownIndex = this.state.subtasks.findIndex(x => {
+      const now = new Date(window.data.tasks[x].title);
+      return now.getDate() === today.getDate() &&
+        now.getMonth() === today.getMonth() &&
+        now.getFullYear() === today.getFullYear()
+    })
   }
   addList = () => {
     // add a new list
@@ -84,7 +91,10 @@ export default class Frame extends React.Component {
     window.addEventListener('resize', resizeCheck);
     // const shownLists =
     //   this.state.subtasks.slice(this.state.info.index, endIndex);
-    const shownLists = this.state.subtasks;
+    const shownLists = this.state.subtasks.slice(
+      this.state.shownIndex
+    );
+    console.log(shownLists);
     this.frame = React.createRef();
     return (
       <div className={`frameContainer 
