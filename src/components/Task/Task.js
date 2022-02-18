@@ -504,6 +504,7 @@ export default class Task extends React.Component {
     return completed;
   }
   dropTask = (ev, type) => {
+    if (window.draggedTask.props.id === this.props.id) return;
     edit.selectTask(window.draggedTask);
     const listParent = window.selected.props.parent;
     edit.cutTask();
@@ -855,7 +856,8 @@ export default class Task extends React.Component {
         />
       </li>
       <div 
-        className={`dropArea ${this.state.taskDrop ? 'droppable' : ''}`}
+        className={`dropArea ${this.state.taskDrop ? 'droppable' : ''}
+          ${completed}`}
         onDragEnter={() => {
           console.log(window.draggedTask.props.id);
           if (window.draggedTask.props.id === this.props.id) return;
