@@ -1,9 +1,9 @@
-import * as display from '../display/display';
-import * as util from '../util/util';
-import Task from '../../components/Task/Task';
-import List from '../../components/List/List';
-import TaskList from '../../components/TaskList/TaskList';
-import Frame from '../../components/Frame/Frame';
+import * as display from './display';
+import * as util from './util';
+import Task from '../components/Task/Task';
+import List from '../components/List/List';
+import TaskList from '../components/TaskList/TaskList';
+import Frame from '../components/Frame/Frame';
 
 export function deleteTask() {
   if (window.selected && window.selected instanceof Task) {

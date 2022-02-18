@@ -1,7 +1,7 @@
 import React from 'react';
 import './Frame.css';
-import * as display from '../../services/display/display';
-import * as util from '../../services/util/util';
+import * as display from '../../services/display';
+import * as util from '../../services/util';
 import List from '../List/List';
 import $ from 'jquery';
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
-import * as display from './services/display/display';
-import * as keyComms from './services/keyComms/keyComms';
-import * as saving from './services/saving/saving';
-import * as util from './services/util/util';
+import * as display from './services/display';
+import * as keyComms from './services/keyComms';
+import * as saving from './services/saving';
+import * as util from './services/util';
 import App from './components/App/App.js';
 import './style.css';
 
@@ -263,6 +263,17 @@ try {
 }
 
 function init() {
+  // mySQL stuff
+  // accounts.connect();
+  var username = prompt('enter username:');
+  var password = prompt('enter password:');
+  $.post('./services/php/getuser.php', {
+    usertest: username,
+    pwtest: password,
+  }, (data) => {
+    console.log(data);
+  });
+
   window.selected = undefined;
   window.width = Math.floor(window.innerWidth / 200);
   window.prevWidth = Math.floor(window.innerWidth / 200);

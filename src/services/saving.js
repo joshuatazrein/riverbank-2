@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import * as util from '../util/util';
+import * as util from './util';
 
 export function reset() {
   var accept = window.confirm('Are you sure you want to reset all window.data?');

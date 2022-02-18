@@ -1,9 +1,9 @@
 import React from 'react';
 import './Task.css';
 import $ from 'jquery';
-import * as display from '../../services/display/display';
-import * as edit from '../../services/edit/edit';
-import * as util from '../../services/util/util';
+import * as display from '../../services/display';
+import * as edit from '../../services/edit';
+import * as util from '../../services/util';
 import TaskList from '../TaskList/TaskList';
 import List from '../List/List';
 

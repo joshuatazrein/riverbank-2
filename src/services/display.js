@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import * as edit from '../edit/edit';
-import * as util from '../util/util';
-import Task from '../../components/Task/Task';
+import * as edit from './edit';
+import * as util from './util';
+import Task from '../components/Task/Task';
 
 export function checkTimes() {
   const today = new Date();

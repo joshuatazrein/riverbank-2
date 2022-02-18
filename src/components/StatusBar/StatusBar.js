@@ -2,10 +2,10 @@ import React from 'react';
 import './StatusBar.css';
 import timerSnd from '../../assets/snd/timer.mp3';
 import startSnd from '../../assets/snd/start.mp3';
-import * as display from '../../services/display/display';
-import * as edit from '../../services/edit/edit';
-import * as util from '../../services/util/util';
-import * as saving from '../../services/saving/saving';
+import * as display from '../../services/display';
+import * as edit from '../../services/edit';
+import * as util from '../../services/util';
+import * as saving from '../../services/saving';
 import $ from 'jquery';
 
 export default class StatusBar extends React.Component {
@@ -282,7 +282,7 @@ export default class StatusBar extends React.Component {
             ))}
           </select>
         </div>
-        <a className='tutorialLink' onClick={this.tutorial}>help</a>
+        <span className='tutorialLink' onClick={this.tutorial}>help</span>
       </div>
       {this.state.tutorial && 
         <div className='tutorial tutorialShow'>

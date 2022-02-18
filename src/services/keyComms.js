@@ -1,8 +1,8 @@
-import * as display from '../display/display';
-import * as edit from '../edit/edit';
+import * as display from './display';
+import * as edit from './edit';
 import $ from 'jquery';
-import Task from '../../components/Task/Task';
-import List from '../../components/List/List';
+import Task from '../components/Task/Task';
+import List from '../components/List/List';
 
 export function keyComms(ev) {
   if (!ev.ctrlKey) {

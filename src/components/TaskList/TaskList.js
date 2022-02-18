@@ -1,6 +1,6 @@
 import React from 'react';
 import './TaskList.css';
-import * as util from '../../services/util/util';
+import * as util from '../../services/util';
 import Task from '../Task/Task';
 
 export default class TaskList extends React.Component {

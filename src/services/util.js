@@ -1,4 +1,4 @@
-import Task from '../../components/Task/Task';
+import Task from '../components/Task/Task';
 
 export function getFrame(task) {
   let parent = task;

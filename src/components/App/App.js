@@ -1,9 +1,9 @@
 import React from 'react';
 import './App.css';
 import popSnd from '../../assets/snd/pop.mp3';
-import * as edit from '../../services/edit/edit';
-import * as display from '../../services/display/display';
-import * as util from '../../services/util/util';
+import * as edit from '../../services/edit';
+import * as display from '../../services/display';
+import * as util from '../../services/util';
 import Frame from '../Frame/Frame';
 import StatusBar from '../StatusBar/StatusBar';
 import Task from '../Task/Task';
