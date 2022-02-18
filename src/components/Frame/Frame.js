@@ -47,6 +47,7 @@ export default class Frame extends React.Component {
 
     const subtasks = this.state.subtasks;
     if (!id) id = String(new Date().getTime());
+    else id = String(id);
     window.data.tasks[id] = {
       title: title, subtasks: [], info: {}
     }
@@ -61,7 +62,7 @@ export default class Frame extends React.Component {
     if (this.props.id === 'river') {
       const id = new Date().getTime();
       for (let i = 0; i < 7; i ++) {
-        this.addList(id + i);
+        this.addList(String(id + i));
       }
     } else {
       this.addList();
@@ -82,9 +83,6 @@ export default class Frame extends React.Component {
       if (children[newIndex]) {
         children[newIndex].scrollIntoView();
       }
-      console.log(
-        window.data.tasks[this.state.subtasks[this.state.info.index]]
-        .title);
     }
 
     this.setState({
@@ -103,7 +101,6 @@ export default class Frame extends React.Component {
       this.scrollPos = Math.floor(position / 300) * 300;
       // this.setState({ index: this.state.shownIndex + 
       //   Math.floor(scrollPos / 300) });
-      console.log(this.state.shownIndex + Math.floor(this.scrollPos / 300));
       this.setState({ info: 
         {
           ...this.state.info, 
@@ -131,10 +128,6 @@ export default class Frame extends React.Component {
     );
     this.frame = React.createRef();
     this.frameContainer = React.createRef();
-    console.log(
-      this.state.info.index,
-      this.state.subtasks[this.state.info.index],
-      window.data.tasks[this.state.subtasks[this.state.info.index]]);
     return (
       <div className={`frameContainer 
         ${this.state.info.focused} ${this.state.zoomed} ${this.props.id}`}

@@ -46,7 +46,6 @@ export default class StatusBar extends React.Component {
     const listIndex = frame.state.subtasks.slice(frame.state.shownIndex)
       .findIndex(x => x === idList[1]);
     frame.changeIndex(frame.state.shownIndex + listIndex, true);
-    console.log(listIndex, window.data.tasks[id].title);
     this.setState({ searchString: '', foundTasks: {} });
     
     setTimeout(() => {
@@ -145,7 +144,6 @@ export default class StatusBar extends React.Component {
       'indent': edit.indentTask,
       'unindent': () => edit.indentTask(true),
       'togglePast': () => {
-        console.log(window.app.current);
         if (window.app.current.state.river.current.state.shownIndex !== 0) {
           window.app.current.state.river.current.setState({
             shownIndex: 0
@@ -288,9 +286,8 @@ export default class StatusBar extends React.Component {
       </div>
       {this.state.tutorial && 
         <div className='tutorial tutorialShow'>
-          <video controls className='tutorialShow'>
-            <source src='../../assets/media/tutorial.mp4'></source>
-          </video>
+          <iframe src='https://www.youtube.com/embed/AcfqM2exBu0'>
+          </iframe>
         </div>
       }
       </>

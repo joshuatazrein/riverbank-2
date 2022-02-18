@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import { DragDropContext } from 'react-beautiful-dnd';
 import popSnd from '../../assets/snd/pop.mp3';
 import * as edit from '../../services/edit/edit';
 import * as display from '../../services/display/display';
@@ -44,50 +43,6 @@ export default class App extends React.Component {
     edit.saveSetting('hideComplete', hideComplete);
     display.updateAllSizes();
   }
-  onDragEnd = result => {
-    const { destination, source } = result;
-    if (!destination) {
-      return;
-    }
-    if (destination.droppableId === source.droppableId &&
-      destination.index === source.index) {
-      return;
-    }
-    const sourceSplit = source.droppableId.split('-');
-    const destSplit = destination.droppableId.split('-');
-
-    function buildList(listSplit) {
-      var listObjs = [];
-      listObjs.push(window.app.current.state[listSplit[0]]);
-      listObjs.push(listObjs[0].current.frames.find(x =>
-        x.current.props.id === listSplit[1]));
-      var i = 2;
-      var task;
-      function getTask() {
-        task = listObjs[i - 1].current.taskList.current
-          .subtaskObjects.find(x => x.current.props.id === listSplit[i]);
-        listObjs.push(task);
-        i++;
-      }
-      while (i < listSplit.length) {
-        getTask();
-      }
-      // returns the item to update
-      return listObjs[listObjs.length - 1];
-    }
-    const sourceItem = buildList(sourceSplit);
-    const sourceState = sourceItem.current.state.subtasks;
-    const splicedTask = sourceState.splice(source.index, 1);
-    sourceItem.current.setState({ subtasks: sourceState });
-    const destItem = buildList(destSplit);
-    const destState = destItem.current.state.subtasks;
-    destState.splice(destination.index, 0, splicedTask[0]);
-    destItem.current.setState({ subtasks: destState });
-    // splice in the new DATA from the source into the OBJECT of the destination
-    edit.save(sourceItem.current);
-    edit.save(destItem.current);
-    window.selected = undefined;
-  }
 
   render() {
     this.statusBar = React.createRef();
@@ -96,23 +51,21 @@ export default class App extends React.Component {
         <StatusBar parent={this} ref={this.statusBar} 
           deadlines={this.state.deadlines} 
           startdates={this.state.startdates} />
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          <div className={'container ' + this.state.hideComplete + ' ' +
-            this.state.zoomed + ' ' + this.state.disableSelect}>
-            <Frame id='bank' info={{
-              ...window.data.tasks['bank'].info,
-              focused: window.data.settings.focused
-            }}
-              subtasks={window.data.tasks['bank'].subtasks} ref={this.state.bank} />
-            <Frame id='river' info={{
-              ...window.data.tasks['river'].info,
-              focused: window.data.settings.focused,
-            }}
-              deadlines={this.state.deadlines}
-              startdates={this.state.startdates}
-              subtasks={window.data.tasks['river'].subtasks} ref={this.state.river} />
-          </div>
-        </DragDropContext>
+        <div className={'container ' + this.state.hideComplete + ' ' +
+          this.state.zoomed + ' ' + this.state.disableSelect}>
+          <Frame id='bank' info={{
+            ...window.data.tasks['bank'].info,
+            focused: window.data.settings.focused
+          }}
+            subtasks={window.data.tasks['bank'].subtasks} ref={this.state.bank} />
+          <Frame id='river' info={{
+            ...window.data.tasks['river'].info,
+            focused: window.data.settings.focused,
+          }}
+            deadlines={this.state.deadlines}
+            startdates={this.state.startdates}
+            subtasks={window.data.tasks['river'].subtasks} ref={this.state.river} />
+        </div>
         <SelectMenu ref={this.state.contextMenu}/>
         {window.selected && this.state.displayTable !== 'none' &&
           <TableDisplay />}

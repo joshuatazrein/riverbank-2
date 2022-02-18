@@ -129,7 +129,6 @@ export function indentTask(unindent) {
   if (!window.selected) return;
   const lastSelected = window.selected;
   save(window.selected);
-  console.log(window.selected.props.parent);
   const subtasks =
     window.selected.props.parent.taskList.current.subtaskObjects;
   const here = subtasks

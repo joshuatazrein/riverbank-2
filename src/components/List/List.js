@@ -108,6 +108,26 @@ export default class List extends React.Component {
       lastObject.setState({ minHeight: minHeight });
     }
   }
+  dropTask = (ev, type) => {
+    edit.selectTask(window.draggedTask);
+    const listParent = window.selected.props.parent;
+    edit.cutTask();
+    edit.save(listParent, 'list');
+    window.preventSelect = false;
+    setTimeout(() => {
+      edit.selectTask(this);
+      if (type === 'subtask') {
+        edit.pasteTask('task');
+      } else if (type === 'task') {
+        edit.pasteTask();
+      }
+    }, 100);
+    this.setState({
+      taskDrop: false,
+      subtaskDrop: false,
+    })
+    ev.stopPropagation();
+  }
   render() {
     var selectThis = () => {
       edit.selectTask(this);
@@ -138,7 +158,6 @@ export default class List extends React.Component {
       setTimeout(() => {
         edit.selectTask(this);
         if (ev.metaKey) {
-          console.log('yes');
           edit.pasteTask('task');
         } else {
           edit.pasteTask();
@@ -160,19 +179,28 @@ export default class List extends React.Component {
       <div className={'list ' + this.state.zoomed} onClick={selectThis}
         onContextMenu={selectThis}
       >
-        <div className='listInputBackground'>
+        <div className='listInputBackground'
+          onDragEnter={() => {
+            console.log(window.draggedTask.props.id);
+            if (window.draggedTask.props.id === this.props.id) return;
+            this.setState({taskDrop: true})
+          }}
+          onDragLeave={() => this.setState({taskDrop: false})}
+          onDrop={(ev) => this.dropTask(ev, 'subtask')}
+        >
           {this.props.parent.props.id === 'bank' ?
             <input className='listInput' value={this.state.title}
               onChange={this.changeTitle} ref={this.listInput}
-              onDrop={drop}
               onDragOver={dragOver}
               onDragEnter={dragEnter}
+              onDragLeave={dragLeave}
             ></input> :
-            <>
-              <input readOnly className='listInput listTitle'
-                value={util.dateFormat(this.state.title)} ref={this.listInput}>
-              </input>
-            </>
+            <input readOnly className='listInput listTitle'
+              value={util.dateFormat(this.state.title)} ref={this.listInput}
+              onDragOver={dragOver}
+              onDragEnter={dragEnter}
+            >
+            </input>
           }
         </div>
         <div className='listFrame'>
@@ -202,6 +230,10 @@ export default class List extends React.Component {
                   {window.data.tasks[util.stripR(x)].title}</li>);
               })}
             </ul>}
+          <div 
+            className={`dropArea ${this.state.taskDrop ? 'droppable' : ''}`}
+            onDragOver={dragOver}
+          ></div>
           {<TaskList ref={this.taskList} subtasks={this.subtasksCurrent}
             parent={this} />}
         </div>

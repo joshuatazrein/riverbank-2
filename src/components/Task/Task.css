@@ -300,3 +300,13 @@ span.startDate, span.endDate {
   padding-top: var(--lineSpacing);
   padding-bottom: calc(var(--lineSpacing) / 2);
 }
+
+.dropArea.droppable {
+  height: 50px;
+  background: #00000088;
+}
+
+.dropArea {
+  height: 3px;
+  border-radius: 10px;
+}

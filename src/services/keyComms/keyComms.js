@@ -5,7 +5,6 @@ import Task from '../../components/Task/Task';
 import List from '../../components/List/List';
 
 export function keyComms(ev) {
-  console.log('key');
   if (!ev.ctrlKey) {
     if (ev.key === 'Enter' && !window.preventReturn) {
       ev.preventDefault();

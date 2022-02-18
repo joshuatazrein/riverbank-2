@@ -1,6 +1,5 @@
 import React from 'react';
 import './TaskList.css';
-import { Droppable } from 'react-beautiful-dnd';
 import * as util from '../../services/util/util';
 import Task from '../Task/Task';
 
@@ -33,21 +32,9 @@ export default class TaskList extends React.Component {
     }
     id = id.reverse().join('-');
     return (
-      this.props.parent instanceof Task ?
-        <ul className='listContent'>
-          {tasksListed}
-        </ul> :
-        <Droppable droppableId={id}>
-          {(provided) => {
-            return (
-              <ul className='listContent' {...provided.droppableProps}
-                ref={provided.innerRef}>
-                {tasksListed}
-                {provided.placeholder}
-              </ul>
-            )
-          }}
-        </Droppable>
+      <ul className='listContent'>
+        {tasksListed}
+      </ul>
     )
   }
 }

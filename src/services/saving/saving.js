@@ -71,7 +71,6 @@ export function clean() {
     const now = window.data.tasks[dates[i]].title;
     if (i == 0 || now === today) break;
   }
-  console.log(window.data.tasks[dates[i]].title);
   if (i < dates.length - 1) {
     window.data.tasks['river'].subtasks = dates.slice(0, i + 1);
   }
