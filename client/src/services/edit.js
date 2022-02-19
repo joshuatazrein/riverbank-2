@@ -1,13 +1,55 @@
 import * as display from './display';
 import * as util from './util';
+import * as server from './server';
 import Task from '../components/Task/Task';
 import List from '../components/List/List';
 import TaskList from '../components/TaskList/TaskList';
 import Frame from '../components/Frame/Frame';
 
+// TODO: move to saving or somewhere else
+
+export function save(task, saveType) {
+  // save the new window.data
+  var saveObject;
+  if (saveType === 'list') {
+    saveObject = task.props.parent;
+  } else {
+    saveObject = task;
+  }
+  var subtasks;
+  if (saveObject.subtasksCurrent) subtasks = saveObject.subtasksCurrent;
+  else subtasks = saveObject.state.subtasks;
+  try {
+    window.data.tasks[util.stripR(saveObject.props.id)] = {
+      title: saveObject.state.title,
+      info: saveObject.state.info, subtasks: subtasks
+    };
+  } catch (err) {
+    return;
+  }
+  server.uploadTasks();
+}
+
+export function saveSetting(setting, value) {
+  window.data.settings[setting] = value;
+  server.uploadSettings();
+}
+
+export function saveUndo() {
+  window.undoData = JSON.parse(JSON.stringify(window.data));
+}
+
+export function undo() {
+  window.data = window.undoData;
+  server.uploadData();
+  setTimeout(() => window.location.reload(), 500);
+}
+
+// main funcs
+
 export function deleteTask() {
   if (window.selected && window.selected instanceof Task) {
-    window.undoData = localStorage.getItem('data');
+    saveUndo();
     window.selected.deleteThis();
   }
 }
@@ -53,43 +95,11 @@ export function selectTask(el, force) {
   }
 }
 
-export function save(task, saveType) {
-  // save the new window.data
-  var saveObject;
-  if (saveType === 'list') {
-    saveObject = task.props.parent;
-  } else {
-    saveObject = task;
-  }
-  var subtasks;
-  if (saveObject.subtasksCurrent) subtasks = saveObject.subtasksCurrent;
-  else subtasks = saveObject.state.subtasks;
-  try {
-    window.data.tasks[util.stripR(saveObject.props.id)] = {
-      title: saveObject.state.title,
-      info: saveObject.state.info, subtasks: subtasks
-    };
-  } catch (err) {
-    return;
-  }
-  localStorage.setItem('data', JSON.stringify(window.data));
-}
-
-export function undo() {
-  localStorage.setItem('data', window.undoData);
-  setTimeout(() => window.location.reload(), 500);
-}
-
-export function saveSetting(setting, value) {
-  window.data.settings[setting] = value;
-  localStorage.setItem('data', JSON.stringify(window.data));
-}
-
 export function cutTask() {
   if (!window.selected || window.selected instanceof List) return;
   copyTask();
   window.selected.deleteThis(false);
-  window.undoData = localStorage.getItem('data');
+  saveUndo();
 }
 
 export function copyTask(mirror) {
@@ -109,7 +119,7 @@ export function copyTask(mirror) {
 
 export function pasteTask(type) {
   if (!window.selected || !window.copiedTask) return;
-  window.undoData = localStorage.getItem('data');
+  saveUndo();
   if (window.selected instanceof List || type === 'task') {
     const subtasks = window.selected.state.subtasks;
     subtasks.splice(0, 0, window.copiedTask);

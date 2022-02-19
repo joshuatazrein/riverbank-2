@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import * as edit from './edit';
 import * as util from './util';
+import * as server from './server';
 import Task from '../components/Task/Task';
 
 export function checkTimes() {
@@ -58,7 +59,7 @@ export function toggleMode() {
     window.data.settings.mode = 'night';
   }
   setTheme(window.data.settings.theme);
-  localStorage.setItem('data', JSON.stringify(window.data));
+  server.uploadSettings();
 }
 
 export function toggleSounds() {
@@ -134,7 +135,7 @@ export function setTheme(theme) {
     );
   }
   window.data.settings.theme = theme;
-  localStorage.setItem('data', JSON.stringify(window.data));
+  server.uploadSettings();
   setTimeout(updateAllSizes, 100);
 }
 

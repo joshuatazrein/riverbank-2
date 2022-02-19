@@ -1,5 +1,6 @@
 import './SignIn.css';
 import '../App/App.css';
+import * as server from '../../services/server';
 import { useState } from 'react';
 import Axios from 'axios';
 import imgSource from '../../assets/media/logo.png';
@@ -11,15 +12,72 @@ export default function SignIn (props) {
   const [password2, setPassword2] = useState('');
   const [format, setFormat] = useState('login');
 
+  const reset = () => {
+    setPassword2('');
+    setPassword('');
+    setUsername('');
+  }
+
   const login = () => {
     if (format === 'create') {
-      console.log('create', username, password);
+      if (password2 !== password) {
+        alert('passwords must match');
+        reset();
+        return;
+      } else if (username.length === 0) {
+        alert('enter a username');
+        return;
+      } else if (password.length === 0) {
+        alert('enter a password');
+        return;
+      }
       Axios.post('http://localhost:3001/createuser', {
         username: username,
         password: password,
+      }).then((response) => {
+        if (response.data === 'duplicate username') {
+          alert('username taken');
+          setUsername('');
+        } else {
+          // load data into window's data
+          window.username = username;
+          window.password = response.data.encryptedPassword;
+          // reset and upload fresh data
+          server.initializeData();
+          confirm();
+        }
+      }).catch((err) => {
       });
     } else if (format === 'login') {
-      console.log('login');
+      if (username.length === 0) {
+        alert('enter a username');
+        return;
+      } else if (password.length === 0) {
+        alert('enter a password');
+        return;
+      }
+      Axios.post('http://localhost:3001/login', {
+        username: username,
+        password: password,
+      }).then((response) => {
+        if (response.data === 'wrong username') {
+          alert('username does not exist');
+          setUsername('');
+        } else if (response.data === 'wrong password') {
+          alert('incorrect password');
+          setPassword('');
+        } else {
+          // load data into window's data
+          window.data = {
+            settings: response.data.settings,
+            tasks: response.data.tasks
+          };
+          window.username = username;
+          window.password = response.data.encryptedPassword;
+          confirm();
+        }
+      }).catch((err) => {
+      });
     }
   }
 
@@ -51,6 +109,7 @@ export default function SignIn (props) {
       <input 
         className='signInput'
         placeholder='username'
+        value={username}
         onChange={(ev) => {
           setUsername(ev.target.value);
         }}
@@ -59,6 +118,7 @@ export default function SignIn (props) {
         type='password'
         className='signInput'
         placeholder='password'
+        value={password}
         onChange={(ev) => {
           setPassword(ev.target.value);
         }}
@@ -68,6 +128,7 @@ export default function SignIn (props) {
       type='password'
       className='signInput'
       placeholder='password again'
+      value={password2}
       onChange={(ev) => {
         setPassword2(ev.target.value);
       }}

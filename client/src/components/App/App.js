@@ -109,7 +109,7 @@ class SelectMenu extends React.Component {
             const confirm = window.confirm('delete this list?');
             if (confirm) {
               const subtasks = window.selected.props.parent.state.subtasks;
-              window.undoData = localStorage.getItem('data');
+              edit.saveUndo();
               subtasks.splice(
                 subtasks.findIndex(x => x === window.selected.props.id), 1);
               window.selected.props.parent.setState({ subtasks: subtasks });

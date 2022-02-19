@@ -223,7 +223,7 @@ export default class Task extends React.Component {
       delete window.data.tasks[util.stripR(this.props.id)];
     }
     setTimeout(() => {
-      window.undoData = localStorage.getItem('data');
+      edit.saveUndo();
       window.preventSelect = false
       edit.save(this.props.parent, 'list');
     }, 200);
@@ -607,7 +607,6 @@ export default class Task extends React.Component {
       // if (this.props.id === dragId) {
       // }
       // only drag it if it's possible to be dragged
-      console.log('startDrag');
       window.draggedTask = this;
       ev.stopPropagation();
     }
@@ -842,7 +841,6 @@ export default class Task extends React.Component {
         <div 
           className={`dropArea ${this.state.subtaskDrop ? 'droppable' : ''}`}
           onDragEnter={() => {
-            console.log(window.draggedTask.props.id);
             if (window.draggedTask.props.id === this.props.id) return;
             this.setState({subtaskDrop: true})
           }}
@@ -859,7 +857,6 @@ export default class Task extends React.Component {
         className={`dropArea ${this.state.taskDrop ? 'droppable' : ''}
           ${completed}`}
         onDragEnter={() => {
-          console.log(window.draggedTask.props.id);
           if (window.draggedTask.props.id === this.props.id) return;
           this.setState({taskDrop: true})
         }}

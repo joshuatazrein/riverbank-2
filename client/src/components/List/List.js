@@ -181,7 +181,6 @@ export default class List extends React.Component {
       >
         <div className='listInputBackground'
           onDragEnter={() => {
-            console.log(window.draggedTask.props.id);
             if (window.draggedTask.props.id === this.props.id) return;
             this.setState({taskDrop: true})
           }}

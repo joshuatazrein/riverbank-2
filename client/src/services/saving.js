@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import * as util from './util';
+import * as server from './server';
 
 export function reset() {
-  var accept = window.confirm('Are you sure you want to reset all window.data?');
+  var accept = window.confirm('Are you sure you want to reset all data?');
   if (accept) {
-    window.data = window.resetData;
-    localStorage.setItem('data', JSON.stringify(window.resetData));
+    server.initializeData();
     setTimeout(function () { window.location.reload() }, 200);
   }
 }
@@ -17,9 +17,14 @@ export function restore() {
   textarea.on('keydown', ev => {
     if (ev.key === 'Enter') {
       ev.preventDefault();
-      window.data = JSON.parse(textarea.val());
-      localStorage.setItem('data', JSON.stringify(window.data));
-      window.location.reload();
+      try {
+        window.data = JSON.parse(textarea.val());
+      } catch (err) {
+        alert('invalid JSON syntax');
+        return;
+      }
+      server.uploadData();
+      setTimeout(window.location.reload, 500);
     } else if (ev.key === 'Escape') {
       textarea.remove();
       setTimeout(() => window.preventReturn = false, 100);
@@ -28,7 +33,7 @@ export function restore() {
 }
 
 export function backup() {
-  alert('open console to copy window.data (file download option will be added soon)');
+  alert('open console to copy data (file download option will be added soon)');
   util.consoleLog(JSON.stringify(window.data));
 }
 
